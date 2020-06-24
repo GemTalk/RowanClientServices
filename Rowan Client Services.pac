@@ -37,20 +37,20 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\Base\Dolphin'
-	'..\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Choice Prompter'
-	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
-	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
-	'..\Core\Object Arts\Dolphin\Base\Dolphin Message Box'
-	'..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
-	'..\Core\Object Arts\Dolphin\MVP\Presenters\Text\Dolphin Rich Text Presenter'
-	'..\Core\Object Arts\Dolphin\MVP\Models\Tree\Dolphin Tree Models'
-	'..\Core\Object Arts\Dolphin\MVP\Presenters\Tree\Dolphin Tree Presenter'
-	'GemStone C Interface'
-	'GemStone Session'
-	'Jade UI Base'
-	'..\..\..\RemoteServiceReplication\src-dolphin\RemoteServiceReplication'
-	'..\Core\Contributions\svenc\STON\STON-Core').
+	'..\Jadeite\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Choice Prompter'
+	'..\Jadeite\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
+	'..\Jadeite\Core\Object Arts\Dolphin\Base\Dolphin Message Box'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Presenters\Text\Dolphin Rich Text Presenter'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Models\Tree\Dolphin Tree Models'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Presenters\Tree\Dolphin Tree Presenter'
+	'..\Jadeite\sources\GemStone C Interface'
+	'..\Jadeite\sources\GemStone Session'
+	'..\Jadeite\sources\Jade UI Base'
+	'..\..\RemoteServiceReplication\src-dolphin\RemoteServiceReplication'
+	'..\Jadeite\Core\Contributions\svenc\STON\STON-Core').
 
 package!
 
