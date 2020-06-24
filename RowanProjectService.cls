@@ -80,16 +80,6 @@ branch
 branch: anObject
 	branch := anObject!
 
-changesUsing: session
-	| operations |
-	operations := self basicChangesUsing: session.
-	changes isEmpty ifTrue: [^MessageBox notify: 'No changes!!'].
-	[^JadeiteChangesBrowser showOn: (RowanPatch new
-				operations: operations;
-				session: session)
-		name: name]
-			ensure: [changes := nil	"clean this up. no longer needed and can be large"]!
-
 checkoutUsing: presenter
 	| branchName branches |
 	branches := self basicCheckoutUsing: presenter.
@@ -213,16 +203,6 @@ prepareForReplication
 	super prepareForReplication.
 	packages := nil.!
 
-projectLogUsing: parentPresenter session: session
-	| gitLog projectName queryService |
-	projectName := self name.
-	gitLog := JadeiteGitLog showOnSession: session.
-	gitLog projectService: self. 
-	gitLog caption: (parentPresenter gciSession titleBarFor: projectName , ' Project Git Log').
-	queryService := RowanQueryService command: #projectLog: withArgs: (Array with: projectName).
-	parentPresenter issueCommand: (Array with: queryService).
-	gitLog codePane documentPresenter value: queryService queryResults!
-
 projectPackagesUpdate: presenter browser: browser
 	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
 	browser projectListPresenter selections detect: [:projectService | projectService name = name]
@@ -286,7 +266,6 @@ sortAspect
 !RowanProjectService categoriesFor: #basicName:!accessing!public! !
 !RowanProjectService categoriesFor: #branch!accessing!public! !
 !RowanProjectService categoriesFor: #branch:!accessing!public! !
-!RowanProjectService categoriesFor: #changesUsing:!presenter support!public! !
 !RowanProjectService categoriesFor: #checkoutUsing:!presenter support!public! !
 !RowanProjectService categoriesFor: #displayName!accessing!displaying!public! !
 !RowanProjectService categoriesFor: #displayStringFor:!displaying!public! !
@@ -307,7 +286,6 @@ sortAspect
 !RowanProjectService categoriesFor: #performGitCommand:with:in:!presenter support!public! !
 !RowanProjectService categoriesFor: #postUpdate!Init / Release!public! !
 !RowanProjectService categoriesFor: #prepareForReplication!public!replication! !
-!RowanProjectService categoriesFor: #projectLogUsing:session:!presenter support!public! !
 !RowanProjectService categoriesFor: #projectPackagesUpdate:browser:!public!updating! !
 !RowanProjectService categoriesFor: #projectSelectionUpdate:!public!updating! !
 !RowanProjectService categoriesFor: #projectsUpdate:!public!updating! !

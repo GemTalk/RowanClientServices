@@ -13,24 +13,6 @@ RowanBrowserService comment: ''!
 = browserService
 	^browserService isBrowserService and: [name = browserService name]!
 
-addCachedSymbols: unused
-	"only add new symbols if auto complete was turned on (symbol collections are empty)"
-
-	newCachedSelectors
-		ifNotNil: 
-			[JadeiteSearch allSelectorSymbols isEmpty ifTrue: [^self].
-			newCachedSelectors do: 
-					[:selector |
-					(JadeiteSearch allSelectorSymbols includes: selector)
-						ifFalse: [JadeiteSearch allSelectorSymbols add: selector]]].
-	newCachedClasses
-		ifNotNil: 
-			[JadeiteSearch allClassNames isEmpty ifTrue: [^self].
-			newCachedClasses do: 
-					[:className |
-					(JadeiteSearch allClassNames includes: className)
-						ifFalse: [JadeiteSearch allClassNames add: className]]]!
-
 allClasses
 	^allClasses!
 
@@ -217,7 +199,6 @@ testPackages: presenter
 	presenter model copy do:[:oldPackageService |
 		(testPackages includes: oldPackageService) ifFalse:[presenter model remove: oldPackageService]]. ! !
 !RowanBrowserService categoriesFor: #=!comparing!public! !
-!RowanBrowserService categoriesFor: #addCachedSymbols:!public!updating! !
 !RowanBrowserService categoriesFor: #allClasses!accessing!private! !
 !RowanBrowserService categoriesFor: #allClasses:!accessing!private! !
 !RowanBrowserService categoriesFor: #basicPrepareForReplication!public!replication! !

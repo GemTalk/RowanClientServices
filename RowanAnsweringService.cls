@@ -114,12 +114,7 @@ symbolsMatching: string session: session
 	command := #symbolsMatching:.
 	commandArgs := Array with: string.
 	BrowserUpdate current issueCommands: (Array with: self) session: session.
-	^answer!
-
-updateSymbols: unused
-	updateType = #updateSymbols: ifFalse: [^self].
-	JadeiteSearch allClassNames addAll: answer first.
-	JadeiteSearch allSelectors addAll: answer last! !
+	^answer! !
 !RowanAnsweringService categoriesFor: #answer!accessing!private! !
 !RowanAnsweringService categoriesFor: #answer:!accessing!private! !
 !RowanAnsweringService categoriesFor: #autoCommitIn:!commands!public! !
@@ -139,5 +134,4 @@ updateSymbols: unused
 !RowanAnsweringService categoriesFor: #setBreakpointsEnabled:session:!commands!public! !
 !RowanAnsweringService categoriesFor: #symbolExists:session:!commands!public!testing! !
 !RowanAnsweringService categoriesFor: #symbolsMatching:session:!commands!public!testing! !
-!RowanAnsweringService categoriesFor: #updateSymbols:!public!updating! !
 

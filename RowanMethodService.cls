@@ -99,11 +99,6 @@ appendToSourceMenu: aMenu presenter: methodSourcePresenter
 basicPrepareForReplication
 	testRunClassName := nil!
 
-basicSubSuperIcon
-	hasSupers ifTrue: [^JadeSystemBrowserPresenter overriddenIcon].
-	hasSubs ifTrue: [^JadeiteBrowserPresenter downArrowIcon].
-	^Icon blank!
-
 breakpointDisplayString
 	| count writeStream disabledCount |
 	breakPoints ifNil: [^self displayString].
@@ -415,13 +410,6 @@ removeJadeiteSeparatorFrom: aMenu
 	last := aMenu items last.
 	last id = #jadeiteDivider ifTrue: [aMenu removeItem: last]!
 
-removeTrailingMenuItemsFrom: aMenu
-	| jadeiteSeparator |
-	jadeiteSeparator := aMenu items detect: [:menuItem | menuItem id = #jadeiteDivider]
-				ifNone: [aMenu addItem: JadeiteDividerMenuItem separator].
-	[aMenu items size > (aMenu items indexOf: jadeiteSeparator)]
-		whileTrue: [aMenu removeItemAt: (aMenu items indexOf: jadeiteSeparator) + 1]!
-
 renamedName
 	^renamedName!
 
@@ -587,7 +575,6 @@ user: anObject
 !RowanMethodService categoriesFor: #addBreakPointMenuAt:to:presenter:!method menu support!private! !
 !RowanMethodService categoriesFor: #appendToSourceMenu:presenter:!method menu support!public! !
 !RowanMethodService categoriesFor: #basicPrepareForReplication!public!replication! !
-!RowanMethodService categoriesFor: #basicSubSuperIcon!displaying!public! !
 !RowanMethodService categoriesFor: #breakpointDisplayString!displaying!public! !
 !RowanMethodService categoriesFor: #breakPoints!public! !
 !RowanMethodService categoriesFor: #breakPoints:!accessing!public! !
@@ -659,7 +646,6 @@ user: anObject
 !RowanMethodService categoriesFor: #references:!accessing!private! !
 !RowanMethodService categoriesFor: #remoteServiceName!must not strip!public! !
 !RowanMethodService categoriesFor: #removeJadeiteSeparatorFrom:!method menu support!private! !
-!RowanMethodService categoriesFor: #removeTrailingMenuItemsFrom:!method menu support!private! !
 !RowanMethodService categoriesFor: #renamedName!accessing!private! !
 !RowanMethodService categoriesFor: #renamedName:!accessing!private! !
 !RowanMethodService categoriesFor: #replicateFrom:!public!replication! !

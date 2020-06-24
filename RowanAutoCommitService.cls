@@ -30,20 +30,10 @@ displayName
 
 	^self printString!
 
-displayTransactionConflicts: browser
-	| inspector session service |
-	session := browser gciSession.
-	inspector := JadeiteInspector new gciSession: session.
-	service := inspector evaluateText: 'System transactionConflicts'
-				thenInspectInContext: session oopNil value.
-	inspector showOn: service.
-	inspector updateCaption: 'Transaction Conflicts'. !
-
 sortAspect
 	"don't think this is used"
 	^self printString ! !
 !RowanAutoCommitService categoriesFor: #autoCommitUpdate:!public!updating! !
 !RowanAutoCommitService categoriesFor: #displayName!displaying!public! !
-!RowanAutoCommitService categoriesFor: #displayTransactionConflicts:!private!transaction management! !
 !RowanAutoCommitService categoriesFor: #sortAspect!accessing!public! !
 
