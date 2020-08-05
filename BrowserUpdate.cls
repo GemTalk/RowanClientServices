@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Model subclass: #BrowserUpdate
-	instanceVariableNames: 'updates debug inUpdate logger applyingUpdates breakpointsEnabled'
+	instanceVariableNames: 'updates debug inUpdate logger applyingUpdates breakpointsEnabled returnedServices'
 	classVariableNames: 'Current'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 BrowserUpdate guid: (GUID fromString: '{9ec78c86-d74d-477a-bb5a-254ba1c54272}')!
-BrowserUpdate comment: 'Coordinate client presenters with updates from the server'!
+BrowserUpdate comment: 'Coordinate client presenters with updates from the server.
+
+returnedServices are the last services returned from the server. Handy for testing. '!
 !BrowserUpdate categoriesForClass!MVP-Models! !
 !BrowserUpdate methodsFor!
 
@@ -236,16 +238,15 @@ stopLogging
 update: services afterStonReplication: stonResults
 	"assume we get back the 'same' services as we sent"
 
-	| updatedServices |
 	self initializeUpdates.
-	updatedServices := STON fromString: stonResults. 
-	logger loggingService replicateFrom: updatedServices last.
-	updatedServices := updatedServices copyWithout: updatedServices last.
-	self logReceivedServices: updatedServices.
-	updatedServices do: [:newService | services do: [:service | service replicateFrom: newService]].
-	self updates: updatedServices.
-	updatedServices do: [:service | service postUpdate].
-	^updatedServices!
+	returnedServices := STON fromString: stonResults.
+	logger loggingService replicateFrom: returnedServices last.
+	returnedServices := returnedServices copyWithout: returnedServices last.
+	self logReceivedServices: returnedServices.
+	returnedServices do: [:newService | services do: [:service | service replicateFrom: newService]].
+	self updates: returnedServices.
+	returnedServices do: [:service | service postUpdate].
+	^returnedServices!
 
 updateReady
 	updates isEmpty ifFalse: [self trigger: #updateReady]!
