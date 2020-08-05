@@ -62,7 +62,7 @@ Semaphore subclass: #RowanSemaphore
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Model subclass: #BrowserUpdate
-	instanceVariableNames: 'updates debug inUpdate logger applyingUpdates breakpointsEnabled'
+	instanceVariableNames: 'updates debug inUpdate logger applyingUpdates breakpointsEnabled returnedServices'
 	classVariableNames: 'Current'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
