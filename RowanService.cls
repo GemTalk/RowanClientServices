@@ -590,7 +590,7 @@ templateClassName	^self name!
 
 version
 	"change this method carefully and only at Jadeite release boundaries.
-	Failure to do so will prevent logins"
+	Failure to do so may prevent logins"
 
 	^3200! !
 !RowanService class categoriesFor: #command:withArgs:!instance creation!public! !

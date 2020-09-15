@@ -139,7 +139,8 @@ computeVisibleMethods: presenter browser: browser
 	^visibleMethods!
 
 definedClass
-	^definedClass!
+	#rowanFixMe. "looks like an update to RSR broke this. Maybe?" 
+	^nil!
 
 definedPackageName
 	^definedPackageName!
