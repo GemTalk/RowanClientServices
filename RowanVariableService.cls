@@ -29,6 +29,9 @@ displayOop
 
 displayStringOn: displayThing!
 
+isDisplayLabel
+	^false!
+
 isUpdatableService
 	^false!
 
@@ -76,6 +79,7 @@ value
 !RowanVariableService categoriesFor: #displayName!displaying!public! !
 !RowanVariableService categoriesFor: #displayOop!printing!public! !
 !RowanVariableService categoriesFor: #displayStringOn:!printing!public! !
+!RowanVariableService categoriesFor: #isDisplayLabel!public!testing! !
 !RowanVariableService categoriesFor: #isUpdatableService!public!testing! !
 !RowanVariableService categoriesFor: #key!public! !
 !RowanVariableService categoriesFor: #name!accessing!public! !
