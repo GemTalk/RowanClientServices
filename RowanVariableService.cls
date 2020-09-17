@@ -23,6 +23,12 @@ displayName
 
 	^name!
 
+displayOop
+
+	^oop printString!
+
+displayStringOn: displayThing!
+
 isUpdatableService
 	^false!
 
@@ -68,6 +74,8 @@ value
 !RowanVariableService categoriesFor: #_key!public! !
 !RowanVariableService categoriesFor: #className!public! !
 !RowanVariableService categoriesFor: #displayName!displaying!public! !
+!RowanVariableService categoriesFor: #displayOop!printing!public! !
+!RowanVariableService categoriesFor: #displayStringOn:!printing!public! !
 !RowanVariableService categoriesFor: #isUpdatableService!public!testing! !
 !RowanVariableService categoriesFor: #key!public! !
 !RowanVariableService categoriesFor: #name!accessing!public! !

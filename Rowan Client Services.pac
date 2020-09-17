@@ -37,20 +37,20 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Object Arts\Dolphin\Base\Dolphin'
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Choice Prompter'
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Object Arts\Dolphin\Base\Dolphin Message Box'
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Object Arts\Dolphin\MVP\Presenters\Text\Dolphin Rich Text Presenter'
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Object Arts\Dolphin\MVP\Models\Tree\Dolphin Tree Models'
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Object Arts\Dolphin\MVP\Presenters\Tree\Dolphin Tree Presenter'
-	'..\..\Dolphin7114\Dolphin\Jadeite\sources\GemStone C Interface'
-	'..\..\Dolphin7114\Dolphin\Jadeite\sources\GemStone Session'
-	'..\..\Dolphin7114\Dolphin\Jadeite\sources\Jade UI Base'
-	'..\..\RemoteServiceReplication\src-dolphin\RemoteServiceReplication'
-	'..\..\Dolphin7114\Dolphin\Jadeite\Core\Contributions\svenc\STON\STON-Core').
+	'..\Jadeite\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Choice Prompter'
+	'..\Jadeite\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
+	'..\Jadeite\Core\Object Arts\Dolphin\Base\Dolphin Message Box'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Presenters\Text\Dolphin Rich Text Presenter'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Models\Tree\Dolphin Tree Models'
+	'..\Jadeite\Core\Object Arts\Dolphin\MVP\Presenters\Tree\Dolphin Tree Presenter'
+	'..\Jadeite\sources\GemStone C Interface'
+	'..\Jadeite\sources\GemStone Session'
+	'..\Jadeite\sources\Jade UI Base'
+	'..\..\..\RemoteServiceReplication\src-dolphin\RemoteServiceReplication'
+	'..\Jadeite\Core\Contributions\svenc\STON\STON-Core').
 
 package!
 
@@ -4226,8 +4226,9 @@ isDiskDirty
 	^isDiskDirty!
 
 isLoaded
+	"Unpackaged project may have a nil sha"
 
-	^sha isEmpty not!
+	^sha isNil not and: [sha isEmpty not]!
 
 isProjectService
 
@@ -4522,6 +4523,12 @@ displayName
 
 	^name!
 
+displayOop
+
+	^oop printString!
+
+displayStringOn: displayThing!
+
 isUpdatableService
 	^false!
 
@@ -4567,6 +4574,8 @@ value
 !RowanVariableService categoriesFor: #_key!public! !
 !RowanVariableService categoriesFor: #className!public! !
 !RowanVariableService categoriesFor: #displayName!displaying!public! !
+!RowanVariableService categoriesFor: #displayOop!printing!public! !
+!RowanVariableService categoriesFor: #displayStringOn:!printing!public! !
 !RowanVariableService categoriesFor: #isUpdatableService!public!testing! !
 !RowanVariableService categoriesFor: #key!public! !
 !RowanVariableService categoriesFor: #name!accessing!public! !

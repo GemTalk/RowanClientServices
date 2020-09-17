@@ -142,8 +142,9 @@ isDiskDirty
 	^isDiskDirty!
 
 isLoaded
+	"Unpackaged project may have a nil sha"
 
-	^sha isEmpty not!
+	^sha isNil not and: [sha isEmpty not]!
 
 isProjectService
 
