@@ -431,7 +431,6 @@ stopLogging
 
 update: services afterStonReplication: stonResults
 	"assume we get back the 'same' services as we sent"
-
 	self initializeUpdates.
 	returnedServices := STON fromString: stonResults.
 	logger loggingService replicateFrom: returnedServices last.
@@ -1319,11 +1318,16 @@ displayName
 
 	^self printString!
 
+postUpdateBlock
+
+	^postUpdateBlock!
+
 sortAspect
 	"don't think this is used"
 	^self printString ! !
 !RowanAutoCommitService categoriesFor: #autoCommitUpdate:!public!updating! !
 !RowanAutoCommitService categoriesFor: #displayName!displaying!public! !
+!RowanAutoCommitService categoriesFor: #postUpdateBlock!accessing!public! !
 !RowanAutoCommitService categoriesFor: #sortAspect!accessing!public! !
 
 RowanBrowserService guid: (GUID fromString: '{9c5e8a88-ca64-403c-8f81-6c70c46926f0}')!

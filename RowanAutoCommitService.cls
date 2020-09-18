@@ -30,10 +30,15 @@ displayName
 
 	^self printString!
 
+postUpdateBlock
+
+	^postUpdateBlock!
+
 sortAspect
 	"don't think this is used"
 	^self printString ! !
 !RowanAutoCommitService categoriesFor: #autoCommitUpdate:!public!updating! !
 !RowanAutoCommitService categoriesFor: #displayName!displaying!public! !
+!RowanAutoCommitService categoriesFor: #postUpdateBlock!accessing!public! !
 !RowanAutoCommitService categoriesFor: #sortAspect!accessing!public! !
 

@@ -237,7 +237,6 @@ stopLogging
 
 update: services afterStonReplication: stonResults
 	"assume we get back the 'same' services as we sent"
-
 	self initializeUpdates.
 	returnedServices := STON fromString: stonResults.
 	logger loggingService replicateFrom: returnedServices last.
