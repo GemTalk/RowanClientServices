@@ -10,6 +10,7 @@ package classNames
 	add: #RowanAutoCommitService;
 	add: #RowanBrowserService;
 	add: #RowanClassService;
+	add: #RowanComponentService;
 	add: #RowanDebuggerService;
 	add: #RowanDefinedProjectService;
 	add: #RowanDictionaryService;
@@ -91,6 +92,11 @@ RowanService subclass: #RowanClassService
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+RowanService subclass: #RowanComponentService
+	instanceVariableNames: 'name componentServices packageServices projectService'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 RowanService subclass: #RowanDebuggerService
 	instanceVariableNames: 'initialProcessOop processes name'
 	classVariableNames: ''
@@ -132,7 +138,7 @@ RowanService subclass: #RowanProcessService
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 RowanService subclass: #RowanProjectService
-	instanceVariableNames: 'sha branch isSkew packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop name isDirty'
+	instanceVariableNames: 'sha branch isSkew packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop name isDirty componentServices'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

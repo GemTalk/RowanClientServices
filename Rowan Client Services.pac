@@ -10,6 +10,7 @@ package classNames
 	add: #RowanAutoCommitService;
 	add: #RowanBrowserService;
 	add: #RowanClassService;
+	add: #RowanComponentService;
 	add: #RowanDebuggerService;
 	add: #RowanDefinedProjectService;
 	add: #RowanDictionaryService;
@@ -91,6 +92,11 @@ RowanService subclass: #RowanClassService
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+RowanService subclass: #RowanComponentService
+	instanceVariableNames: 'name componentServices packageServices projectService'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 RowanService subclass: #RowanDebuggerService
 	instanceVariableNames: 'initialProcessOop processes name'
 	classVariableNames: ''
@@ -132,7 +138,7 @@ RowanService subclass: #RowanProcessService
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 RowanService subclass: #RowanProjectService
-	instanceVariableNames: 'sha branch isSkew packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop name isDirty'
+	instanceVariableNames: 'sha branch isSkew packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop name isDirty componentServices'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -696,6 +702,8 @@ commandArgs
 commandArgs: anObject
 	commandArgs := anObject!
 
+componentsUpdate: presenter browser: browser!
+
 debuggerMethodSourceUpdate: presenter browser: browser!
 
 debugPrintOn: aStream
@@ -1028,6 +1036,7 @@ wasRenamed
 !RowanService categoriesFor: #command:!accessing!public! !
 !RowanService categoriesFor: #commandArgs!accessing!public! !
 !RowanService categoriesFor: #commandArgs:!accessing!public! !
+!RowanService categoriesFor: #componentsUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #debuggerMethodSourceUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #debugPrintOn:!printing!public! !
 !RowanService categoriesFor: #debugPrintString!printing!public! !
@@ -2265,6 +2274,9 @@ named: theName
 !RowanClassService class categoriesFor: #icon!private! !
 !RowanClassService class categoriesFor: #named:!instance creation!public! !
 
+RowanComponentService guid: (GUID fromString: '{842be73b-a371-499f-a6d4-dcd4a81c01e5}')!
+RowanComponentService comment: ''!
+!RowanComponentService categoriesForClass!Unclassified! !
 RowanDebuggerService guid: (GUID fromString: '{d8a038cb-84e2-4e03-bff9-1dc3bf097d57}')!
 RowanDebuggerService comment: ''!
 !RowanDebuggerService categoriesForClass!Kernel-Objects! !
@@ -4178,6 +4190,25 @@ checkoutUsing: presenter
 	branchName isNil ifTrue: [^self].
 	self basicCheckout: branchName using: presenter!
 
+componentServices
+
+	^componentServices!
+
+componentsUpdate: presenter browser: browser
+	| treeModel |
+	treeModel := TreeModel new
+				searchPolicy: SearchPolicy equality;
+				reset.
+	self componentServices asBag isEmpty
+		ifTrue: 
+			[presenter model: treeModel.
+			^self].
+	browser projectListPresenter selections detect: [:projectService | projectService name = name]
+		ifNone: [^self].
+	treeModel basicRoots: componentServices. 
+	presenter model: treeModel. 
+	!
+
 displayName
 	| displayName |
 	name ifNil: [^String new].
@@ -4356,6 +4387,8 @@ sortAspect
 !RowanProjectService categoriesFor: #branch!accessing!public! !
 !RowanProjectService categoriesFor: #branch:!accessing!public! !
 !RowanProjectService categoriesFor: #checkoutUsing:!presenter support!public! !
+!RowanProjectService categoriesFor: #componentServices!public! !
+!RowanProjectService categoriesFor: #componentsUpdate:browser:!public!updating! !
 !RowanProjectService categoriesFor: #displayName!accessing!displaying!public! !
 !RowanProjectService categoriesFor: #displayStringFor:!displaying!public! !
 !RowanProjectService categoriesFor: #gitTags:!presenter support!public! !

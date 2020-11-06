@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 RowanService subclass: #RowanProjectService
-	instanceVariableNames: 'sha branch isSkew packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop name isDirty'
+	instanceVariableNames: 'sha branch isSkew packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop name isDirty componentServices'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -89,6 +89,25 @@ checkoutUsing: presenter
 				caption: 'Select branch to checkout:'.
 	branchName isNil ifTrue: [^self].
 	self basicCheckout: branchName using: presenter!
+
+componentServices
+
+	^componentServices!
+
+componentsUpdate: presenter browser: browser
+	| treeModel |
+	treeModel := TreeModel new
+				searchPolicy: SearchPolicy equality;
+				reset.
+	self componentServices asBag isEmpty
+		ifTrue: 
+			[presenter model: treeModel.
+			^self].
+	browser projectListPresenter selections detect: [:projectService | projectService name = name]
+		ifNone: [^self].
+	treeModel basicRoots: componentServices. 
+	presenter model: treeModel. 
+	!
 
 displayName
 	| displayName |
@@ -268,6 +287,8 @@ sortAspect
 !RowanProjectService categoriesFor: #branch!accessing!public! !
 !RowanProjectService categoriesFor: #branch:!accessing!public! !
 !RowanProjectService categoriesFor: #checkoutUsing:!presenter support!public! !
+!RowanProjectService categoriesFor: #componentServices!public! !
+!RowanProjectService categoriesFor: #componentsUpdate:browser:!public!updating! !
 !RowanProjectService categoriesFor: #displayName!accessing!displaying!public! !
 !RowanProjectService categoriesFor: #displayStringFor:!displaying!public! !
 !RowanProjectService categoriesFor: #gitTags:!presenter support!public! !

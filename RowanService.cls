@@ -135,6 +135,8 @@ commandArgs
 commandArgs: anObject
 	commandArgs := anObject!
 
+componentsUpdate: presenter browser: browser!
+
 debuggerMethodSourceUpdate: presenter browser: browser!
 
 debugPrintOn: aStream
@@ -467,6 +469,7 @@ wasRenamed
 !RowanService categoriesFor: #command:!accessing!public! !
 !RowanService categoriesFor: #commandArgs!accessing!public! !
 !RowanService categoriesFor: #commandArgs:!accessing!public! !
+!RowanService categoriesFor: #componentsUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #debuggerMethodSourceUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #debugPrintOn:!printing!public! !
 !RowanService categoriesFor: #debugPrintString!printing!public! !
