@@ -110,6 +110,10 @@ componentsUpdate: presenter browser: browser
 	treeModel := JadeiteTreeModel new
 				searchPolicy: SearchPolicy equality;
 				reset.
+	(componentServices at: #nil) isEmpty
+		ifTrue: 
+			[presenter model: treeModel.
+			^self].
 	parent := nil.
 	topLevelComponents := componentServices at: #nil ifAbsent: [^self].
 	topLevelComponents do: 
@@ -122,7 +126,7 @@ componentsUpdate: presenter browser: browser
 	removals := treeModel select: [:service | (treeModel getNodeFor: service) shouldRemove].
 	removals do: [:node | treeModel remove: node ifAbsent: []].
 	presenter model: treeModel.
-	presenter selectionIfNone: [^presenter view ensureItemVisible: treeModel roots first].
+	presenter selectionIfNone: [^presenter view ensureItemVisible: topLevelComponents first].
 	presenter view ensureSelectionVisible!
 
 displayName
