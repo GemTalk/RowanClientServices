@@ -95,19 +95,35 @@ componentServices
 	^componentServices!
 
 componentsUpdate: presenter browser: browser
-	| treeModel |
-	treeModel := TreeModel new
+	"component services will be a dictionary. 
+	The key is the parent component.
+	The value is an array of the children components.
+
+	Example:
+	nil -> #(A) - A is a top level component
+	A -> #(B C) - B & C are children of A
+	B -> #(D) - D is a child of B
+	C -> nil
+	D -> nil - neither C nor D have children"
+
+	| treeModel parent topLevelComponents removals |
+	treeModel := JadeiteTreeModel new
 				searchPolicy: SearchPolicy equality;
 				reset.
-	self componentServices asBag isEmpty
-		ifTrue: 
-			[presenter model: treeModel.
-			^self].
-	browser projectListPresenter selections detect: [:projectService | projectService name = name]
-		ifNone: [^self].
-	treeModel basicRoots: componentServices. 
-	presenter model: treeModel. 
-	!
+	parent := nil.
+	topLevelComponents := componentServices at: #nil ifAbsent: [^self].
+	topLevelComponents do: 
+			[:componentService |
+			self
+				possiblyAddHierarchyService: componentService
+				to: treeModel
+				withParent: parent
+				hierarchyServices: componentServices].
+	removals := treeModel select: [:service | (treeModel getNodeFor: service) shouldRemove].
+	removals do: [:node | treeModel remove: node ifAbsent: []].
+	presenter model: treeModel.
+	presenter selectionIfNone: [^presenter view ensureItemVisible: treeModel roots first].
+	presenter view ensureSelectionVisible!
 
 displayName
 	| displayName |

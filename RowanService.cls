@@ -13,16 +13,6 @@ RowanService comment: ''!
 addCachedSymbols: unused
 	!
 
-addHierarchyService: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
-	treeModel getNodeFor: service ifAbsent: [treeModel add: service asChildOf: parentService].
-	(hierarchyServices at: service ifAbsent: [^self]) do: 
-			[:classService |
-			self
-				addHierarchyService: classService
-				to: treeModel
-				withParent: service
-				hierarchyServices: hierarchyServices]!
-
 autoCommitUpdate: browser!
 
 basicPrepareForReplication
@@ -65,7 +55,7 @@ classHierarchyUpdate: presenter browser: browser hierarchyServices: hierarchySer
 	hierarchyServices isEmpty ifTrue: [^self].
 	browser isClassListTabSelected ifTrue: [^self].
 	presenter selections notEmpty ifTrue: [(presenter selections includes: self) ifFalse: [^self]].
-	treeModel := TreeModel new
+	treeModel := JadeiteTreeModel new
 				searchPolicy: SearchPolicy equality;
 				reset.
 	parent := nil.
@@ -90,12 +80,12 @@ classHierarchyUpdate: presenter browser: browser hierarchyServices: hierarchySer
 	subclasses do: 
 			[:classService |
 			self
-				addHierarchyService: classService
+				possiblyAddHierarchyService: classService
 				to: treeModel
 				withParent: parent
 				hierarchyServices: hierarchyServices].
 	presenter model: treeModel.
-	presenter view updateMode: #lazy. "faster for big tree building"
+	presenter view updateMode: #lazy.	"faster for big tree building"
 	presenter view disableRedraw.
 	
 	[treeModel preOrderDo: 
@@ -105,7 +95,7 @@ classHierarchyUpdate: presenter browser: browser hierarchyServices: hierarchySer
 			ensure: [presenter view enableRedraw].
 	presenter selectionIfNone: [^presenter view ensureItemVisible: treeModel roots first].
 	presenter view ensureSelectionVisible.
-	presenter view updateMode: #dynamic. !
+	presenter view updateMode: #dynamic!
 
 classMethodsUpdate: presenter browser: browser
 	!
@@ -262,6 +252,21 @@ notRowanizedPackageName
 packagesUpdate: presenter!
 
 packageUpdate: presenter!
+
+possiblyAddHierarchyService: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
+	| node |
+	node := treeModel getNodeFor: service
+				ifAbsent: 
+					[treeModel add: service asChildOf: parentService.
+					treeModel getNodeFor: service].
+	node shouldRemove: false.
+	(hierarchyServices at: service ifAbsent: [^self]) do: 
+			[:classService |
+			self
+				possiblyAddHierarchyService: classService
+				to: treeModel
+				withParent: service
+				hierarchyServices: hierarchyServices]!
 
 postReload
 	"most services will do nothing"
@@ -448,7 +453,6 @@ wasRenamed
 
 	^false! !
 !RowanService categoriesFor: #addCachedSymbols:!public!updating! !
-!RowanService categoriesFor: #addHierarchyService:to:withParent:hierarchyServices:!private! !
 !RowanService categoriesFor: #autoCommitUpdate:!public!updating! !
 !RowanService categoriesFor: #basicPrepareForReplication!public!replication! !
 !RowanService categoriesFor: #basicReplicateFrom:!public!replication! !
@@ -505,6 +509,7 @@ wasRenamed
 !RowanService categoriesFor: #notRowanizedPackageName!displaying!public! !
 !RowanService categoriesFor: #packagesUpdate:!public!updating! !
 !RowanService categoriesFor: #packageUpdate:!public!updating! !
+!RowanService categoriesFor: #possiblyAddHierarchyService:to:withParent:hierarchyServices:!private! !
 !RowanService categoriesFor: #postReload!public!replication! !
 !RowanService categoriesFor: #postUpdate!Init / Release!public! !
 !RowanService categoriesFor: #postUpdateBlock!accessing!private! !

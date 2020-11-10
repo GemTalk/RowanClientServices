@@ -6,6 +6,8 @@ package paxVersion: 1;
 
 package classNames
 	add: #BrowserUpdate;
+	add: #JadeiteTreeModel;
+	add: #JadeiteTreeNode;
 	add: #RowanAnsweringService;
 	add: #RowanAutoCommitService;
 	add: #RowanBrowserService;
@@ -65,6 +67,11 @@ Semaphore subclass: #RowanSemaphore
 Model subclass: #BrowserUpdate
 	instanceVariableNames: 'updates debug inUpdate logger applyingUpdates breakpointsEnabled returnedServices'
 	classVariableNames: 'Current'
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+TreeModel subclass: #JadeiteTreeModel
+	instanceVariableNames: ''
+	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 RsrService subclass: #RowanService
@@ -174,6 +181,11 @@ RowanProjectService subclass: #RowanLoadedProjectService
 	classInstanceVariableNames: ''!
 RowanProjectService subclass: #RowanResolvedProjectService
 	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+TreeNode subclass: #JadeiteTreeNode
+	instanceVariableNames: 'shouldRemove'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

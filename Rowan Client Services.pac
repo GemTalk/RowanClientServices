@@ -6,6 +6,8 @@ package paxVersion: 1;
 
 package classNames
 	add: #BrowserUpdate;
+	add: #JadeiteTreeModel;
+	add: #JadeiteTreeNode;
 	add: #RowanAnsweringService;
 	add: #RowanAutoCommitService;
 	add: #RowanBrowserService;
@@ -65,6 +67,11 @@ Semaphore subclass: #RowanSemaphore
 Model subclass: #BrowserUpdate
 	instanceVariableNames: 'updates debug inUpdate logger applyingUpdates breakpointsEnabled returnedServices'
 	classVariableNames: 'Current'
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+TreeModel subclass: #JadeiteTreeModel
+	instanceVariableNames: ''
+	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 RsrService subclass: #RowanService
@@ -174,6 +181,11 @@ RowanProjectService subclass: #RowanLoadedProjectService
 	classInstanceVariableNames: ''!
 RowanProjectService subclass: #RowanResolvedProjectService
 	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+TreeNode subclass: #JadeiteTreeNode
+	instanceVariableNames: 'shouldRemove'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -572,6 +584,17 @@ stopLogging
 !BrowserUpdate class categoriesFor: #startLogging!logging!public! !
 !BrowserUpdate class categoriesFor: #stopLogging!logging!public! !
 
+JadeiteTreeModel guid: (GUID fromString: '{9da5c17c-b7f6-4238-a00b-164c06f3067b}')!
+JadeiteTreeModel comment: ''!
+!JadeiteTreeModel categoriesForClass!MVP-Models! !
+!JadeiteTreeModel methodsFor!
+
+nodeClass
+	"Answer the class of object to be used to represent the receiver's nodes."
+
+	^JadeiteTreeNode! !
+!JadeiteTreeModel categoriesFor: #nodeClass!constants!public! !
+
 RowanService guid: (GUID fromString: '{c91bf577-a5a9-4782-b6be-c05df3222bc9}')!
 RowanService comment: ''!
 !RowanService categoriesForClass!Kernel-Objects! !
@@ -579,16 +602,6 @@ RowanService comment: ''!
 
 addCachedSymbols: unused
 	!
-
-addHierarchyService: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
-	treeModel getNodeFor: service ifAbsent: [treeModel add: service asChildOf: parentService].
-	(hierarchyServices at: service ifAbsent: [^self]) do: 
-			[:classService |
-			self
-				addHierarchyService: classService
-				to: treeModel
-				withParent: service
-				hierarchyServices: hierarchyServices]!
 
 autoCommitUpdate: browser!
 
@@ -632,7 +645,7 @@ classHierarchyUpdate: presenter browser: browser hierarchyServices: hierarchySer
 	hierarchyServices isEmpty ifTrue: [^self].
 	browser isClassListTabSelected ifTrue: [^self].
 	presenter selections notEmpty ifTrue: [(presenter selections includes: self) ifFalse: [^self]].
-	treeModel := TreeModel new
+	treeModel := JadeiteTreeModel new
 				searchPolicy: SearchPolicy equality;
 				reset.
 	parent := nil.
@@ -657,12 +670,12 @@ classHierarchyUpdate: presenter browser: browser hierarchyServices: hierarchySer
 	subclasses do: 
 			[:classService |
 			self
-				addHierarchyService: classService
+				possiblyAddHierarchyService: classService
 				to: treeModel
 				withParent: parent
 				hierarchyServices: hierarchyServices].
 	presenter model: treeModel.
-	presenter view updateMode: #lazy. "faster for big tree building"
+	presenter view updateMode: #lazy.	"faster for big tree building"
 	presenter view disableRedraw.
 	
 	[treeModel preOrderDo: 
@@ -672,7 +685,7 @@ classHierarchyUpdate: presenter browser: browser hierarchyServices: hierarchySer
 			ensure: [presenter view enableRedraw].
 	presenter selectionIfNone: [^presenter view ensureItemVisible: treeModel roots first].
 	presenter view ensureSelectionVisible.
-	presenter view updateMode: #dynamic. !
+	presenter view updateMode: #dynamic!
 
 classMethodsUpdate: presenter browser: browser
 	!
@@ -829,6 +842,21 @@ notRowanizedPackageName
 packagesUpdate: presenter!
 
 packageUpdate: presenter!
+
+possiblyAddHierarchyService: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
+	| node |
+	node := treeModel getNodeFor: service
+				ifAbsent: 
+					[treeModel add: service asChildOf: parentService.
+					treeModel getNodeFor: service].
+	node shouldRemove: false.
+	(hierarchyServices at: service ifAbsent: [^self]) do: 
+			[:classService |
+			self
+				possiblyAddHierarchyService: classService
+				to: treeModel
+				withParent: service
+				hierarchyServices: hierarchyServices]!
 
 postReload
 	"most services will do nothing"
@@ -1015,7 +1043,6 @@ wasRenamed
 
 	^false! !
 !RowanService categoriesFor: #addCachedSymbols:!public!updating! !
-!RowanService categoriesFor: #addHierarchyService:to:withParent:hierarchyServices:!private! !
 !RowanService categoriesFor: #autoCommitUpdate:!public!updating! !
 !RowanService categoriesFor: #basicPrepareForReplication!public!replication! !
 !RowanService categoriesFor: #basicReplicateFrom:!public!replication! !
@@ -1072,6 +1099,7 @@ wasRenamed
 !RowanService categoriesFor: #notRowanizedPackageName!displaying!public! !
 !RowanService categoriesFor: #packagesUpdate:!public!updating! !
 !RowanService categoriesFor: #packageUpdate:!public!updating! !
+!RowanService categoriesFor: #possiblyAddHierarchyService:to:withParent:hierarchyServices:!private! !
 !RowanService categoriesFor: #postReload!public!replication! !
 !RowanService categoriesFor: #postUpdate!Init / Release!public! !
 !RowanService categoriesFor: #postUpdateBlock!accessing!private! !
@@ -2277,6 +2305,16 @@ named: theName
 RowanComponentService guid: (GUID fromString: '{842be73b-a371-499f-a6d4-dcd4a81c01e5}')!
 RowanComponentService comment: ''!
 !RowanComponentService categoriesForClass!Unclassified! !
+!RowanComponentService methodsFor!
+
+displayString
+	^name!
+
+name
+	^name! !
+!RowanComponentService categoriesFor: #displayString!displaying!public! !
+!RowanComponentService categoriesFor: #name!accessing!public! !
+
 RowanDebuggerService guid: (GUID fromString: '{d8a038cb-84e2-4e03-bff9-1dc3bf097d57}')!
 RowanDebuggerService comment: ''!
 !RowanDebuggerService categoriesForClass!Kernel-Objects! !
@@ -4195,19 +4233,35 @@ componentServices
 	^componentServices!
 
 componentsUpdate: presenter browser: browser
-	| treeModel |
-	treeModel := TreeModel new
+	"component services will be a dictionary. 
+	The key is the parent component.
+	The value is an array of the children components.
+
+	Example:
+	nil -> #(A) - A is a top level component
+	A -> #(B C) - B & C are children of A
+	B -> #(D) - D is a child of B
+	C -> nil
+	D -> nil - neither C nor D have children"
+
+	| treeModel parent topLevelComponents removals |
+	treeModel := JadeiteTreeModel new
 				searchPolicy: SearchPolicy equality;
 				reset.
-	self componentServices asBag isEmpty
-		ifTrue: 
-			[presenter model: treeModel.
-			^self].
-	browser projectListPresenter selections detect: [:projectService | projectService name = name]
-		ifNone: [^self].
-	treeModel basicRoots: componentServices. 
-	presenter model: treeModel. 
-	!
+	parent := nil.
+	topLevelComponents := componentServices at: #nil ifAbsent: [^self].
+	topLevelComponents do: 
+			[:componentService |
+			self
+				possiblyAddHierarchyService: componentService
+				to: treeModel
+				withParent: parent
+				hierarchyServices: componentServices].
+	removals := treeModel select: [:service | (treeModel getNodeFor: service) shouldRemove].
+	removals do: [:node | treeModel remove: node ifAbsent: []].
+	presenter model: treeModel.
+	presenter selectionIfNone: [^presenter view ensureItemVisible: treeModel roots first].
+	presenter view ensureSelectionVisible!
 
 displayName
 	| displayName |
@@ -4653,5 +4707,24 @@ RowanLoadedProjectService comment: ''!
 RowanResolvedProjectService guid: (GUID fromString: '{a8e74b3d-49f3-45fc-b281-23ee7f83cb31}')!
 RowanResolvedProjectService comment: ''!
 !RowanResolvedProjectService categoriesForClass!Unclassified! !
+JadeiteTreeNode guid: (GUID fromString: '{94ece110-8aca-4f84-9f75-546040c70901}')!
+JadeiteTreeNode comment: 'The inst var `marked` is used when updating a JadeiteTreeModel. 
+After a node is added, it is marked.  Nodes that are not marked are subsequently removed. '!
+!JadeiteTreeNode categoriesForClass!MVP-Models-Support! !
+!JadeiteTreeNode methodsFor!
+
+initialize
+	super initialize.
+	shouldRemove := true!
+
+shouldRemove
+	^shouldRemove!
+
+shouldRemove: anObject
+	shouldRemove := anObject! !
+!JadeiteTreeNode categoriesFor: #initialize!initialization!public! !
+!JadeiteTreeNode categoriesFor: #shouldRemove!accessing!private! !
+!JadeiteTreeNode categoriesFor: #shouldRemove:!accessing!private! !
+
 "Binary Globals"!
 
