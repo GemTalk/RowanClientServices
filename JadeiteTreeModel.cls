@@ -13,6 +13,10 @@ JadeiteTreeModel comment: ''!
 nodeClass
 	"Answer the class of object to be used to represent the receiver's nodes."
 
-	^JadeiteTreeNode! !
+	^JadeiteTreeNode!
+
+resetVisited
+	self asBag do: [:object | (self lookupNode: object) resetVisited]! !
 !JadeiteTreeModel categoriesFor: #nodeClass!constants!public! !
+!JadeiteTreeModel categoriesFor: #resetVisited!constants!public! !
 

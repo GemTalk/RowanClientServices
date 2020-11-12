@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 TreeNode subclass: #JadeiteTreeNode
-	instanceVariableNames: 'shouldRemove'
+	instanceVariableNames: 'visited'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -13,14 +13,19 @@ After a node is added, it is marked.  Nodes that are not marked are subsequently
 
 initialize
 	super initialize.
-	shouldRemove := true!
+	visited := true!
 
-shouldRemove
-	^shouldRemove!
+resetVisited
 
-shouldRemove: anObject
-	shouldRemove := anObject! !
+	visited := false!
+
+visited
+	^visited!
+
+visited: anObject
+	visited := anObject! !
 !JadeiteTreeNode categoriesFor: #initialize!initialization!public! !
-!JadeiteTreeNode categoriesFor: #shouldRemove!accessing!private! !
-!JadeiteTreeNode categoriesFor: #shouldRemove:!accessing!private! !
+!JadeiteTreeNode categoriesFor: #resetVisited!public! !
+!JadeiteTreeNode categoriesFor: #visited!accessing!private! !
+!JadeiteTreeNode categoriesFor: #visited:!accessing!private! !
 

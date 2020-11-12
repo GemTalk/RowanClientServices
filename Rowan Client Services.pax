@@ -185,7 +185,7 @@ RowanProjectService subclass: #RowanResolvedProjectService
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 TreeNode subclass: #JadeiteTreeNode
-	instanceVariableNames: 'shouldRemove'
+	instanceVariableNames: 'visited'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

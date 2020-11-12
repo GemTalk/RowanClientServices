@@ -90,6 +90,16 @@ checkoutUsing: presenter
 	branchName isNil ifTrue: [^self].
 	self basicCheckout: branchName using: presenter!
 
+chooseModel: presenter using: browser
+	| treeModel |
+	treeModel := browser projectListPresenter selectionOrNil isNil
+				ifTrue: 
+					[JadeiteTreeModel new
+						searchPolicy: SearchPolicy equality;
+						reset]
+				ifFalse: [presenter model].
+	^treeModel!
+
 componentServices
 
 	^componentServices!
@@ -107,26 +117,22 @@ componentsUpdate: presenter browser: browser
 	D -> nil - neither C nor D have children"
 
 	| treeModel parent topLevelComponents removals |
-	treeModel := JadeiteTreeModel new
-				searchPolicy: SearchPolicy equality;
-				reset.
-	(componentServices at: #nil) isEmpty
-		ifTrue: 
-			[presenter model: treeModel.
-			^self].
-	parent := nil.
+	presenter model class = TreeModel
+		ifTrue: [^self	"not sure why the model starts out as a TreeModel, not a JadeiteTreeModel"].
+	browser projectListPresenter selectionOrNil ifNil:[^self] ifNotNil: [:service | service name = name ifFalse:[^self]]. 
+	treeModel := self chooseModel: presenter using: browser.
 	topLevelComponents := componentServices at: #nil ifAbsent: [^self].
+	treeModel resetVisited. 
+	parent := nil.
 	topLevelComponents do: 
 			[:componentService |
 			self
-				possiblyAddHierarchyService: componentService
+				possiblyAddComponent: componentService
 				to: treeModel
 				withParent: parent
 				hierarchyServices: componentServices].
-	removals := treeModel select: [:service | (treeModel getNodeFor: service) shouldRemove].
-	removals do: [:node | treeModel remove: node ifAbsent: []].
-	presenter model: treeModel.
-	presenter selectionIfNone: [^presenter view ensureItemVisible: topLevelComponents first].
+	removals := treeModel asBag reject: [:service | (treeModel getNodeFor: service) visited].
+	removals do: [:service | treeModel remove: service ifAbsent: []].
 	presenter view ensureSelectionVisible!
 
 displayName
@@ -232,6 +238,21 @@ performGitCommand: gitCommand with: argsString in: session
 		commandArgs: (Array with: gitCommand with: argsString).
 	BrowserUpdate current issueCommand: self session: session!
 
+possiblyAddComponent: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
+	| node |
+	node := treeModel getNodeFor: service
+				ifAbsent: 
+					[treeModel add: service asChildOf: parentService.
+					treeModel getNodeFor: service].
+	node visited: true.
+	(hierarchyServices at: service ifAbsent: [^self]) do: 
+			[:aService |
+			self
+				possiblyAddHierarchyService: aService
+				to: treeModel
+				withParent: service
+				hierarchyServices: hierarchyServices]!
+
 postUpdate
 	super postUpdate.
 	packages ifNotNil: [packages do: [:service | service postUpdate]].
@@ -307,6 +328,7 @@ sortAspect
 !RowanProjectService categoriesFor: #branch!accessing!public! !
 !RowanProjectService categoriesFor: #branch:!accessing!public! !
 !RowanProjectService categoriesFor: #checkoutUsing:!presenter support!public! !
+!RowanProjectService categoriesFor: #chooseModel:using:!private!updating! !
 !RowanProjectService categoriesFor: #componentServices!public! !
 !RowanProjectService categoriesFor: #componentsUpdate:browser:!public!updating! !
 !RowanProjectService categoriesFor: #displayName!accessing!displaying!public! !
@@ -326,6 +348,7 @@ sortAspect
 !RowanProjectService categoriesFor: #newTextView:using:!displaying!private! !
 !RowanProjectService categoriesFor: #packages!accessing!public! !
 !RowanProjectService categoriesFor: #performGitCommand:with:in:!presenter support!public! !
+!RowanProjectService categoriesFor: #possiblyAddComponent:to:withParent:hierarchyServices:!private!updating! !
 !RowanProjectService categoriesFor: #postUpdate!Init / Release!public! !
 !RowanProjectService categoriesFor: #prepareForReplication!public!replication! !
 !RowanProjectService categoriesFor: #projectPackagesUpdate:browser:!public!updating! !

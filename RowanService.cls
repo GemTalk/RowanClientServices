@@ -259,11 +259,11 @@ possiblyAddHierarchyService: service to: treeModel withParent: parentService hie
 				ifAbsent: 
 					[treeModel add: service asChildOf: parentService.
 					treeModel getNodeFor: service].
-	node shouldRemove: false.
+	node visited: true.
 	(hierarchyServices at: service ifAbsent: [^self]) do: 
-			[:classService |
+			[:aService |
 			self
-				possiblyAddHierarchyService: classService
+				possiblyAddHierarchyService: aService
 				to: treeModel
 				withParent: service
 				hierarchyServices: hierarchyServices]!
