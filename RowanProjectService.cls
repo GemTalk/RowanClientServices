@@ -90,16 +90,6 @@ checkoutUsing: presenter
 	branchName isNil ifTrue: [^self].
 	self basicCheckout: branchName using: presenter!
 
-chooseModel: presenter using: browser
-	| treeModel |
-	treeModel := browser projectListPresenter selectionOrNil isNil
-				ifTrue: 
-					[JadeiteTreeModel new
-						searchPolicy: SearchPolicy equality;
-						reset]
-				ifFalse: [presenter model].
-	^treeModel!
-
 componentServices
 
 	^componentServices!
@@ -119,10 +109,12 @@ componentsUpdate: presenter browser: browser
 	| treeModel parent topLevelComponents removals |
 	presenter model class = TreeModel
 		ifTrue: [^self	"not sure why the model starts out as a TreeModel, not a JadeiteTreeModel"].
-	browser projectListPresenter selectionOrNil ifNil:[^self] ifNotNil: [:service | service name = name ifFalse:[^self]]. 
+	browser projectListPresenter selectionOrNil
+		ifNil: [^self]
+		ifNotNil: [:service | service name = name ifFalse: [^self]].
 	treeModel := self chooseModel: presenter using: browser.
 	topLevelComponents := componentServices at: #nil ifAbsent: [^self].
-	treeModel resetVisited. 
+	treeModel resetVisited.
 	parent := nil.
 	topLevelComponents do: 
 			[:componentService |
@@ -232,31 +224,21 @@ packages
 
 	^packages!
 
+packageServices
+	"really, packages are a RowanPackageService"
+	^packages!
+
 performGitCommand: gitCommand with: argsString in: session
 	self
 		command: #performGitCommand:with:;
 		commandArgs: (Array with: gitCommand with: argsString).
 	BrowserUpdate current issueCommand: self session: session!
 
-possiblyAddComponent: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
-	| node |
-	node := treeModel getNodeFor: service
-				ifAbsent: 
-					[treeModel add: service asChildOf: parentService.
-					treeModel getNodeFor: service].
-	node visited: true.
-	(hierarchyServices at: service ifAbsent: [^self]) do: 
-			[:aService |
-			self
-				possiblyAddHierarchyService: aService
-				to: treeModel
-				withParent: service
-				hierarchyServices: hierarchyServices]!
-
 postUpdate
 	super postUpdate.
 	packages ifNotNil: [packages do: [:service | service postUpdate]].
-	packages := Array new!
+	packages := Array new.
+	componentServices := Dictionary new. !
 
 prepareForReplication
 
@@ -265,14 +247,10 @@ prepareForReplication
 	packages := nil.!
 
 projectPackagesUpdate: presenter browser: browser
-	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
-	browser projectListPresenter selections detect: [:projectService | projectService name = name]
-		ifNone: [^self].
 	self
-		updateList: presenter
-		whilePreservingSelections: packages
-		browser: browser.
-	browser isClassSelected ifFalse: [self emptyFilterListsIn: browser]!
+		packagesUpdate: presenter
+		browser: browser
+		parentPresenter: browser projectListPresenter!
 
 projectSelectionUpdate: presenter
 	| newSelections |
@@ -328,7 +306,6 @@ sortAspect
 !RowanProjectService categoriesFor: #branch!accessing!public! !
 !RowanProjectService categoriesFor: #branch:!accessing!public! !
 !RowanProjectService categoriesFor: #checkoutUsing:!presenter support!public! !
-!RowanProjectService categoriesFor: #chooseModel:using:!private!updating! !
 !RowanProjectService categoriesFor: #componentServices!public! !
 !RowanProjectService categoriesFor: #componentsUpdate:browser:!public!updating! !
 !RowanProjectService categoriesFor: #displayName!accessing!displaying!public! !
@@ -347,8 +324,8 @@ sortAspect
 !RowanProjectService categoriesFor: #name:!accessing!public! !
 !RowanProjectService categoriesFor: #newTextView:using:!displaying!private! !
 !RowanProjectService categoriesFor: #packages!accessing!public! !
+!RowanProjectService categoriesFor: #packageServices!accessing!public! !
 !RowanProjectService categoriesFor: #performGitCommand:with:in:!presenter support!public! !
-!RowanProjectService categoriesFor: #possiblyAddComponent:to:withParent:hierarchyServices:!private!updating! !
 !RowanProjectService categoriesFor: #postUpdate!Init / Release!public! !
 !RowanProjectService categoriesFor: #prepareForReplication!public!replication! !
 !RowanProjectService categoriesFor: #projectPackagesUpdate:browser:!public!updating! !

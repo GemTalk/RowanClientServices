@@ -27,6 +27,16 @@ basicReplicateFrom: newService
 
 breakpointSettingChanged: transcript!
 
+chooseModel: presenter using: browser
+	| treeModel |
+	treeModel := browser projectListPresenter selectionOrNil isNil
+				ifTrue: 
+					[JadeiteTreeModel new
+						searchPolicy: SearchPolicy equality;
+						reset]
+				ifFalse: [presenter model].
+	^treeModel!
+
 classCategoryUpdate: presenter
 	!
 
@@ -124,6 +134,8 @@ commandArgs
 
 commandArgs: anObject
 	commandArgs := anObject!
+
+componentPackagesUpdate: presenter browser: browser!
 
 componentsUpdate: presenter browser: browser!
 
@@ -249,9 +261,39 @@ newProject: presenter!
 notRowanizedPackageName
 	^self class notRowanizedPackageName!
 
+packageServices
+	"most services do not have packages"
+
+	^Array new!
+
 packagesUpdate: presenter!
 
+packagesUpdate: presenter browser: browser parentPresenter: parentPresenter
+	(presenter class canUnderstand: #list) ifFalse:[^self].
+	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
+	parentPresenter selections detect: [:service | service name = self name] ifNone: [^self].
+	self
+		updateList: presenter
+		whilePreservingSelections: self packageServices
+		browser: browser.
+	browser isClassSelected ifFalse: [self emptyFilterListsIn: browser]!
+
 packageUpdate: presenter!
+
+possiblyAddComponent: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
+	| node |
+	node := treeModel getNodeFor: service
+				ifAbsent: 
+					[treeModel add: service asChildOf: parentService.
+					treeModel getNodeFor: service].
+	node visited: true.
+	(hierarchyServices at: service ifAbsent: [^self]) do: 
+			[:aService |
+			self
+				possiblyAddHierarchyService: aService
+				to: treeModel
+				withParent: service
+				hierarchyServices: hierarchyServices]!
 
 possiblyAddHierarchyService: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
 	| node |
@@ -457,6 +499,7 @@ wasRenamed
 !RowanService categoriesFor: #basicPrepareForReplication!public!replication! !
 !RowanService categoriesFor: #basicReplicateFrom:!public!replication! !
 !RowanService categoriesFor: #breakpointSettingChanged:!public!updating! !
+!RowanService categoriesFor: #chooseModel:using:!private!updating! !
 !RowanService categoriesFor: #classCategoryUpdate:!public!updating! !
 !RowanService categoriesFor: #classCommentUpdate:!public!updating! !
 !RowanService categoriesFor: #classDefinitionUpdate:!public!updating! !
@@ -473,6 +516,7 @@ wasRenamed
 !RowanService categoriesFor: #command:!accessing!public! !
 !RowanService categoriesFor: #commandArgs!accessing!public! !
 !RowanService categoriesFor: #commandArgs:!accessing!public! !
+!RowanService categoriesFor: #componentPackagesUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #componentsUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #debuggerMethodSourceUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #debugPrintOn:!printing!public! !
@@ -507,8 +551,11 @@ wasRenamed
 !RowanService categoriesFor: #name!accessing!public! !
 !RowanService categoriesFor: #newProject:!public!updating! !
 !RowanService categoriesFor: #notRowanizedPackageName!displaying!public! !
+!RowanService categoriesFor: #packageServices!accessing!public! !
 !RowanService categoriesFor: #packagesUpdate:!public!updating! !
+!RowanService categoriesFor: #packagesUpdate:browser:parentPresenter:!public!updating! !
 !RowanService categoriesFor: #packageUpdate:!public!updating! !
+!RowanService categoriesFor: #possiblyAddComponent:to:withParent:hierarchyServices:!private!updating! !
 !RowanService categoriesFor: #possiblyAddHierarchyService:to:withParent:hierarchyServices:!private! !
 !RowanService categoriesFor: #postReload!public!replication! !
 !RowanService categoriesFor: #postUpdate!Init / Release!public! !

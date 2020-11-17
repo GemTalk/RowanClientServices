@@ -100,7 +100,7 @@ RowanService subclass: #RowanClassService
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 RowanService subclass: #RowanComponentService
-	instanceVariableNames: 'name componentServices packageServices projectService'
+	instanceVariableNames: 'name componentServices packageServices projectService basename'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -621,6 +621,16 @@ basicReplicateFrom: newService
 
 breakpointSettingChanged: transcript!
 
+chooseModel: presenter using: browser
+	| treeModel |
+	treeModel := browser projectListPresenter selectionOrNil isNil
+				ifTrue: 
+					[JadeiteTreeModel new
+						searchPolicy: SearchPolicy equality;
+						reset]
+				ifFalse: [presenter model].
+	^treeModel!
+
 classCategoryUpdate: presenter
 	!
 
@@ -718,6 +728,8 @@ commandArgs
 
 commandArgs: anObject
 	commandArgs := anObject!
+
+componentPackagesUpdate: presenter browser: browser!
 
 componentsUpdate: presenter browser: browser!
 
@@ -843,9 +855,39 @@ newProject: presenter!
 notRowanizedPackageName
 	^self class notRowanizedPackageName!
 
+packageServices
+	"most services do not have packages"
+
+	^Array new!
+
 packagesUpdate: presenter!
 
+packagesUpdate: presenter browser: browser parentPresenter: parentPresenter
+	(presenter class canUnderstand: #list) ifFalse:[^self].
+	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
+	parentPresenter selections detect: [:service | service name = self name] ifNone: [^self].
+	self
+		updateList: presenter
+		whilePreservingSelections: self packageServices
+		browser: browser.
+	browser isClassSelected ifFalse: [self emptyFilterListsIn: browser]!
+
 packageUpdate: presenter!
+
+possiblyAddComponent: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
+	| node |
+	node := treeModel getNodeFor: service
+				ifAbsent: 
+					[treeModel add: service asChildOf: parentService.
+					treeModel getNodeFor: service].
+	node visited: true.
+	(hierarchyServices at: service ifAbsent: [^self]) do: 
+			[:aService |
+			self
+				possiblyAddHierarchyService: aService
+				to: treeModel
+				withParent: service
+				hierarchyServices: hierarchyServices]!
 
 possiblyAddHierarchyService: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
 	| node |
@@ -1051,6 +1093,7 @@ wasRenamed
 !RowanService categoriesFor: #basicPrepareForReplication!public!replication! !
 !RowanService categoriesFor: #basicReplicateFrom:!public!replication! !
 !RowanService categoriesFor: #breakpointSettingChanged:!public!updating! !
+!RowanService categoriesFor: #chooseModel:using:!private!updating! !
 !RowanService categoriesFor: #classCategoryUpdate:!public!updating! !
 !RowanService categoriesFor: #classCommentUpdate:!public!updating! !
 !RowanService categoriesFor: #classDefinitionUpdate:!public!updating! !
@@ -1067,6 +1110,7 @@ wasRenamed
 !RowanService categoriesFor: #command:!accessing!public! !
 !RowanService categoriesFor: #commandArgs!accessing!public! !
 !RowanService categoriesFor: #commandArgs:!accessing!public! !
+!RowanService categoriesFor: #componentPackagesUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #componentsUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #debuggerMethodSourceUpdate:browser:!public!updating! !
 !RowanService categoriesFor: #debugPrintOn:!printing!public! !
@@ -1101,8 +1145,11 @@ wasRenamed
 !RowanService categoriesFor: #name!accessing!public! !
 !RowanService categoriesFor: #newProject:!public!updating! !
 !RowanService categoriesFor: #notRowanizedPackageName!displaying!public! !
+!RowanService categoriesFor: #packageServices!accessing!public! !
 !RowanService categoriesFor: #packagesUpdate:!public!updating! !
+!RowanService categoriesFor: #packagesUpdate:browser:parentPresenter:!public!updating! !
 !RowanService categoriesFor: #packageUpdate:!public!updating! !
+!RowanService categoriesFor: #possiblyAddComponent:to:withParent:hierarchyServices:!private!updating! !
 !RowanService categoriesFor: #possiblyAddHierarchyService:to:withParent:hierarchyServices:!private! !
 !RowanService categoriesFor: #postReload!public!replication! !
 !RowanService categoriesFor: #postUpdate!Init / Release!public! !
@@ -1494,7 +1541,7 @@ projectsUpdate: presenter browser: browser
 					[:projectService |
 					(projects includes: projectService) not and: [projectService ~= RowanProjectService noneProject]].
 	presenter model removeAll: removals.
-	presenter selections isEmpty ifTrue: [browser updatePackages].
+	presenter selections isEmpty ifTrue: [browser updateProjectPackages].
 	self
 		updateList: presenter
 		whilePreservingSelections: projects
@@ -2311,13 +2358,40 @@ RowanComponentService comment: ''!
 !RowanComponentService categoriesForClass!Unclassified! !
 !RowanComponentService methodsFor!
 
+basename
+	^basename!
+
+basename: anObject
+	basename := anObject!
+
+componentPackagesUpdate: presenter browser: browser
+	packageServices isEmpty ifTrue:[^self]. 
+	self
+		packagesUpdate: presenter
+		browser: browser
+		parentPresenter: browser componentListPresenter!
+
 displayString
-	^name!
+	^basename!
 
 name
-	^name! !
+	^name!
+
+packageServices
+	^packageServices!
+
+printOn: stream
+	stream
+		nextPutAll: self class name;
+		nextPutAll: '->';
+		nextPutAll: basename! !
+!RowanComponentService categoriesFor: #basename!accessing!private! !
+!RowanComponentService categoriesFor: #basename:!accessing!private! !
+!RowanComponentService categoriesFor: #componentPackagesUpdate:browser:!public!updating! !
 !RowanComponentService categoriesFor: #displayString!displaying!public! !
 !RowanComponentService categoriesFor: #name!accessing!public! !
+!RowanComponentService categoriesFor: #packageServices!accessing!private! !
+!RowanComponentService categoriesFor: #printOn:!displaying!public! !
 
 RowanDebuggerService guid: (GUID fromString: '{d8a038cb-84e2-4e03-bff9-1dc3bf097d57}')!
 RowanDebuggerService comment: ''!
@@ -4232,16 +4306,6 @@ checkoutUsing: presenter
 	branchName isNil ifTrue: [^self].
 	self basicCheckout: branchName using: presenter!
 
-chooseModel: presenter using: browser
-	| treeModel |
-	treeModel := browser projectListPresenter selectionOrNil isNil
-				ifTrue: 
-					[JadeiteTreeModel new
-						searchPolicy: SearchPolicy equality;
-						reset]
-				ifFalse: [presenter model].
-	^treeModel!
-
 componentServices
 
 	^componentServices!
@@ -4261,10 +4325,12 @@ componentsUpdate: presenter browser: browser
 	| treeModel parent topLevelComponents removals |
 	presenter model class = TreeModel
 		ifTrue: [^self	"not sure why the model starts out as a TreeModel, not a JadeiteTreeModel"].
-	browser projectListPresenter selectionOrNil ifNil:[^self] ifNotNil: [:service | service name = name ifFalse:[^self]]. 
+	browser projectListPresenter selectionOrNil
+		ifNil: [^self]
+		ifNotNil: [:service | service name = name ifFalse: [^self]].
 	treeModel := self chooseModel: presenter using: browser.
 	topLevelComponents := componentServices at: #nil ifAbsent: [^self].
-	treeModel resetVisited. 
+	treeModel resetVisited.
 	parent := nil.
 	topLevelComponents do: 
 			[:componentService |
@@ -4374,31 +4440,21 @@ packages
 
 	^packages!
 
+packageServices
+	"really, packages are a RowanPackageService"
+	^packages!
+
 performGitCommand: gitCommand with: argsString in: session
 	self
 		command: #performGitCommand:with:;
 		commandArgs: (Array with: gitCommand with: argsString).
 	BrowserUpdate current issueCommand: self session: session!
 
-possiblyAddComponent: service to: treeModel withParent: parentService hierarchyServices: hierarchyServices
-	| node |
-	node := treeModel getNodeFor: service
-				ifAbsent: 
-					[treeModel add: service asChildOf: parentService.
-					treeModel getNodeFor: service].
-	node visited: true.
-	(hierarchyServices at: service ifAbsent: [^self]) do: 
-			[:aService |
-			self
-				possiblyAddHierarchyService: aService
-				to: treeModel
-				withParent: service
-				hierarchyServices: hierarchyServices]!
-
 postUpdate
 	super postUpdate.
 	packages ifNotNil: [packages do: [:service | service postUpdate]].
-	packages := Array new!
+	packages := Array new.
+	componentServices := Dictionary new. !
 
 prepareForReplication
 
@@ -4407,14 +4463,10 @@ prepareForReplication
 	packages := nil.!
 
 projectPackagesUpdate: presenter browser: browser
-	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
-	browser projectListPresenter selections detect: [:projectService | projectService name = name]
-		ifNone: [^self].
 	self
-		updateList: presenter
-		whilePreservingSelections: packages
-		browser: browser.
-	browser isClassSelected ifFalse: [self emptyFilterListsIn: browser]!
+		packagesUpdate: presenter
+		browser: browser
+		parentPresenter: browser projectListPresenter!
 
 projectSelectionUpdate: presenter
 	| newSelections |
@@ -4470,7 +4522,6 @@ sortAspect
 !RowanProjectService categoriesFor: #branch!accessing!public! !
 !RowanProjectService categoriesFor: #branch:!accessing!public! !
 !RowanProjectService categoriesFor: #checkoutUsing:!presenter support!public! !
-!RowanProjectService categoriesFor: #chooseModel:using:!private!updating! !
 !RowanProjectService categoriesFor: #componentServices!public! !
 !RowanProjectService categoriesFor: #componentsUpdate:browser:!public!updating! !
 !RowanProjectService categoriesFor: #displayName!accessing!displaying!public! !
@@ -4489,8 +4540,8 @@ sortAspect
 !RowanProjectService categoriesFor: #name:!accessing!public! !
 !RowanProjectService categoriesFor: #newTextView:using:!displaying!private! !
 !RowanProjectService categoriesFor: #packages!accessing!public! !
+!RowanProjectService categoriesFor: #packageServices!accessing!public! !
 !RowanProjectService categoriesFor: #performGitCommand:with:in:!presenter support!public! !
-!RowanProjectService categoriesFor: #possiblyAddComponent:to:withParent:hierarchyServices:!private!updating! !
 !RowanProjectService categoriesFor: #postUpdate!Init / Release!public! !
 !RowanProjectService categoriesFor: #prepareForReplication!public!replication! !
 !RowanProjectService categoriesFor: #projectPackagesUpdate:browser:!public!updating! !

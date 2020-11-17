@@ -100,7 +100,7 @@ RowanService subclass: #RowanClassService
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 RowanService subclass: #RowanComponentService
-	instanceVariableNames: 'name componentServices packageServices projectService'
+	instanceVariableNames: 'name componentServices packageServices projectService basename'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
