@@ -75,7 +75,7 @@ TreeModel subclass: #JadeiteTreeModel
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 RsrService subclass: #RowanService
-	instanceVariableNames: 'command commandArgs updateType organizer updates'
+	instanceVariableNames: 'command commandArgs updateType organizer updates wasUpdated'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

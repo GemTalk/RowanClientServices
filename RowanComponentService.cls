@@ -17,6 +17,7 @@ basename: anObject
 	basename := anObject!
 
 componentPackagesUpdate: presenter browser: browser
+	wasUpdated ifFalse:[^self].
 	packageServices isEmpty ifTrue:[^self]. 
 	self
 		packagesUpdate: presenter

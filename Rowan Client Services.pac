@@ -75,7 +75,7 @@ TreeModel subclass: #JadeiteTreeModel
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 RsrService subclass: #RowanService
-	instanceVariableNames: 'command commandArgs updateType organizer updates'
+	instanceVariableNames: 'command commandArgs updateType organizer updates wasUpdated'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -2365,6 +2365,7 @@ basename: anObject
 	basename := anObject!
 
 componentPackagesUpdate: presenter browser: browser
+	wasUpdated ifFalse:[^self].
 	packageServices isEmpty ifTrue:[^self]. 
 	self
 		packagesUpdate: presenter
@@ -4323,6 +4324,7 @@ componentsUpdate: presenter browser: browser
 	D -> nil - neither C nor D have children"
 
 	| treeModel parent topLevelComponents removals |
+	wasUpdated ifFalse:[^self].
 	presenter model class = TreeModel
 		ifTrue: [^self	"not sure why the model starts out as a TreeModel, not a JadeiteTreeModel"].
 	browser projectListPresenter selectionOrNil
