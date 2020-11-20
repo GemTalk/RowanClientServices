@@ -20,3 +20,11 @@ resetVisited
 !JadeiteTreeModel categoriesFor: #nodeClass!constants!public! !
 !JadeiteTreeModel categoriesFor: #resetVisited!constants!public! !
 
+!JadeiteTreeModel class methodsFor!
+
+defaultSearchPolicy
+	"Answer the default <searchPolicy> used by instances of the receiver."
+
+	^SearchPolicy equality! !
+!JadeiteTreeModel class categoriesFor: #defaultSearchPolicy!constants!public! !
+

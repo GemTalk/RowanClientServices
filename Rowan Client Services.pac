@@ -33,6 +33,10 @@ package classNames
 	add: #RowanVariableService;
 	yourself.
 
+package methodNames
+	add: #Object -> #isService;
+	yourself.
+
 package binaryGlobalNames: (Set new
 	yourself).
 
@@ -194,6 +198,12 @@ TreeNode subclass: #JadeiteTreeNode
 
 
 "Loose Methods"!
+
+!Object methodsFor!
+
+isService
+	^false! !
+!Object categoriesFor: #isService!public!testing! !
 
 "End of package definition"!
 
@@ -599,6 +609,14 @@ resetVisited
 !JadeiteTreeModel categoriesFor: #nodeClass!constants!public! !
 !JadeiteTreeModel categoriesFor: #resetVisited!constants!public! !
 
+!JadeiteTreeModel class methodsFor!
+
+defaultSearchPolicy
+	"Answer the default <searchPolicy> used by instances of the receiver."
+
+	^SearchPolicy equality! !
+!JadeiteTreeModel class categoriesFor: #defaultSearchPolicy!constants!public! !
+
 RowanService guid: (GUID fromString: '{c91bf577-a5a9-4782-b6be-c05df3222bc9}')!
 RowanService comment: ''!
 !RowanService categoriesForClass!Kernel-Objects! !
@@ -795,6 +813,9 @@ isClassService
 
 	^false!
 
+isComponentService
+	^false!
+
 isDefinedProject
 
 	^true!
@@ -822,6 +843,9 @@ isPackageService
 isProjectService
 
 	^false!
+
+isService
+	^true!
 
 isTestCase
 
@@ -1127,6 +1151,7 @@ wasRenamed
 !RowanService categoriesFor: #isAnsweringService!public!testing! !
 !RowanService categoriesFor: #isBrowserService!public!testing! !
 !RowanService categoriesFor: #isClassService!public!testing! !
+!RowanService categoriesFor: #isComponentService!public!testing! !
 !RowanService categoriesFor: #isDefinedProject!public!testing! !
 !RowanService categoriesFor: #isDictionaryService!public!testing! !
 !RowanService categoriesFor: #isInspectorService!public!testing! !
@@ -1134,6 +1159,7 @@ wasRenamed
 !RowanService categoriesFor: #isMethodService!public!testing! !
 !RowanService categoriesFor: #isPackageService!public!testing! !
 !RowanService categoriesFor: #isProjectService!public!testing! !
+!RowanService categoriesFor: #isService!public!testing! !
 !RowanService categoriesFor: #isTestCase!public!testing! !
 !RowanService categoriesFor: #isUpdatableService!public!testing! !
 !RowanService categoriesFor: #methodFilterUpdate:!public!updating! !
@@ -2358,6 +2384,10 @@ RowanComponentService comment: ''!
 !RowanComponentService categoriesForClass!Unclassified! !
 !RowanComponentService methodsFor!
 
+= componentService
+	^componentService isService
+		and: [componentService isComponentService and: [name = componentService name]]!
+
 basename
 	^basename!
 
@@ -2375,6 +2405,12 @@ componentPackagesUpdate: presenter browser: browser
 displayString
 	^basename!
 
+hash
+	^self name hash!
+
+isComponentService
+	^true!
+
 name
 	^name!
 
@@ -2386,10 +2422,13 @@ printOn: stream
 		nextPutAll: self class name;
 		nextPutAll: '->';
 		nextPutAll: basename! !
+!RowanComponentService categoriesFor: #=!comparing!public! !
 !RowanComponentService categoriesFor: #basename!accessing!private! !
 !RowanComponentService categoriesFor: #basename:!accessing!private! !
 !RowanComponentService categoriesFor: #componentPackagesUpdate:browser:!public!updating! !
 !RowanComponentService categoriesFor: #displayString!displaying!public! !
+!RowanComponentService categoriesFor: #hash!comparing!public! !
+!RowanComponentService categoriesFor: #isComponentService!public!testing! !
 !RowanComponentService categoriesFor: #name!accessing!public! !
 !RowanComponentService categoriesFor: #packageServices!accessing!private! !
 !RowanComponentService categoriesFor: #printOn:!displaying!public! !

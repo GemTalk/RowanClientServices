@@ -10,6 +10,10 @@ RowanComponentService comment: ''!
 !RowanComponentService categoriesForClass!Unclassified! !
 !RowanComponentService methodsFor!
 
+= componentService
+	^componentService isService
+		and: [componentService isComponentService and: [name = componentService name]]!
+
 basename
 	^basename!
 
@@ -27,6 +31,12 @@ componentPackagesUpdate: presenter browser: browser
 displayString
 	^basename!
 
+hash
+	^self name hash!
+
+isComponentService
+	^true!
+
 name
 	^name!
 
@@ -38,10 +48,13 @@ printOn: stream
 		nextPutAll: self class name;
 		nextPutAll: '->';
 		nextPutAll: basename! !
+!RowanComponentService categoriesFor: #=!comparing!public! !
 !RowanComponentService categoriesFor: #basename!accessing!private! !
 !RowanComponentService categoriesFor: #basename:!accessing!private! !
 !RowanComponentService categoriesFor: #componentPackagesUpdate:browser:!public!updating! !
 !RowanComponentService categoriesFor: #displayString!displaying!public! !
+!RowanComponentService categoriesFor: #hash!comparing!public! !
+!RowanComponentService categoriesFor: #isComponentService!public!testing! !
 !RowanComponentService categoriesFor: #name!accessing!public! !
 !RowanComponentService categoriesFor: #packageServices!accessing!private! !
 !RowanComponentService categoriesFor: #printOn:!displaying!public! !

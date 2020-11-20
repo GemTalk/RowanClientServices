@@ -33,6 +33,10 @@ package classNames
 	add: #RowanVariableService;
 	yourself.
 
+package methodNames
+	add: #Object -> #isService;
+	yourself.
+
 package binaryGlobalNames: (Set new
 	yourself).
 
@@ -194,6 +198,12 @@ TreeNode subclass: #JadeiteTreeNode
 
 
 "Loose Methods"!
+
+!Object methodsFor!
+
+isService
+	^false! !
+!Object categoriesFor: #isService!public!testing! !
 
 "End of package definition"!
 
