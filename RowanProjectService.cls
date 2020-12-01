@@ -248,6 +248,7 @@ prepareForReplication
 	packages := nil.!
 
 projectPackagesUpdate: presenter browser: browser
+	wasUpdated ifFalse: [^self].
 	self
 		packagesUpdate: presenter
 		browser: browser
@@ -260,6 +261,7 @@ projectSelectionUpdate: presenter
 
 projectsUpdate: presenter
 	| listProject |
+	wasUpdated ifFalse: [^self].
 	listProject := presenter list detect: [:listProj | listProj name = name] ifNone: [^self].
 	listProject replicateFrom: self.
 	presenter view invalidate!

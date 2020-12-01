@@ -892,7 +892,7 @@ packagesUpdate: presenter browser: browser parentPresenter: parentPresenter
 	presenter list isEmpty ifTrue: [self initializePresenterList: presenter].
 	parentPresenter selections detect: [:service | service name = self name] ifNone: [^self].
 	selectedComponentPackages := (browser componentListPresenter selectionIfNone: [])
-				ifNil: [Array new]
+				ifNil: [self packageServices]
 				ifNotNil: [:componentService | componentService packageServices].
 	packageServices := self packageServices intersection: selectedComponentPackages.
 	self
@@ -1116,7 +1116,13 @@ variableListUpdate: aPresenter!
 wasRenamed
 	"not all services can be renamed"
 
-	^false! !
+	^false!
+
+wasUpdated
+	^wasUpdated!
+
+wasUpdated: anObject
+	wasUpdated := anObject! !
 !RowanService categoriesFor: #addCachedSymbols:!public!updating! !
 !RowanService categoriesFor: #autoCommitUpdate:!public!updating! !
 !RowanService categoriesFor: #basicPrepareForReplication!public!replication! !
@@ -1231,6 +1237,8 @@ wasRenamed
 !RowanService categoriesFor: #variableDataUpdate:!Debugger!public!updating! !
 !RowanService categoriesFor: #variableListUpdate:!Debugger!public!updating! !
 !RowanService categoriesFor: #wasRenamed!public!testing! !
+!RowanService categoriesFor: #wasUpdated!accessing!private! !
+!RowanService categoriesFor: #wasUpdated:!accessing!private! !
 
 !RowanService class methodsFor!
 
@@ -4509,6 +4517,7 @@ prepareForReplication
 	packages := nil.!
 
 projectPackagesUpdate: presenter browser: browser
+	wasUpdated ifFalse: [^self].
 	self
 		packagesUpdate: presenter
 		browser: browser
@@ -4521,6 +4530,7 @@ projectSelectionUpdate: presenter
 
 projectsUpdate: presenter
 	| listProject |
+	wasUpdated ifFalse: [^self].
 	listProject := presenter list detect: [:listProj | listProj name = name] ifNone: [^self].
 	listProject replicateFrom: self.
 	presenter view invalidate!
