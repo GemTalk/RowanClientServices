@@ -238,7 +238,6 @@ performGitCommand: gitCommand with: argsString in: session
 postUpdate
 	super postUpdate.
 	packages ifNotNil: [packages do: [:service | service postUpdate]].
-	packages := Array new.
 	componentServices := Dictionary new. !
 
 prepareForReplication

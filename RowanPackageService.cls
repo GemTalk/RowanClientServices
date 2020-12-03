@@ -10,6 +10,9 @@ RowanPackageService comment: ''!
 !RowanPackageService categoriesForClass!Kernel-Objects! !
 !RowanPackageService methodsFor!
 
+<= packageService
+	^packageService isPackageService ifTrue: [name <= packageService name] ifFalse: [^false]!
+
 = packageService
 	^packageService isPackageService ifTrue: [name = packageService name] ifFalse: [^false]!
 
@@ -200,6 +203,7 @@ updateList: presenter whilePreservingSelections: updates browser: browser
 			| existing |
 			existing := presenter model detect: [:service | service name = update name] ifNone: [].
 			existing ifNil: [update wasRenamed ifFalse: [presenter model add: update]]]! !
+!RowanPackageService categoriesFor: #<=!comparing!public! !
 !RowanPackageService categoriesFor: #=!comparing!public! !
 !RowanPackageService categoriesFor: #addHierarchyService:to:withParent:!private!updating! !
 !RowanPackageService categoriesFor: #basicPrepareForReplication!public!replication! !

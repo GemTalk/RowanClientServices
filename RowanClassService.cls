@@ -108,7 +108,7 @@ classHierarchyUpdate: presenter browser: browser
 	treeModel asBag
 		do: [:classService | classService selectedPackageServices: browser packageListPresenter selections browser: browser].
 	presenter model: treeModel.
-	presenter view updateMode: #lazy.	"for big hierarchies, faster display" 
+	presenter view updateMode: #lazy.	"for big hierarchies, faster display"
 	presenter view disableRedraw.
 	[presenter view expandAll] ensure: [presenter view enableRedraw].
 	presenter selectionIfNone: [^presenter view ensureItemVisible: treeModel roots first].

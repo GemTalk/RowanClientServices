@@ -1536,13 +1536,6 @@ newProjectNamed: projectName session: session windowHandle: handle
 		commandArgs: (Array with: projectName with: handle).
 	BrowserUpdate current issueCommands: (Array with: self) session: session!
 
-postUpdate
-	super postUpdate.
-	projects ifNotNil: [projects do: [:service | service postUpdate]].
-	dictionaries ifNotNil: [dictionaries do: [:service | service postUpdate]].
-	projects := Array new.
-	dictionaries := nil!
-
 prepareForReplication
 	super prepareForReplication.
 	self basicPrepareForReplication!
@@ -1664,7 +1657,6 @@ testPackages: presenter
 !RowanBrowserService categoriesFor: #name!accessing!public! !
 !RowanBrowserService categoriesFor: #name:!accessing!public! !
 !RowanBrowserService categoriesFor: #newProjectNamed:session:windowHandle:!commands!public!registering windows! !
-!RowanBrowserService categoriesFor: #postUpdate!public! !
 !RowanBrowserService categoriesFor: #prepareForReplication!public!replication! !
 !RowanBrowserService categoriesFor: #printOn:!printing!public! !
 !RowanBrowserService categoriesFor: #projects!accessing!public! !
@@ -1786,7 +1778,7 @@ classHierarchyUpdate: presenter browser: browser
 	treeModel asBag
 		do: [:classService | classService selectedPackageServices: browser packageListPresenter selections browser: browser].
 	presenter model: treeModel.
-	presenter view updateMode: #lazy.	"for big hierarchies, faster display" 
+	presenter view updateMode: #lazy.	"for big hierarchies, faster display"
 	presenter view disableRedraw.
 	[presenter view expandAll] ensure: [presenter view enableRedraw].
 	presenter selectionIfNone: [^presenter view ensureItemVisible: treeModel roots first].
@@ -3957,6 +3949,9 @@ RowanPackageService comment: ''!
 !RowanPackageService categoriesForClass!Kernel-Objects! !
 !RowanPackageService methodsFor!
 
+<= packageService
+	^packageService isPackageService ifTrue: [name <= packageService name] ifFalse: [^false]!
+
 = packageService
 	^packageService isPackageService ifTrue: [name = packageService name] ifFalse: [^false]!
 
@@ -4147,6 +4142,7 @@ updateList: presenter whilePreservingSelections: updates browser: browser
 			| existing |
 			existing := presenter model detect: [:service | service name = update name] ifNone: [].
 			existing ifNil: [update wasRenamed ifFalse: [presenter model add: update]]]! !
+!RowanPackageService categoriesFor: #<=!comparing!public! !
 !RowanPackageService categoriesFor: #=!comparing!public! !
 !RowanPackageService categoriesFor: #addHierarchyService:to:withParent:!private!updating! !
 !RowanPackageService categoriesFor: #basicPrepareForReplication!public!replication! !
@@ -4507,7 +4503,6 @@ performGitCommand: gitCommand with: argsString in: session
 postUpdate
 	super postUpdate.
 	packages ifNotNil: [packages do: [:service | service postUpdate]].
-	packages := Array new.
 	componentServices := Dictionary new. !
 
 prepareForReplication

@@ -84,13 +84,6 @@ newProjectNamed: projectName session: session windowHandle: handle
 		commandArgs: (Array with: projectName with: handle).
 	BrowserUpdate current issueCommands: (Array with: self) session: session!
 
-postUpdate
-	super postUpdate.
-	projects ifNotNil: [projects do: [:service | service postUpdate]].
-	dictionaries ifNotNil: [dictionaries do: [:service | service postUpdate]].
-	projects := Array new.
-	dictionaries := nil!
-
 prepareForReplication
 	super prepareForReplication.
 	self basicPrepareForReplication!
@@ -212,7 +205,6 @@ testPackages: presenter
 !RowanBrowserService categoriesFor: #name!accessing!public! !
 !RowanBrowserService categoriesFor: #name:!accessing!public! !
 !RowanBrowserService categoriesFor: #newProjectNamed:session:windowHandle:!commands!public!registering windows! !
-!RowanBrowserService categoriesFor: #postUpdate!public! !
 !RowanBrowserService categoriesFor: #prepareForReplication!public!replication! !
 !RowanBrowserService categoriesFor: #printOn:!printing!public! !
 !RowanBrowserService categoriesFor: #projects!accessing!public! !
