@@ -149,7 +149,7 @@ RowanService subclass: #RowanProcessService
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 RowanService subclass: #RowanProjectService
-	instanceVariableNames: 'sha branch isSkew packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop name isDirty componentServices'
+	instanceVariableNames: 'sha branch isSkew packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop name isDirty specService componentServices'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -4561,7 +4561,13 @@ sha: anObject
 
 sortAspect
 
-	^name! !
+	^name!
+
+specService
+	^specService!
+
+specService: anObject
+	specService := anObject! !
 !RowanProjectService categoriesFor: #=!comparing!public! !
 !RowanProjectService categoriesFor: #addPackageNamed:using:!presenter support!public! !
 !RowanProjectService categoriesFor: #allClasses!accessing!public! !
@@ -4607,6 +4613,8 @@ sortAspect
 !RowanProjectService categoriesFor: #sha!accessing!public! !
 !RowanProjectService categoriesFor: #sha:!accessing!public! !
 !RowanProjectService categoriesFor: #sortAspect!accessing!public! !
+!RowanProjectService categoriesFor: #specService!accessing!private! !
+!RowanProjectService categoriesFor: #specService:!accessing!private! !
 
 !RowanProjectService class methodsFor!
 
