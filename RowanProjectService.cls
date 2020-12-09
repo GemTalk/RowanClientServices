@@ -272,8 +272,7 @@ remoteServiceName
 	^'Rowan projectServiceClass'!
 
 removed: presenter
-	self = RowanProjectService noneProject ifTrue: [^self].
-	self isDefinedProject ifTrue:[^self]. 
+	self = self class noneProject ifTrue: [^self].
 	^super removed: presenter!
 
 removedProject: presenter

@@ -382,8 +382,10 @@ removeDeletedClassesIn: presenter browser: browser classes: theClasses
 	renamedClassNames := theClasses collect: [:classService | classService renamedName].
 	removedClasses := removedClasses
 				reject: [:classService | renamedClassNames includes: classService name].
-	removedClasses
-		do: [:removedClassService | (presenter selections includes: removedClassService) ifTrue: [presenter view basicResetSelection]].
+	removedClasses do: 
+			[:removedClassService |
+			(presenter selections includes: removedClassService)
+				ifTrue: [presenter view noEventsDo: [presenter view resetSelection]]].
 	removedClasses isEmpty ifTrue: [^self].
 	presenter model
 		setList: (ListModel withAll: (presenter list asArray copyWithoutAll: removedClasses))
