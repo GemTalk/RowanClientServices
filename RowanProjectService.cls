@@ -50,7 +50,7 @@ basicCheckout: branchName using: presenter
 	self
 		command: #checkout:;
 		commandArgs: (Array with: (branchName copyWithout: $*)).
-	presenter issueCommand: (Array with: self).
+	presenter issueCommand: self.
 	presenter refresh!
 
 basicCheckoutTag: tag using: session
@@ -64,7 +64,7 @@ basicCheckoutUsing: presenter
 	query := RowanQueryService new
 				command: #projectBranches:;
 				commandArgs: (Array with: self name).
-	branchString := (presenter issueCommand: (Array with: query)) first answer.
+	branchString := (presenter issueCommand: query) first answer.
 	branches := (branchString subStrings: Character lf) asOrderedCollection.
 	branches := branches reject: [:string | '*HEAD*' match: string].
 	branches := branches collect: [:string | string copyWithout: Character space].
