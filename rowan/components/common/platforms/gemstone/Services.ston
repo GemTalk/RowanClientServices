@@ -1,0 +1,9 @@
+RwPlatformNestedProjectLoadComponentV2 {
+	#name : 'common/platforms/gemstone/Services',
+	#condition : [
+		'gemstone'
+	],
+	#packageNames : [ ],
+	#conditionalPackageMapSpecs : { },
+	#comment : ''
+}

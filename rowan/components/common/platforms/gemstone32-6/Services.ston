@@ -1,0 +1,8 @@
+RwPlatformNestedProjectLoadComponentV2 {
+	#name : 'common/platforms/gemstone32-6/Services',
+	#condition : [
+		'gs3.[2-6]'
+	],
+	#packageNames : [ ],
+	#comment : ''
+}

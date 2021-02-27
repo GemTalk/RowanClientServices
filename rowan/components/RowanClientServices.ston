@@ -1,0 +1,10 @@
+RwSimpleProjectLoadComponentV2 {
+	#name : 'RowanClientServices',
+	#condition : 'common',
+	#projectNames : [ ],
+	#componentNames : [
+		'common/Services'
+	],
+	#packageNames : [ ],
+	#comment : ''
+}
