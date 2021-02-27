@@ -3,6 +3,8 @@ RwPlatformNestedProjectLoadComponentV2 {
 	#condition : [
 		'gemstone'
 	],
-	#packageNames : [ ],
+	#packageNames : [
+		'Rowan-Services-Tests'
+	],
 	#comment : ''
 }

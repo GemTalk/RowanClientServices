@@ -3,6 +3,8 @@ RwPlatformNestedProjectLoadComponentV2 {
 	#condition : [
 		'gs3.[2-5]'
 	],
-	#packageNames : [ ],
+	#packageNames : [
+		'Rowan-Services-Tests-32x'
+	],
 	#comment : ''
 }
