@@ -33,7 +33,7 @@ RowanQueryServicesTest >> test_hierarchyImplementorsGetsAllSubclasses [
 		classService := RowanClassService forClassNamed: methodService className.
 		subclassesImplementing add:  methodService className.
 		classService classHierarchy. 
-		self assert: (classService classHierarchyNames includes: 'RwLoadedThing')].
+		self assert: (classService classHierarchyNames includes: 'Object')].
 	self assert: (subclassesImplementing includes: 'RwLoadedThing'). 
 	self assert: (subclassesImplementing includes: 'RwLoadedProject'). 
 	self assert: (subclassesImplementing includes: 'RwGsLoadedSymbolDictPackage'). 
