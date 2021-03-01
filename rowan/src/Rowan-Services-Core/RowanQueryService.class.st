@@ -197,7 +197,10 @@ RowanQueryService >> projectBranches: projectName [
 { #category : 'queries' }
 RowanQueryService >> projectLog: projectName [
 
-	queryResults := (Rowan projectNamed: projectName) commitLog: self defaultProjectLogSize.
+       queryResults := 
+               (Rowan projectTools log
+               commitLogProjectNamed: projectName
+               limit: self defaultProjectLogSize).
 	RowanCommandResult addResult: self.
 ]
 

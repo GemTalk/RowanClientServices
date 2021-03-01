@@ -208,7 +208,10 @@ RowanProjectService >> loadProjectNamed: aName [
 { #category : 'rowan' }
 RowanProjectService >> log [
 
-	^self rwProject commitLog: 25
+       ^Rowan projectTools log
+               commitLogProjectNamed: name
+               limit: 25
+
 ]
 
 { #category : 'accessing' }
