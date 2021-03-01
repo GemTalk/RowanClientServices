@@ -8,6 +8,16 @@ RwPlatformNestedProjectLoadComponentV2 {
 		'Rowan-Services-Core',
 		'Rowan-Services-Extensions'
 	],
-	#conditionalPackageMapSpecs : { },
+	#conditionalPackageMapSpecs : {
+		'gemstone' : {
+			'allusers' : {
+				#packageNameToPlatformPropertiesMap : {
+					'Rowan-Services-Extensions' : {
+						'symbolDictName' : 'RowanKernel'
+					}
+				}
+			}
+		}
+	},
 	#comment : ''
 }

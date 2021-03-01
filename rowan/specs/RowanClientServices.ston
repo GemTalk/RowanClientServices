@@ -12,5 +12,13 @@ RwLoadSpecificationV2 {
 		'stubs',
 		'tonel'
 	],
+	#platformProperties : {
+		'gemstone' : {
+			'SystemUser' : {
+				#defaultSymbolDictName : 'RowanClientServices'
+			}
+		}
+	},
+
 	#comment : ''
 }
