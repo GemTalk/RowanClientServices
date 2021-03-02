@@ -1,6 +1,7 @@
 "
 RowanBrowserService handles services that fall outside
-the scope of other services.
+the scope of other services with an emphasis on browser-
+type tasks.
 "
 Class {
 	#name : 'RowanBrowserService',
@@ -50,7 +51,23 @@ RowanBrowserService >> abortTransactionAndUpdateServices: services [
 { #category : 'client commands' }
 RowanBrowserService >> allClasses [
 	allClasses := self basicAllClasses.
-	updateType := #classes. "#classes not used at the moment so no updates will be done"
+	updateType := #dontUpdate. 
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
+RowanBrowserService >> allPackages [
+	| theProjects |
+	theProjects := Rowan image loadedProjects asArray.
+	projects := theProjects
+		collect: [ :project | 
+			| projectService |
+			projectService := RowanProjectService newNamed: project name.
+			projectService packages: projectService packageServices.
+			projectService packages
+				do: [ :packageService | packageService projectName: project name ].
+			projectService ].
+	updateType := #'dontUpdate'.
 	RowanCommandResult addResult: self
 ]
 
@@ -191,6 +208,17 @@ RowanBrowserService >> newCachedSelectors: object [
 	newCachedSelectors := object
 ]
 
+{ #category : 'client commands' }
+RowanBrowserService >> newProjectNamed: projectName windowHandle: handle [
+	| definedProjectService project |
+	definedProjectService := RowanDefinedProjectService new name: projectName.
+	definedProjectService projectOop: (project := Rowan newProjectNamed: projectName) asOop.
+	self saveRootObject: definedProjectService projectOop windowHandle: handle. 
+	definedProjectService := definedProjectService updateType: #newProject:.
+	definedProjectService specService: (RowanSpecificationService new initialize: project _loadSpecification asOop).
+	RowanCommandResult addResult: definedProjectService
+]
+
 { #category : 'window registry' }
 RowanBrowserService >> openWindows [
 
@@ -201,39 +229,37 @@ RowanBrowserService >> openWindows [
 
 { #category : 'client commands' }
 RowanBrowserService >> packagesWithTests [
-  organizer := ClassOrganizer new.	"when we call this method, our world has changed from a reload, etc."
-  testPackages := Set new.
-  testCount := 0.
-  testPackages := Set new.
-  testCount := 0.
-  (organizer allSubclassesOf: TestCase)
-    do: [ :sub | 
-      | packageName testMethodCount |
-      testMethodCount := (sub sunitSelectors
-        select: [ :each | each beginsWith: 'test' ]) size.	"sending #testSelectors was slower"
-      testCount := testCount + testMethodCount.
-      testMethodCount > 0
-        ifTrue: [ 
-          packageName := sub rowanPackageName.
-          packageName = Rowan unpackagedName
-            ifFalse: [ 
-              testPackages
-                add:
-                  (RowanPackageService new
-                    name: packageName;
-                    updateProjectName;
-                    yourself) ].
-          (Rowan image loadedClassExtensionsForClass: sub)
-            do: [ :loadedThing | 
-              testPackages
-                add:
-                  (RowanPackageService new
-                    name: loadedThing loadedPackage name;
-                    updateProjectName;
-                    yourself)	"don't update the entire package for performance improvement" ] ] ].
-  updateType := #'testPackages:'.
-  testPackages := testPackages asArray.
-  RowanCommandResult addResult: self
+	organizer := ClassOrganizer new.	"when we call this method, our world has changed from a reload, etc."
+	testPackages := Set new.
+	testCount := 0.
+	testPackages := Set new.
+	testCount := 0.
+	(organizer allSubclassesOf: TestCase)
+		do: [ :sub | 
+			| packageName testMethodCount |
+			testMethodCount := (sub sunitSelectors
+				select: [ :each | each beginsWith: 'test' ]) size.	"sending #testSelectors was slower"
+			testCount := testCount + testMethodCount.
+			testMethodCount > 0
+				ifTrue: [ 
+					packageName := sub rowanPackageName.
+					packageName = Rowan unpackagedName
+						ifFalse: [ 
+							testPackages
+								add:
+									((RowanPackageService forPackageNamed: packageName)
+										updateProjectName;
+										yourself) ].
+					(Rowan image loadedClassExtensionsForClass: sub)
+						do: [ :loadedThing | 
+							testPackages
+								add:
+									((RowanPackageService forPackageNamed: loadedThing loadedPackage name)
+										updateProjectName;
+										yourself)	"don't update the entire package for performance improvement" ] ] ].
+	updateType := #'testPackages:'.
+	testPackages := testPackages asArray.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
@@ -315,7 +341,7 @@ RowanBrowserService >> removeMethods: methodServices [
 		classService := RowanClassService forClassNamed: methodService className. 
 		classService meta: methodService meta. 
 		classService removeSelector: methodService selector ifAbsent:[notRemoved add: methodService].
-		classService updatePackageProject.
+		classService updatePackageAndProject.
 		(notRemoved includes: methodService) ifFalse:[
 			methodService updateType: #removed:.
 			RowanCommandResult addResult: methodService]. 
@@ -340,36 +366,21 @@ RowanBrowserService >> saveRootObject: oop windowHandle: integer [
 
 ]
 
-{ #category : 'other' }
+{ #category : 'accessing' }
 RowanBrowserService >> selectedClass [
 
 	^selectedClass
 ]
 
-{ #category : 'other' }
+{ #category : 'accessing' }
 RowanBrowserService >> selectedClass: object [
 
 	selectedClass := object
 ]
 
-{ #category : 'perform' }
-RowanBrowserService >> servicePerform: symbol withArguments: collection [
-	super perform: symbol withArguments: collection.
-]
-
 { #category : 'client commands' }
-RowanBrowserService >> unloadProjectsNamed: array [
-  array
-    do: [ :projectName | 
-      | project |
-      project := Rowan image loadedProjectNamed: projectName ifAbsent: [  ].
-      project
-        ifNotNil: [ Rowan projectTools delete deleteProjectNamed: projectName ] ].
-  self updateProjects
-]
-
-{ #category : 'update' }
-RowanBrowserService >> update [
+RowanBrowserService >> unloadProjectsNamed: projectNames [
+	projectNames do: [ :projectName | (Rowan projectNamed: projectName) unload ].
 	self updateProjects
 ]
 

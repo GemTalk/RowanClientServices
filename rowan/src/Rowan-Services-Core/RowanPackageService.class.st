@@ -1,3 +1,10 @@
+"
+No class-specific documentation for RowanPackageService, hierarchy is:
+Object
+  RowanService( definition updates command commandArgs updateType organizer)
+    RowanPackageService( projectDefinition packageName name isDirty classes defaultTemplate projectName testClasses hierarchyServices selectedClass)
+
+"
 Class {
 	#name : 'RowanPackageService',
 	#superclass : 'RowanService',
@@ -18,16 +25,14 @@ Class {
 
 { #category : 'instance creation' }
 RowanPackageService class >> forPackageNamed: aName [
-
 	| inst |
-	inst := self new.  
+	inst := self new.
 	inst name: aName.
-	aName isNil ifFalse:[
-		inst isDirty. "lazy initialize"].
-	inst setDefaultTemplate. 
+	aName isNil
+		ifFalse: [ inst updateIsDirty ].
+	inst setDefaultTemplate.
 	inst updateProjectName.
-	^inst
-
+	^ inst
 ]
 
 { #category : 'comparing' }
@@ -45,7 +50,8 @@ RowanPackageService >> arePackageAndProjectClean [
 RowanPackageService >> changes [
    "diffForPackageName: not implemented yet"
  
- ^ (Rowan packageTools diff diffForPackageName: name) asString
+   ^ (Rowan packageTools diff diffForPackageName: name) asString
+
 ]
 
 { #category : 'other' }
@@ -116,11 +122,9 @@ RowanPackageService >> hierarchyServices [
 	^hierarchyServices
 ]
 
-{ #category : 'rowan' }
+{ #category : 'Accessing' }
 RowanPackageService >> isDirty [
-
-	^isDirty := self rowanDirty
-
+	^isDirty
 ]
 
 { #category : 'Updating' }
@@ -278,14 +282,16 @@ RowanPackageService >> selectedClass: classService [
 
 { #category : 'perform' }
 RowanPackageService >> servicePerform: symbol withArguments: collection [
-  | wasClean |
-  self isUpdatingButFoundToBeDeleted
-    ifTrue: [ ^ self handleDeletedService ].
-  wasClean := self arePackageAndProjectClean.
-  super servicePerform: symbol withArguments: collection.
-  self update.
-  wasClean
-    ifTrue: [ self updateProject ]
+	| wasClean projectService |
+	self isUpdatingButFoundToBeDeleted
+		ifTrue: [ ^ self handleDeletedService ].
+	wasClean := self arePackageAndProjectClean.
+	super servicePerform: symbol withArguments: collection.
+	wasClean
+		ifTrue: [ 
+			projectService := RowanProjectService new name: projectName.
+			projectService updateIsDirty.
+			RowanCommandResult addResult: projectService ]
 ]
 
 { #category : 'commands support' }
@@ -337,6 +343,7 @@ RowanPackageService >> testClasses [
 
 { #category : 'updates' }
 RowanPackageService >> update [
+	super update.
 	Rowan image loadedPackageNamed: name ifAbsent: [^self]. 
 	classes := (self loadedClassNames keys collect:[:string | RowanClassService minimalForClassNamed: string]) asArray.
 	classes addAll: (self loadedClassExtensions keys collect:[:string | 
@@ -347,7 +354,7 @@ RowanPackageService >> update [
 			ifNotNil:[:cls | classService definedPackageName: cls packageName].
 		classService]).
 	classes do: [:clsService | clsService packageName: self name]. 
-	self isDirty. 
+	self updateIsDirty. 
 	projectName := (Rowan image loadedPackageNamed: name) projectName.
 	RowanCommandResult addResult: self
 ]
@@ -366,6 +373,12 @@ RowanPackageService >> updateInternalService: updatedService [
 		classesService = updatedService ifTrue:[
 			classes at: index put: updatedService
 		]].
+]
+
+{ #category : 'rowan' }
+RowanPackageService >> updateIsDirty [
+
+	isDirty := self rowanDirty.
 ]
 
 { #category : 'updates' }
