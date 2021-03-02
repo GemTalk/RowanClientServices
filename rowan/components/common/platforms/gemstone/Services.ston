@@ -14,9 +14,7 @@ RwPlatformNestedProjectLoadComponentV2 {
 				#packageNameToPlatformPropertiesMap : {
 					'Rowan-Services-Extensions' : {
 						'symbolDictName' : 'RowanKernel'
-					}
-				},
-				{
+					},
 					'Rowan-JadeServer' : {
 						'symbolDictName' : 'UserGlobals'
 					}
