@@ -17,12 +17,12 @@ Class {
 	#name : 'RowanService',
 	#superclass : 'Object',
 	#instVars : [
-		'definition',
-		'updates',
 		'command',
 		'commandArgs',
 		'updateType',
-		'organizer'
+		'organizer',
+		'updates',
+		'wasUpdated'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -39,11 +39,59 @@ RowanService class >> breakPointsAreEnabled [
 	^SessionTemps current at: #'Jadeite_BreakPointsAreEnabled' ifAbsentPut: [true]
 ]
 
+{ #category : 'rsr' }
+RowanService class >> clientClassName [
+
+	^self name
+]
+
 { #category : 'autocommit' }
 RowanService class >> flipAutoCommit [
 	| newValue |
 	newValue := self autoCommit == #failed ifTrue:[false] ifFalse:[self autoCommit not].
 	^self setAutoCommit: newValue
+]
+
+{ #category : 'sparkle' }
+RowanService class >> instantiateFrom: sparkleService [
+	| rowanServiceClass |
+	rowanServiceClass := (GsSession currentSession
+		resolveSymbol: sparkleService rowanServiceClassName) value.
+	^ rowanServiceClass instantiateFromSparkle: sparkleService
+]
+
+{ #category : 'sparkle' }
+RowanService class >> instantiateFromClassName: classString meta: meta [
+	| theClass | 
+	theClass := (GsSession currentSession resolveSymbol: classString asSymbol)
+		ifNil: [ ^ self ]
+		ifNotNil: [ :symbolAssoc | symbolAssoc value ].
+	meta
+		ifTrue: [ theClass := theClass class ].
+	^theClass new
+]
+
+{ #category : 'sparkle' }
+RowanService class >> instantiateFromSparkle: sparkleService [
+	"very simple instantiation from a sparkle blob"
+
+	| service |
+	service := self new.
+	service organizer: ClassOrganizer new.
+	service name: (sparkleService blobPropertyNamed: #'name' ifAbsent: [  ]).
+	^ service
+]
+
+{ #category : 'rsr' }
+RowanService class >> isClientClass [
+	
+	^true
+]
+
+{ #category : 'rsr' }
+RowanService class >> isServerClass [
+	
+	^true
 ]
 
 { #category : 'instance creation' }
@@ -67,6 +115,12 @@ RowanService class >> sampleService [
 
 ]
 
+{ #category : 'rsr' }
+RowanService class >> serverClassName [
+
+	^self name
+]
+
 { #category : 'autocommit' }
 RowanService class >> setAutoCommit: object [
 
@@ -78,12 +132,28 @@ RowanService class >> setBreakPointsAreEnabled: boolean [
   ^ SessionTemps current at: #'Jadeite_BreakPointsAreEnabled' put: boolean
 ]
 
+{ #category : 'rsr' }
+RowanService class >> templateClassName [ 
+
+	^self name
+]
+
 { #category : 'accessing' }
 RowanService class >> version [
   "change this method carefully and only at Jadeite release boundaries.
 	Failure to do so will prevent logins"
 
-  ^ 3092
+  ^ 3200
+]
+
+{ #category : 'commands support' }
+RowanService >> addAllSubclassHierarchiesOf: theClass to: hierarchies [
+	(organizer subclassesOf: theClass)
+		do: [ :subclass | 
+			hierarchies
+				add:
+					(organizer allSuperclassesOf: theClass) , (Array with: theClass with: subclass).
+			self addAllSubclassHierarchiesOf: subclass to: hierarchies ]
 ]
 
 { #category : 'other' }
@@ -95,6 +165,17 @@ RowanService >> answer: anObject [
 	RowanCommandResult addResult: answeringService.
 ]
 
+{ #category : 'commands support' }
+RowanService >> autoCommitIfRequired [
+	| commitResult |
+	self class autoCommit == true ifTrue:[
+		commitResult := System commitTransaction.
+		RowanAutoCommitService new autoCommit:  
+			(commitResult 
+				ifTrue:[true] 
+				ifFalse:[#failed])].
+]
+
 { #category : 'rowan' }
 RowanService >> browserTool [
 
@@ -104,25 +185,30 @@ RowanService >> browserTool [
 
 { #category : 'commands support' }
 RowanService >> classHierarchy: theClasses [
-  | superclassChains levels services hierarchies toExpand hierarchyServices |
-  superclassChains := self superclassChainsFor: theClasses.
-  hierarchies := self extendHierarchies: superclassChains.
-  levels := self hierarchiesByLevel: hierarchies.
-  services := Dictionary new.
-  toExpand := Set new.
-  self
-    services: services
-    from: levels
-    expand: toExpand
-    classes: theClasses.
-  hierarchyServices := services reject: [ :array | array isEmpty ].
-  hierarchyServices copy
-    keysAndValuesDo: [ :key :value | 
-      hierarchyServices
-        at: key
-        put:
-          (value asSet asSortedCollection: [ :x :y | x name < y name ]) asArray ].
-  ^ hierarchyServices
+	| superclassChains levels services hierarchies toExpand hierarchyServices |
+	superclassChains := self peerHierarchies: theClasses.
+	hierarchies := self extendHierarchies: superclassChains forClasses: theClasses.
+	levels := self hierarchiesByLevel: hierarchies.
+	services := Dictionary new.
+	toExpand := Set new.
+	self
+		services: services
+		from: levels
+		expand: toExpand
+		classes: theClasses.
+	hierarchyServices := services reject: [ :array | array isEmpty ].
+	hierarchyServices copy
+		keysAndValuesDo: [ :key :value | 
+			hierarchyServices
+				at: key
+				put: (value asSet asSortedCollection: [ :x :y | x name < y name ]) asArray ].
+	^ hierarchyServices
+]
+
+{ #category : 'rsr' }
+RowanService >> clearOrganizers [
+	organizer := nil.
+	updates do: [ :update | update organizer: nil ]
 ]
 
 { #category : 'accessing' }
@@ -215,24 +301,47 @@ RowanService >> excludedInstVars [
 
 ]
 
-{ #category : 'commands support' }
-RowanService >> extendHierarchies: hierarchies [
-	
-	"extend the hierarchies by one level
-	of subclasses"
+{ #category : 'rsr' }
+RowanService >> executeCommand [
+	"RSR -> RowanServices primary api."
 
-	| extendedHierarchies |
-	extendedHierarchies := Array new. 
-	hierarchies do:[:hierarchy |
-		| theClass subclasses |
-		theClass := hierarchy last. 
-		(subclasses := organizer subclassesOf: theClass) isEmpty 
-			ifTrue:[extendedHierarchies add: hierarchy]
-			ifFalse:[
-				subclasses do:[:sub |
-					extendedHierarchies add: (hierarchy copy add: sub; yourself)
-				]]].
-	^extendedHierarchies
+	[ 
+	Rowan commandResultClass initializeResults.
+	organizer := ClassOrganizer new.
+	[ 
+	updateType := nil.	"Update type is only for returned commands"
+	command ifNil: [ command := #'update' ].
+	GsFile gciLogClient: '========== about to execute command ============='.
+	self servicePerform: command withArguments: commandArgs ]
+		on: GsInteractionRequest
+		do: [ :ex | 
+			ex
+				response:
+					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
+	GsFile gciLogClient: '========== about to execute post command ============='.
+	Rowan loggingServiceClass current logSentServices.
+	updates := Rowan commandResultClass results.
+	self postCommandExecution ]
+		on: Error
+		do: [ :ex | 
+			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
+			ex pass ].
+
+	^ self
+]
+
+{ #category : 'commands support' }
+RowanService >> extendHierarchies: hierarchies forClasses: theClasses [
+	"extend the hierarchies by one level
+	of subclasses if it is a selected class"
+
+	hierarchies
+		do: [ :hierarchy | 
+			| theClass |
+			theClass := hierarchy last.
+			(theClasses includes: theClass)
+				ifTrue: [ self addAllSubclassHierarchiesOf: theClass to: hierarchies ] ].
+	^ hierarchies
 ]
 
 { #category : 'perform' }
@@ -271,10 +380,18 @@ RowanService >> hierarchiesByLevel: hierarchies [
 
 { #category : 'initialization' }
 RowanService >> initialize [
+	updates := Array new.
+	wasUpdated := false
 ]
 
 { #category : 'testing' }
 RowanService >> isClassService [
+
+	^false
+]
+
+{ #category : 'testing' }
+RowanService >> isDefinedProject [
 
 	^false
 ]
@@ -320,10 +437,67 @@ RowanService >> jadeiteServer [
 	^(Rowan jadeServerClassNamed: #JadeServer) theJadeiteServer
 ]
 
+{ #category : 'sparkle' }
+RowanService >> makeSparkle [
+	"We don't create a true sparkle service, 
+	just a dictionary with instVar -> value
+	pairs where the values are simple types
+	understood by the remote client"
+
+	| sparkleService |
+	sparkleService := SpkRowanService new
+		rowanServiceClassName: self class name;
+		blob: Dictionary new;
+		yourself.
+	1 to: self class allInstVarNames size do: [ :index | 
+		| instVarName instVarValue |
+		instVarName := self class allInstVarNames at: index.
+		instVarValue := self instVarAt: index.
+		sparkleService blob at: instVarName put: instVarValue makeSparkle ].
+	^ sparkleService
+]
+
+{ #category : 'sparkle' }
+RowanService >> name: dontCare [
+	"for rowan services which don't have a name -  ignore"
+]
+
 { #category : 'accessing' }
 RowanService >> organizer: anOrganizer [
 
 	organizer := anOrganizer.
+]
+
+{ #category : 'commands support' }
+RowanService >> peerHierarchies: theClasses [
+	" create hierarchies for each peer of the 
+	classes of interest."
+
+	| peerHierarchies |
+	peerHierarchies := Array new.
+	theClasses
+		do: [ :theClass | 
+			| superclass |
+			superclass := theClass superclass.
+			superclass
+				ifNil: [ peerHierarchies add: (Array with: theClass) ]
+				ifNotNil: [ 
+					superclass subclasses
+						do: [ :subclass | 
+							peerHierarchies
+								add:
+									((organizer allSuperclassesOf: subclass)
+										add: subclass;
+										yourself) ] ] ].
+	^ peerHierarchies
+]
+
+{ #category : 'rsr' }
+RowanService >> postCommandExecution [
+	
+	self clearOrganizers. 
+	updates remove: self ifAbsent: [  ].
+	self autoCommitIfRequired
 ]
 
 { #category : 'rowan' }
@@ -331,6 +505,21 @@ RowanService >> projectTools [
 
 	^Rowan projectTools
 
+]
+
+{ #category : 'release' }
+RowanService >> releaseProcessOop: oop [
+  "not really releasing it. The client should have registered
+	the process with the debugger window it opened before
+	this is run"
+
+  | jadeiteProcesses process |
+  ((process := Object _objectForOop: oop) isKindOf: GsProcess)
+    ifTrue: [ 
+      jadeiteProcesses := SessionTemps current
+        at: #'jadeiteProcesses'
+        ifAbsentPut: [ Array new ].
+      jadeiteProcesses remove: process ifAbsent: [  ] ]
 ]
 
 { #category : 'samples' }
@@ -356,26 +545,6 @@ RowanService >> rowanFixMe [
 
 ]
 
-{ #category : 'rowan' }
-RowanService >> rowanLoadedPackageNames [
-
-	| stream packages |
-	self rowanFixMe.	"handle modified package display"
-	stream := WriteStream on: String new.
-	packages := Rowan packageNames.
-	packages do: 
-					[:package |
-					stream
-						nextPutAll: package;
-						tab;
-						nextPut: ((RwPackage newNamed: package) isDirty ifTrue:[$Y] ifFalse:[$N]);
-						tab;
-						nextPutAll: package;
-						lf].
-	^stream contents
-
-]
-
 { #category : 'accessing' }
 RowanService >> rowanProjectName [
 
@@ -394,19 +563,26 @@ RowanService >> sampleSymbolDictionaryName [
 
 { #category : 'perform' }
 RowanService >> servicePerform: symbol withArguments: collection [
-  "each service updates itself after performing a command.
+	"subclasses may not want to update after performing the command"
+
+	self servicePerform: symbol withArguments: collection shouldUpdate: true
+]
+
+{ #category : 'perform' }
+RowanService >> servicePerform: symbol withArguments: collection shouldUpdate: shouldUpdate [
+	"each service updates itself after performing a command.
 	Therefore, if the command is #update, don't run it here"
 
-  SessionTemps current
-    at: #'versionsVerified'
-    ifAbsent: [ 
-      SessionTemps current at: #'versionsVerified' put: false.
-      self
-        inform:
-          'Version mismatch failure. Client version is older than server version.' ].
-  symbol == #'update'
-    ifTrue: [ ^ self ].
-  ^ super perform: symbol withArguments: collection
+	SessionTemps current
+		at: #'versionsVerified'
+		ifAbsent: [ 
+			SessionTemps current at: #'versionsVerified' put: false.
+			self
+				inform:
+					'Version mismatch failure. Client version is older than server version.' ].
+	super perform: symbol withArguments: collection.
+	shouldUpdate
+		ifTrue: [ self update ]
 ]
 
 { #category : 'commands support' }
@@ -505,8 +681,9 @@ RowanService >> symbolDictionaryNamed: aName [
 
 ]
 
-{ #category : 'initialization' }
+{ #category : 'update' }
 RowanService >> update [
+	wasUpdated := true
 ]
 
 { #category : 'update' }

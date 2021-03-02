@@ -1,3 +1,10 @@
+"
+No class-specific documentation for RowanProcessService, hierarchy is:
+Object
+  RowanService( definition updates command commandArgs updateType organizer)
+    RowanProcessService( frames oop status)
+
+"
 Class {
 	#name : 'RowanProcessService',
 	#superclass : 'RowanService',
@@ -82,11 +89,6 @@ RowanProcessService >> oop: object [
 	oop := object
 ]
 
-{ #category : 'perform' }
-RowanProcessService >> servicePerform: symbol withArguments: collection [
-	^self perform: symbol withArguments: collection.
-]
-
 { #category : 'accessing' }
 RowanProcessService >> status [
 	^status
@@ -99,7 +101,7 @@ RowanProcessService >> status: object [
 
 { #category : 'updating' }
 RowanProcessService >> update [
-
+	super update. 
 	self initialize: (Object _objectForOop: oop) status: 'suspended'.
 	RowanCommandResult addResult: self.
 ]

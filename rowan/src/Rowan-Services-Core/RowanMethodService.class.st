@@ -1,3 +1,10 @@
+"
+No class-specific documentation for RowanMethodService, hierarchy is:
+Object
+  RowanService( definition updates command commandArgs updateType organizer)
+    RowanMethodService( oop source selector methodDefinitions classService category packageName projectName className meta hasSupers hasSubs compilationWarnings isExtension inSelectedPackage references stepPoints selectedPackageServices superDisplayString accessedInstVars breakPoints testResult definedPackage isTestMethod testRunClassName failedCompile comparisonSource firstReference renamedName isMethodForBlock homeMethodOop hasMethodHistory searchString definedClassName)
+
+"
 Class {
 	#name : 'RowanMethodService',
 	#superclass : 'RowanService',
@@ -6,7 +13,6 @@ Class {
 		'source',
 		'selector',
 		'methodDefinitions',
-		'classService',
 		'category',
 		'packageName',
 		'projectName',
@@ -56,6 +62,19 @@ RowanMethodService class >> forSelector: sel class: theClass meta: boolean organ
 		meta: boolean.
 	service forClass: theClass organizer: anOrganizer.
 	^service
+]
+
+{ #category : 'sparkle' }
+RowanMethodService class >> instantiateFromSparkle: sparkleService [
+	"very simple instantiation from a sparkle blob"
+
+	| service |
+	service := super instantiateFromSparkle: sparkleService.
+	service className: (sparkleService blobPropertyNamed: #'className').
+	service selector: (sparkleService blobPropertyNamed: #'selector').
+	service meta: (sparkleService blobPropertyNamed: #'meta').
+	service oop: (sparkleService blobPropertyNamed: #'oop').
+	^ service
 ]
 
 { #category : 'utility' }
@@ -133,17 +152,6 @@ RowanMethodService >> accessedInstVars: anArray [
 	accessedInstVars := anArray
 ]
 
-{ #category : 'rowan' }
-RowanMethodService >> addOrUpdateMethod [
-
-		self browserTool  
-                   addOrUpdateMethod: source
-                   inProtocol: category
-                   forClassNamed: self classService name
-                   isMeta: meta
-                   inPackageNamed: self classService packageName
-]
-
 { #category : 'method history' }
 RowanMethodService >> addToMethodHistory [
   | rowanMethodHistory methodHistory |
@@ -179,14 +187,22 @@ RowanMethodService >> breakPoints: collection [
 RowanMethodService >> breakPointsFor: aGsNMethod [
   "Answers an Array stepPoints"
 
-  | theMethod |
+  | list theMethod |
+  list := OrderedCollection new.
   theMethod := aGsNMethod isMethodForBlock
     ifTrue: [ 
       isMethodForBlock := true.
       aGsNMethod homeMethod ]
     ifFalse: [ aGsNMethod ].
   homeMethodOop := theMethod asOop.
-	^ self _initializeBreakPointsFor: theMethod
+  theMethod _allBreakpoints
+    ifNil: [ ^ OrderedCollection new ]
+    ifNotNil: [ :anArray | 
+      1 to: anArray size by: 3 do: [ :i | 
+        list
+          add:
+            (theMethod _stepPointForMeth: (anArray at: i + 1) ip: (anArray at: i + 2)) ] ].
+  ^ list asOrderedCollection
 ]
 
 { #category : 'Accessing' }
@@ -226,19 +242,6 @@ RowanMethodService >> classOrMeta [
 	^meta 
 			ifTrue:[self classFromName class] 
 			ifFalse: [self classFromName].
-]
-
-{ #category : 'Accessing' }
-RowanMethodService >> classService [
-
-	^classService ifNil:[classService := RowanClassService forClassNamed: className package: packageName]
-
-]
-
-{ #category : 'Updating' }
-RowanMethodService >> classService: newValue [
-	classService := newValue
-
 ]
 
 { #category : 'client commands' }
@@ -395,26 +398,27 @@ RowanMethodService >> firstReference: integer [
 
 { #category : 'initialization' }
 RowanMethodService >> forClass: theClass organizer: theOrganizer [
-  "assume meta and selector are set"
+	"assume meta and selector are set"
 
-  | classOrMeta gsNMethod |
-  organizer := theOrganizer.
-  classOrMeta := meta
-    ifTrue: [ theClass class ]
-    ifFalse: [ theClass ].
-  gsNMethod := classOrMeta compiledMethodAt: selector.
-  definedPackage := gsNMethod rowanPackageName.
-  oop := gsNMethod asOop.
-  stepPoints := self stepPointsFor: gsNMethod.
-  breakPoints := self breakPointsFor: gsNMethod.
-  self updateSource: gsNMethod sourceString.
-  category := (classOrMeta categoryOfSelector: selector) asString.
-  className := theClass name asString.
-  packageName := gsNMethod rowanPackageName.
-  projectName := gsNMethod rowanProjectName.
-  self setSupersAndSubsFor: classOrMeta.
-  isExtension := self rowanIsExtension.
-  self initializeTestMethodsFor: classOrMeta thisClass
+	| classOrMeta gsNMethod |
+	organizer := theOrganizer.
+	classOrMeta := meta
+		ifTrue: [ theClass class ]
+		ifFalse: [ theClass ].
+	gsNMethod := classOrMeta compiledMethodAt: selector.
+	definedPackage := gsNMethod rowanPackageName.
+	oop := gsNMethod asOop.
+	stepPoints := self stepPointsFor: gsNMethod.
+	breakPoints := self breakPointsFor: gsNMethod.
+	self updateSource: gsNMethod sourceString.
+	category := (classOrMeta categoryOfSelector: selector) asString.
+	className := theClass name asString.
+	packageName := gsNMethod rowanPackageName.
+	projectName := gsNMethod rowanProjectName.
+	self setSupersAndSubsFor: classOrMeta.
+	isExtension := self rowanIsExtension.
+	self initializeTestMethodsFor: classOrMeta thisClass.
+	self setDefinedClass: classOrMeta
 ]
 
 { #category : 'Accessing' }
@@ -692,13 +696,14 @@ RowanMethodService >> selector: aSymbol [
 
 { #category : 'perform' }
 RowanMethodService >> servicePerform: symbol withArguments: collection [
-  | theCommand |
-  self isUpdatingButFoundToBeDeleted
-    ifTrue: [ ^ self handleDeletedService ].
-  theCommand := command.
-  super servicePerform: symbol withArguments: collection.
-  theCommand = #'reformatSource'
-    ifFalse: [ self update ]
+	| theCommand |
+	self isUpdatingButFoundToBeDeleted
+		ifTrue: [ ^ self handleDeletedService ].
+	theCommand := command.
+	super
+		servicePerform: symbol
+		withArguments: collection
+		shouldUpdate: (theCommand == #'reformatSource') not
 ]
 
 { #category : 'client commands' }
@@ -712,6 +717,16 @@ RowanMethodService >> setBreakAt: stepPoint [
     ifFalse: [ self disableBreakAt: stepPoint ].
   self update.
   RowanCommandResult addResult: self
+]
+
+{ #category : 'initialization' }
+RowanMethodService >> setDefinedClass: aClass [
+	"only used in the test browsers (for now) to identify which class the method is defined in.
+	That may be different than what is displayed, say, when we run a superclass test in concrete subclass.
+	Assume selector is defined in aClass hierarchy."
+
+	definedClassName := (aClass whichClassIncludesSelector: selector asString) name
+		asString
 ]
 
 { #category : 'method history' }
@@ -793,6 +808,7 @@ RowanMethodService >> testResult [
 
 { #category : 'updates' }
 RowanMethodService >> update [
+	super update.
 	self isUnboundMethod ifFalse:[
 		self wasRecycled ifTrue:[oop := self gsNMethod asOop].
 		self wasDeleted ifTrue:[
