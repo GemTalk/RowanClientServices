@@ -437,31 +437,6 @@ RowanService >> jadeiteServer [
 	^(Rowan jadeServerClassNamed: #JadeServer) theJadeiteServer
 ]
 
-{ #category : 'sparkle' }
-RowanService >> makeSparkle [
-	"We don't create a true sparkle service, 
-	just a dictionary with instVar -> value
-	pairs where the values are simple types
-	understood by the remote client"
-
-	| sparkleService |
-	sparkleService := SpkRowanService new
-		rowanServiceClassName: self class name;
-		blob: Dictionary new;
-		yourself.
-	1 to: self class allInstVarNames size do: [ :index | 
-		| instVarName instVarValue |
-		instVarName := self class allInstVarNames at: index.
-		instVarValue := self instVarAt: index.
-		sparkleService blob at: instVarName put: instVarValue makeSparkle ].
-	^ sparkleService
-]
-
-{ #category : 'sparkle' }
-RowanService >> name: dontCare [
-	"for rowan services which don't have a name -  ignore"
-]
-
 { #category : 'accessing' }
 RowanService >> organizer: anOrganizer [
 
