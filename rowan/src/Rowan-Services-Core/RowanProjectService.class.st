@@ -387,7 +387,7 @@ RowanProjectService >> repositoryRootPath [
 
 { #category : 'rowan' }
 RowanProjectService >> repositorySha [
-	^ self rwProject repositoryCommitId
+	^ self rwProject commitId
 ]
 
 { #category : 'rowan' }
