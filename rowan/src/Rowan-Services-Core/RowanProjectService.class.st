@@ -132,8 +132,7 @@ RowanProjectService >> createProjectNamed: projectName in: symbolDictionaryName 
 	self rowanFixMe. "Dale doesn't like Rowan projectNames"
 	(Rowan projectNames includes: projectName) ifFalse:[
 		self browserTool createGitPackageProjectNamed: projectName updateDefinition: [:pd | 
-				pd defaultSymbolDictName: symbolDictionaryName; comment:  'Sample Rowan Project'] ].
-
+				pd gemstoneSetDefaultSymbolDictNameTo: symbolDictionaryName; comment:  'Sample Rowan Project'] ].
 ]
 
 { #category : 'replication' }
