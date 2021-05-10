@@ -121,10 +121,15 @@ RowanInspectorService >> executeThenInspect: string inFrame: level process: proc
 
 { #category : 'initialization' }
 RowanInspectorService >> initialize [
-  super initialize.
-  objects := OrderedCollection new.
-  instVarsAreRemovable := false.
-  isUnordered := false
+	super initialize.
+	objects := OrderedCollection new.
+	maxIndexedVars := 1000.
+	instVarsAreRemovable := false.
+	isUnordered := false.
+	isOop := true.
+	indexedSize := 0.
+	isDictionary := false.
+	isVariable := false
 ]
 
 { #category : 'client commands' }
@@ -196,6 +201,12 @@ RowanInspectorService >> inspectDictionary: aDictionary from: start to: stop [
   indexedSize := aDictionary size.
   RowanCommandResult addResult: self.
   ^ nextIndices
+]
+
+{ #category : 'client commands' }
+RowanInspectorService >> inspectOop: theOop [
+	isOop := true.
+  ^ self inspect: theOop inWindow: nil
 ]
 
 { #category : 'testing' }
