@@ -326,6 +326,15 @@ RowanService >> organizer: anOrganizer [
 	organizer := anOrganizer.
 ]
 
+{ #category : 'rsr support' }
+RowanService >> prepareObjectForReplication: object [
+	"RSR Doesn't support Associations"
+
+	^ (object isKindOf: Association)
+		ifTrue: [ Array with: object key with: object value ]
+		ifFalse: [ object ]
+]
+
 { #category : 'rowan' }
 RowanService >> projectTools [
 

@@ -40,6 +40,14 @@ RowanProjectService >> = projectService [
 	^projectService isProjectService ifTrue: [name = projectService name] ifFalse: [^false]
 ]
 
+{ #category : 'converting' }
+RowanProjectService >> asRSR [
+
+	rwProject := nil. 
+	changes := nil. 
+	packages do:[:package | package asRSR]
+]
+
 { #category : 'initialization' }
 RowanProjectService >> basicRefresh [
 	name = Rowan unpackagedName ifTrue:[
