@@ -95,6 +95,17 @@ RowanService >> answer: anObject [
 	RowanCommandResult addResult: answeringService.
 ]
 
+{ #category : 'converting' }
+RowanService >> asRSR [
+	| rowanService theInstVarNames |
+	rowanService := Array new.
+	theInstVarNames := self class allInstVarNames.
+	1 to: theInstVarNames size do: [ :index | 
+		rowanService
+			add: (Array with: (theInstVarNames at: index) with: (self instVarAt: index)) ].
+	^ rowanService
+]
+
 { #category : 'rowan' }
 RowanService >> browserTool [
 

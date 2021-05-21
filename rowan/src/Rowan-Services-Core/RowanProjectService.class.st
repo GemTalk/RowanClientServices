@@ -45,7 +45,8 @@ RowanProjectService >> asRSR [
 
 	rwProject := nil. 
 	changes := nil. 
-	packages do:[:package | package asRSR]
+	packages do:[:package | package asRSR].
+	^super asRSR
 ]
 
 { #category : 'initialization' }

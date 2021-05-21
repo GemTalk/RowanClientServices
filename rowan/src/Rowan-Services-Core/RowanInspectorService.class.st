@@ -95,16 +95,10 @@ RowanInspectorService >> addObject: string after: index [
 
 { #category : 'converting' }
 RowanInspectorService >> asRSR [
-	| theInstVarNames rowanInspectorService |
 	objects := objects
 		collect: [ :object | self prepareObjectForReplication: object ].
 	myself := self prepareObjectForReplication: myself.
-	rowanInspectorService := Array new.
-	theInstVarNames := self class allInstVarNames.
-	1 to: theInstVarNames size do: [ :index | 
-		rowanInspectorService
-			add: (Array with: (theInstVarNames at: index) with: (self instVarAt: index)) ].
-	^ rowanInspectorService
+	^ super asRSR
 ]
 
 { #category : 'client commands' }
