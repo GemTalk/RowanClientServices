@@ -23,6 +23,11 @@ RowanCommandResult class >> basicAddResult: service [
 	self results add: service
 ]
 
+{ #category : 'accessing' }
+RowanCommandResult class >> clearResults [
+	SessionTemps current at: #'rowanCommandResults' put: Array new
+]
+
 { #category : 'initailize' }
 RowanCommandResult class >> initializeResults [
 
