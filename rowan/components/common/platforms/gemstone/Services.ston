@@ -6,7 +6,8 @@ RwPlatformNestedProjectLoadComponentV2 {
 	#packageNames : [
 		'Rowan-JadeServer',
 		'Rowan-Services-Core',
-		'Rowan-Services-Extensions'
+		'Rowan-Services-Extensions',
+		'Rowan-Services-GemStone-Extensions'
 	],
 	#conditionalPackageMapSpecs : {
 		'gemstone' : {
@@ -17,6 +18,9 @@ RwPlatformNestedProjectLoadComponentV2 {
 					},
 					'Rowan-JadeServer' : {
 						'symbolDictName' : 'UserGlobals'
+					},
+					'Rowan-Services-GemStone-Extensions' : {
+						'symbolDictName' : 'Globals'
 					}
 				}
 			}
