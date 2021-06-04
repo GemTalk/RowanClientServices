@@ -95,15 +95,27 @@ RowanService >> answer: anObject [
 	RowanCommandResult addResult: answeringService.
 ]
 
-{ #category : 'converting' }
+{ #category : 'rsr support' }
 RowanService >> asRSR [
 	| rowanService theInstVarNames |
 	rowanService := Array new.
 	theInstVarNames := self class allInstVarNames.
 	1 to: theInstVarNames size do: [ :index | 
 		rowanService
-			add: (Array with: (theInstVarNames at: index) with: (self instVarAt: index)) ].
+			add:
+				(Array
+					with: (theInstVarNames at: index)
+					with: (self asRSR: (self instVarAt: index))) ].
 	^ rowanService
+]
+
+{ #category : 'rsr support' }
+RowanService >> asRSR: object [
+	"RSR Doesn't support Associations"
+
+	^ (object isKindOf: Association)
+		ifTrue: [ Array with: object key with: object value ]
+		ifFalse: [ object ]
 ]
 
 { #category : 'rowan' }
@@ -335,15 +347,6 @@ RowanService >> jadeiteServer [
 RowanService >> organizer: anOrganizer [
 
 	organizer := anOrganizer.
-]
-
-{ #category : 'rsr support' }
-RowanService >> prepareObjectForReplication: object [
-	"RSR Doesn't support Associations"
-
-	^ (object isKindOf: Association)
-		ifTrue: [ Array with: object key with: object value ]
-		ifFalse: [ object ]
 ]
 
 { #category : 'rowan' }

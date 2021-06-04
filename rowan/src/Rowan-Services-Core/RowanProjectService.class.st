@@ -42,11 +42,13 @@ RowanProjectService >> = projectService [
 
 { #category : 'converting' }
 RowanProjectService >> asRSR [
-
-	rwProject := nil. 
-	changes := nil. 
-	packages do:[:package | package asRSR].
-	^super asRSR
+	| packageServices rsr |
+	rwProject := nil.
+	changes := nil.
+	packageServices := packages collect: [ :package | package asRSR ].
+	rsr := super asRSR.
+	rsr packages: packageServices.
+	^ rsr
 ]
 
 { #category : 'initialization' }
@@ -275,6 +277,11 @@ RowanProjectService >> packageNameString [
 			].
 	^ws contents
 
+]
+
+{ #category : 'other' }
+RowanProjectService >> packages: anObject [
+	packages := anObject
 ]
 
 { #category : 'accessing' }

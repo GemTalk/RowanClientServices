@@ -93,14 +93,6 @@ RowanInspectorService >> addObject: string after: index [
     ifTrue: [ self inspect: oop from: visibleIndices to: visibleIndices + 1 ]
 ]
 
-{ #category : 'converting' }
-RowanInspectorService >> asRSR [
-	objects := objects
-		collect: [ :object | self prepareObjectForReplication: object ].
-	myself := self prepareObjectForReplication: myself.
-	^ super asRSR
-]
-
 { #category : 'client commands' }
 RowanInspectorService >> executeThenInspect: string context: anOop inWindow: handle [
   | answer |
