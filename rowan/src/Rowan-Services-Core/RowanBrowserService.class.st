@@ -54,11 +54,6 @@ RowanBrowserService >> allClasses [
 	RowanCommandResult addResult: self
 ]
 
-{ #category : 'converting' }
-RowanBrowserService >> asRSR [
-	projects do: [ :project | project asRSR ]
-]
-
 { #category : 'client commands support' }
 RowanBrowserService >> basicAllClasses [
   | theClasses |

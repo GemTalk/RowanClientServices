@@ -41,10 +41,6 @@ RowanPackageService >> arePackageAndProjectClean [
   ^ self rowanDirty not and: [ self projectIsDirty not ]
 ]
 
-{ #category : 'converting' }
-RowanPackageService >> asRSR [
-]
-
 { #category : 'rowan' }
 RowanPackageService >> changes [
    "diffForPackageName: not implemented yet"

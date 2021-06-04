@@ -103,19 +103,8 @@ RowanService >> asRSR [
 	1 to: theInstVarNames size do: [ :index | 
 		rowanService
 			add:
-				(Array
-					with: (theInstVarNames at: index)
-					with: (self asRSR: (self instVarAt: index))) ].
+				(Array with: (theInstVarNames at: index) with: (self instVarAt: index) asRSR) ].
 	^ rowanService
-]
-
-{ #category : 'rsr support' }
-RowanService >> asRSR: object [
-	"RSR Doesn't support Associations"
-
-	^ (object isKindOf: Association)
-		ifTrue: [ Array with: object key with: object value ]
-		ifFalse: [ object ]
 ]
 
 { #category : 'rowan' }
