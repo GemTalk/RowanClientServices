@@ -205,8 +205,13 @@ RowanInspectorService >> inspectDictionary: aDictionary from: start to: stop [
 
 { #category : 'client commands' }
 RowanInspectorService >> inspectOop: theOop [
+	"take advantage of RSR's #postUpdate method to flatten myself.
+	Just make sure inspected indexed objects don't have unpassable objects."
+
 	isOop := true.
-  ^ self inspect: theOop inWindow: nil
+	self inspect: theOop inWindow: nil.
+	objects := objects
+		collect: [ :each | Array with: each printString with: each asOop ]
 ]
 
 { #category : 'testing' }
