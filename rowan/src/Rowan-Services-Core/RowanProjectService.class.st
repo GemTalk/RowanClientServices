@@ -40,13 +40,6 @@ RowanProjectService >> = projectService [
 	^projectService isProjectService ifTrue: [name = projectService name] ifFalse: [^false]
 ]
 
-{ #category : 'converting' }
-RowanProjectService >> asRSR [
-	rwProject := nil.
-	changes := nil.
-	^ super asRSR
-]
-
 { #category : 'initialization' }
 RowanProjectService >> basicRefresh [
 	name = Rowan unpackagedName ifTrue:[
@@ -296,6 +289,12 @@ RowanProjectService >> performGitCommand: gitCommand with: argsString [
     in: project repositoryRootPath
     with: argsString.
   RowanCommandResult addResult: self
+]
+
+{ #category : 'rsr support' }
+RowanProjectService >> preRSR [
+	rwProject := nil.
+	changes := nil
 ]
 
 { #category : 'printing' }

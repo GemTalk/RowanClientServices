@@ -98,12 +98,14 @@ RowanService >> answer: anObject [
 { #category : 'rsr support' }
 RowanService >> asRSR [
 	| rowanService theInstVarNames |
+	self preRSR.
 	rowanService := Array new.
 	theInstVarNames := self class allInstVarNames.
 	1 to: theInstVarNames size do: [ :index | 
 		rowanService
 			add:
 				(Array with: (theInstVarNames at: index) with: (self instVarAt: index) asRSR) ].
+	self postRSR.
 	^ rowanService
 ]
 
@@ -336,6 +338,19 @@ RowanService >> jadeiteServer [
 RowanService >> organizer: anOrganizer [
 
 	organizer := anOrganizer.
+]
+
+{ #category : 'rsr support' }
+RowanService >> postRSR [
+	"hook to modify objects after flattening for rsr transport"
+]
+
+{ #category : 'rsr support' }
+RowanService >> preRSR [
+
+	"hook to modify objects prior to flattening for rsr transport"
+
+	organizer := nil
 ]
 
 { #category : 'rowan' }
