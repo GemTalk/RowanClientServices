@@ -275,9 +275,11 @@ RowanProjectService >> packages: anObject [
 
 { #category : 'accessing' }
 RowanProjectService >> packageServices [
-
-	^self packageNames collect:[:packageName | RowanPackageService forPackageNamed: packageName]
-
+	| sortedPackages |
+	sortedPackages := SortedCollection sortBlock: [ :x :y | x < y ].
+	sortedPackages addAll: self packageNames.
+	^ sortedPackages
+		collect: [ :packageName | RowanPackageService forPackageNamed: packageName ]
 ]
 
 { #category : 'client commands' }
