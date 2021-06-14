@@ -337,17 +337,22 @@ RowanPackageService >> testClasses [
 
 { #category : 'updates' }
 RowanPackageService >> update [
-	Rowan image loadedPackageNamed: name ifAbsent: [^self]. 
-	classes := (self loadedClassNames keys collect:[:string | RowanClassService minimalForClassNamed: string]) asArray.
-	classes addAll: (self loadedClassExtensions keys collect:[:string | 
-		| classService | 
-		classService := (RowanClassService minimalForClassNamed: string) 
-			isExtension: true.
-		(Rowan image loadedClassForClass: classService theClass ifAbsent:[]) 
-			ifNotNil:[:cls | classService definedPackageName: cls packageName].
-		classService]).
-	classes do: [:clsService | clsService packageName: self name]. 
-	self isDirty. 
+	Rowan image loadedPackageNamed: name ifAbsent: [ ^ self ].
+	classes := (self loadedClassNames keys
+		collect: [ :string | RowanClassService minimalForClassNamed: string ]) asArray.
+	classes
+		addAll:
+			(self loadedClassExtensions keys
+				collect: [ :string | 
+					| classService |
+					classService := (RowanClassService minimalForClassNamed: string)
+						isExtension: true.
+					(Rowan image loadedClassForClass: classService theClass ifAbsent: [  ])
+						ifNotNil: [ :cls | classService definedPackageName: cls packageName ].
+					classService ]).
+	classes do: [ :clsService | clsService packageName: self name ].
+	classes := (classes asSortedCollection: [ :x :y | x name < y name ]) asArray.
+	self isDirty.
 	projectName := (Rowan image loadedPackageNamed: name) projectName.
 	RowanCommandResult addResult: self
 ]
