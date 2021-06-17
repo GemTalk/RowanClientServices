@@ -295,6 +295,7 @@ RowanProjectService >> performGitCommand: gitCommand with: argsString [
 
 { #category : 'rsr support' }
 RowanProjectService >> preRSR [
+	super preRSR.
 	rwProject := nil.
 	changes := nil
 ]
