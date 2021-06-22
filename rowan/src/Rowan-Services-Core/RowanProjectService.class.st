@@ -358,7 +358,7 @@ RowanProjectService >> refresh [
 
 { #category : 'client commands' }
 RowanProjectService >> reloadProject [
-  [ Rowan projectTools load loadProjectNamed: name ]
+  [ self rwProject reload ]
     on: Warning
     do: [ :ex | 
       Transcript
