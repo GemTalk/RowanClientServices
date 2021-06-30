@@ -1048,7 +1048,7 @@ RowanClassService >> servicePerform: symbol withArguments: collection [
 
 { #category : 'Accessing' }
 RowanClassService >> setComment [
-  comment := self theClass thisClass comment
+  comment := self theClass thisClass rwComment
 ]
 
 { #category : 'private' }
