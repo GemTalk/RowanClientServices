@@ -1,3 +1,10 @@
+"
+No class-specific documentation for RowanProjectService, hierarchy is:
+Object
+  RowanService( definition updates command commandArgs updateType organizer)
+    RowanProjectService( rwProject name sha branch isSkew isDirty packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty)
+
+"
 Class {
 	#name : 'RowanProjectService',
 	#superclass : 'RowanService',
@@ -14,7 +21,10 @@ Class {
 		'isLoaded',
 		'projectUrl',
 		'rowanProjectsHome',
-		'isDiskDirty'
+		'isDiskDirty',
+		'projectOop',
+		'specService',
+		'componentServices'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -40,23 +50,71 @@ RowanProjectService >> = projectService [
 	^projectService isProjectService ifTrue: [name = projectService name] ifFalse: [^false]
 ]
 
+{ #category : 'client commands' }
+RowanProjectService >> addPackageNamed: packageName [
+	self rowanFixMe.	"remove after #addPackageNamed:toComponentNamed: is integrated in v2.0 work"
+	Rowan image
+		loadedPackageNamed: packageName
+		ifAbsent: [ 
+			self browserTool
+				addPackageNamed: packageName
+				toComponentNamed: 'Core'
+				andProjectNamed: name.
+			self update.
+			^ self answer: #'added' ].
+	self answer: #'duplicatePackage'
+]
+
+{ #category : 'rowan' }
+RowanProjectService >> audit [
+	^ (Rowan projectNamed: name) audit
+]
+
+{ #category : 'client commands support' }
+RowanProjectService >> basicLoadProject: aBlock [
+	| updatedProjects |
+	[ updatedProjects := aBlock value ]
+		on: Warning
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: ex description.
+			ex resume ].
+	updatedProjects
+		do: [ :project | 
+			| projectService |
+			projectService := project name = name
+				ifTrue: [ self	"don't send an extraneous service back across the wire" ]
+				ifFalse: [ RowanProjectService newNamed: project name ].
+			projectService update.
+			RowanCommandResult addResult: projectService ].
+	RowanBrowserService new updateProjects
+]
+
 { #category : 'initialization' }
 RowanProjectService >> basicRefresh [
-	name = Rowan unpackagedName ifTrue:[
-		isLoaded := false.
-		RowanBrowserService new updateDictionaries. ^self]. 
-	(isLoaded := self projectIsLoaded) ifFalse:[
-		existsOnDisk := false. 
-		updateType := #removedProject:. 
-		^RowanCommandResult addResult: self]. 
-	isDirty := self isDirty. 
+	name = Rowan unpackagedName
+		ifTrue: [ 
+			isLoaded := false.
+			RowanBrowserService new updateDictionaries.
+			^ self ].
+	(isLoaded := self projectIsLoaded)
+		ifFalse: [ 
+			existsOnDisk := false.
+			self isDefinedProject
+				ifFalse: [ 
+					updateType := #'removedProject:'.
+					^ RowanCommandResult addResult: self ] ].
+	self updateIsDirty. 
 	self setExistsOnDisk.
 	isSkew := self isSkew.
 	sha := self rowanSha.
 	branch := self rowanBranch.
-	projectUrl := self rowanProjectUrl. 
-	rowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME' .
+	projectUrl := self rowanProjectUrl.
+	rowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'.
 	isDiskDirty := self isGitDirty.
+	componentServices := self componentServices.
+	specService := RowanSpecificationService new initialize: self rwProject _loadSpecification asOop.
 	RowanCommandResult addResult: self
 ]
 
@@ -107,7 +165,7 @@ RowanProjectService >> checkout: branchName [
 
 { #category : 'client commands' }
 RowanProjectService >> checkoutTag: tagName [
-  Rowan gitTools gitcheckoutIn: self repositoryRootPath with: tagName
+  Rowan gitTools gitcheckoutIn: self repositoryRoot with: tagName
 ]
 
 { #category : 'client commands' }
@@ -117,6 +175,25 @@ RowanProjectService >> commitWithMessage: message [
 	Rowan projectTools commit
 		commitProjectNamed: name
 		message: message.
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> componentServices [
+	| componentDictionary |
+	componentDictionary := Dictionary new.
+	componentDictionary
+		at: #'nil'
+		put:
+			(self rwProject componentNames
+				collect: [ :componentName | 
+					| componentService |
+					componentService := RowanComponentService
+						forComponentNamed: componentName
+						projectService: self.
+					componentService addFlattenedHierarchyTo: componentDictionary. 
+					componentService ]).
+
+	^ componentDictionary
 ]
 
 { #category : 'examples' }
@@ -132,7 +209,8 @@ RowanProjectService >> createProjectNamed: projectName in: symbolDictionaryName 
 	self rowanFixMe. "Dale doesn't like Rowan projectNames"
 	(Rowan projectNames includes: projectName) ifFalse:[
 		self browserTool createGitPackageProjectNamed: projectName updateDefinition: [:pd | 
-				pd gemstoneSetDefaultSymbolDictNameTo: symbolDictionaryName; comment:  'Sample Rowan Project'] ].
+				pd defaultSymbolDictName: symbolDictionaryName; comment:  'Sample Rowan Project'] ].
+
 ]
 
 { #category : 'replication' }
@@ -165,7 +243,7 @@ RowanProjectService >> initialize [
 RowanProjectService >> isDirty [
 	name isNil
 		ifTrue: [ ^ false ].
-	^ self rwProject isDirty
+	^ self isDirty
 ]
 
 { #category : 'accessing' }
@@ -196,18 +274,42 @@ RowanProjectService >> isSkew [
 ]
 
 { #category : 'client commands' }
-RowanProjectService >> loadProjectNamed: aName [
+RowanProjectService >> loadProjectFromFile: fileString [
+	self loadProjectFromFile: fileString projectsHome: nil
+]
 
-	[Rowan projectTools load loadProjectNamed: aName] 
-		on: Warning
-		do: [ :ex | Transcript cr; show: ex description. ex resume ].
-	RowanBrowserService new updateProjects.
+{ #category : 'client commands' }
+RowanProjectService >> loadProjectFromFile: fileString projectsHome: projectsHomePath [
+	self
+		basicLoadProject: [ 
+			((RwSpecification fromUrl: fileString)
+				projectsHome: projectsHomePath;
+				yourself) resolveStrict load ]
+]
+
+{ #category : 'client commands' }
+RowanProjectService >> loadProjectFromFile: fileString projectsHome: projectsHomePath customConditionalAttributes: attributes componentNames: componentNames [
+	self
+		basicLoadProject: [ 
+			((RwSpecification fromUrl: fileString)
+				customConditionalAttributes: attributes;
+				projectsHome: projectsHomePath;
+				componentNames: componentNames;
+				yourself) resolveStrict load ]
+]
+
+{ #category : 'client commands' }
+RowanProjectService >> loadProjectNamed: aName [
+	self basicLoadProject: [ Rowan projectTools load loadProjectNamed: aName ]
 ]
 
 { #category : 'rowan' }
 RowanProjectService >> log [
 
-	^self rwProject commitLog: 25
+	^Rowan projectTools log
+		commitLogProjectNamed: name
+		limit: 25
+
 ]
 
 { #category : 'accessing' }
@@ -225,13 +327,14 @@ RowanProjectService >> name: anObject [
 
 { #category : 'client commands' }
 RowanProjectService >> newGitProject: url root: rootPath useSsh: useSsh [
+	"not valid in Rowan V2.0"
 	"set useSsh to false to clone using https:"
 
-	Rowan projectTools clone
+	"Rowan projectTools clone
 		cloneSpecUrl: url
 		gitRootPath: rootPath
 		useSsh: useSsh.
-	(RowanBrowserService new organizer: organizer) updateProjects.
+	(RowanBrowserService new organizer: organizer) updateProjects."
 ]
 
 { #category : 'rowan' }
@@ -268,6 +371,16 @@ RowanProjectService >> packageNameString [
 ]
 
 { #category : 'accessing' }
+RowanProjectService >> packages [
+	^packages
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> packages: object [
+	packages := object
+]
+
+{ #category : 'accessing' }
 RowanProjectService >> packageServices [
 
 	^self packageNames collect:[:packageName | RowanPackageService forPackageNamed: packageName]
@@ -299,6 +412,16 @@ RowanProjectService >> projectIsLoaded [
 	^(Rowan image
 		loadedProjectNamed: name
 		ifAbsent: []) notNil
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> projectOop [
+	^projectOop
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> projectOop: object [
+	projectOop := object
 ]
 
 { #category : 'rowan' }
@@ -358,16 +481,7 @@ RowanProjectService >> refresh [
 
 { #category : 'client commands' }
 RowanProjectService >> reloadProject [
-  [ self rwProject reload ]
-    on: Warning
-    do: [ :ex | 
-      Transcript
-        cr;
-        show: ex description.
-      ex resume ].
-  self update.
-  RowanCommandResult addResult: self.
-  RowanBrowserService new packagesWithTests
+	self basicLoadProject: [ Rowan projectTools load loadProjectNamed: name ]
 ]
 
 { #category : 'rowan' }
@@ -380,14 +494,19 @@ RowanProjectService >> removeProjectNamed: projectName [
 ]
 
 { #category : 'rowan' }
+RowanProjectService >> repositoryRoot [
+	^ (RwProject newNamed: name) repositoryRoot
+]
+
+{ #category : 'rowan' }
 RowanProjectService >> repositoryRootPath [
 
-	^(RwProject newNamed: name) repositoryRootPath
+	^self repositoryRoot pathString
 ]
 
 { #category : 'rowan' }
 RowanProjectService >> repositorySha [
-	^ self rwProject commitId
+	^ self rwProject repositoryCommitId
 ]
 
 { #category : 'rowan' }
@@ -413,15 +532,14 @@ RowanProjectService >> rowanProjectName [
 { #category : 'rowan' }
 RowanProjectService >> rowanProjectUrl [
 
-	^(RwProject newNamed: name) projectUrl
+	^self rwProject projectUrl
 ]
 
 { #category : 'rowan' }
 RowanProjectService >> rowanSha [
 
 	name isNil ifTrue:[^0].
-	^(RwProject newNamed: name) loadedCommitId
-
+	^self rwProject loadedCommitId
 ]
 
 { #category : 'rowan' }
@@ -433,7 +551,11 @@ RowanProjectService >> rowanSkew [
 
 { #category : 'accessing' }
 RowanProjectService >> rwProject [
-	^ rwProject ifNil: [ rwProject := RwProject newNamed: name ]
+	^ rwProject
+		ifNil: [ 
+			rwProject := RwProject newNamed: name. 
+			projectOop := rwProject asOop.
+			rwProject ]
 ]
 
 { #category : 'perform' }
@@ -441,7 +563,6 @@ RowanProjectService >> servicePerform: symbol withArguments: collection [
   self isUpdatingButFoundToBeDeleted
     ifTrue: [ ^ self handleDeletedService ].
   super servicePerform: symbol withArguments: collection.
-  self update
 ]
 
 { #category : 'rowan' }
@@ -449,7 +570,7 @@ RowanProjectService >> setExistsOnDisk [
 	"might be a better test than #repositorySha for
 	determining if a project exists on disk." 
 
-	existsOnDisk := (RwProject newNamed: name) existsOnDisk.
+	existsOnDisk := self rwProject existsOnDisk.
 ]
 
 { #category : 'accessing' }
@@ -469,6 +590,16 @@ RowanProjectService >> sha: anObject [
 
 ]
 
+{ #category : 'accessing' }
+RowanProjectService >> specService [
+	^specService
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> specService: object [
+	specService := object
+]
+
 { #category : 'rowan' }
 RowanProjectService >> unload [
 
@@ -479,6 +610,7 @@ RowanProjectService >> unload [
 
 { #category : 'update' }
 RowanProjectService >> update [
+	super update.
 	self refresh.
 ]
 
@@ -496,6 +628,12 @@ RowanProjectService >> updateInternalService: updatedService [
 		packageService = updatedService ifTrue:[
 			packages at: index put: updatedService
 		]].
+]
+
+{ #category : 'other' }
+RowanProjectService >> updateIsDirty [
+
+	isDirty := self rowanDirty
 ]
 
 { #category : 'testing' }
