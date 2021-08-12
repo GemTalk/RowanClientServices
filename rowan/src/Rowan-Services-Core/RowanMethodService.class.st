@@ -185,7 +185,7 @@ RowanMethodService >> breakPointsFor: aGsNMethod [
   theMethod _allBreakpoints
     ifNil: [ ^ OrderedCollection new ]
     ifNotNil: [ :anArray | 
-      1 to: anArray size by: 3 do: [ :i | 
+      1 to: anArray size by: 4 do: [ :i | 
         list
           add:
             (theMethod _stepPointForMeth: (anArray at: i + 1) ip: (anArray at: i + 2)) ] ].
