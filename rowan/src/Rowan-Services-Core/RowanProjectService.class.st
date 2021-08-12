@@ -506,7 +506,8 @@ RowanProjectService >> repositoryRootPath [
 
 { #category : 'rowan' }
 RowanProjectService >> repositorySha [
-	^ self rwProject loadedCommitId
+
+	^ self rwProject commitId
 ]
 
 { #category : 'rowan' }
