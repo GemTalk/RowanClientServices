@@ -73,6 +73,23 @@ RowanServicesTest >> loadRowanSample1 [
 ]
 
 { #category : '*rowan-services-testsv2' }
+RowanServicesTest >> loadRowanSample9 [
+	| projectsHome projectName loadSpec resolvedProject |
+	projectName := 'RowanSample9'.
+	(Rowan image loadedProjectNamed: projectName ifAbsent: [  ])
+		ifNotNil: [ :prj | Rowan image _removeLoadedProject: prj ].
+	projectsHome := self _testRowanProjectsSandbox.
+	(projectsHome / projectName) ensureDeleteAll.
+	loadSpec := (RwSpecification
+		fromUrl:
+			'file:$ROWAN_PROJECTS_HOME/Rowan/samples/RowanSample9_spec_0002.ston')
+		projectsHome: projectsHome;
+		yourself.
+	resolvedProject := loadSpec resolveStrict.
+	resolvedProject load
+]
+
+{ #category : '*rowan-services-testsv2' }
 RowanServicesTest >> loadServicesTestProject [
 	self defaultProjectDefinition load
 ]

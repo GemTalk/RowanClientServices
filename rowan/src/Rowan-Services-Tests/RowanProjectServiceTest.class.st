@@ -61,6 +61,25 @@ RowanProjectServiceTest >> test_commandResultSessionTemp [
 ]
 
 { #category : 'tests' }
+RowanProjectServiceTest >> test_loadedGitProject [
+
+	| projectService projectName |
+	projectName := 'RowanSample9'. 
+	self loadRowanSample9. 
+	projectService := RowanProjectService newNamed: projectName. 
+	projectService refresh. 
+	[self assert: projectService existsOnDisk.
+	self deny: projectService isSkew. "no skew if freshly loaded"
+	self deny: projectService isGitDirty. "no git dirty if freshly loaded"
+	self assert: projectService rowanBranch = 'spec_0002'.
+	projectService rwProject gitCheckout: 'spec_0003'.
+	projectService basicRefresh. 
+	self assert: projectService isSkew. "skew after checking out different branch"
+]
+		ensure: [RowanBrowserService new unloadProjectsNamed: (Array with: projectName)]
+]
+
+{ #category : 'tests' }
 RowanProjectServiceTest >> test_unloadNotLoadedProjectDoesNotWalkback [
 
 	"just make sure if a project we gracefully handle trying to remove an unloaded project"
