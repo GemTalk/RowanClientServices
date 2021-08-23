@@ -95,6 +95,7 @@ RwGsPlatform >> serviceClasses [
 		add: RowanAutoCommitService;
 		add: RowanBrowserService;
 		add: RowanClassService;
+		add: RowanComponentService;
 		add: RowanDebuggerService;
 		add: RowanDefinedProjectService;
 		add: RowanDictionaryService;
