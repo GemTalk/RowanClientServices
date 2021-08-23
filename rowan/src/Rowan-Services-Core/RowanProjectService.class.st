@@ -481,7 +481,7 @@ RowanProjectService >> refresh [
 
 { #category : 'client commands' }
 RowanProjectService >> reloadProject [
-	self basicLoadProject: [ Rowan projectTools load loadProjectNamed: name ]
+	self basicLoadProject: [ self rwProject reload ]
 ]
 
 { #category : 'rowan' }
