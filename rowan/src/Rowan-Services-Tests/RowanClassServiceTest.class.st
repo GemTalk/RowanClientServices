@@ -7,14 +7,6 @@ Class {
 	#category : 'Rowan-Services-Tests'
 }
 
-{ #category : 'Testing' }
-RowanClassServiceTest class >> isAbstract [
-	"Override to true if a TestCase subclass is Abstract and should not have
-	TestCase instances built from it"
-
-	^self sunitName = #RowanClassServiceTest
-]
-
 { #category : 'patch' }
 RowanClassServiceTest >> createClassNamed: className [
 
