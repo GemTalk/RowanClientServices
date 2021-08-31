@@ -599,7 +599,7 @@ RowanClassService >> loadedPackageExistsAndIsInSameDictionary: thePackageName [
 		ifNil: [ false ]
 		ifNotNil: [ 
 			packageDictionaryName := loadedPackage loadedProject
-				symbolDictNameForPackageNamed: thePackageName.
+				gemstoneSymbolDictNameForPackageNamed: thePackageName.
 			packageDictionaryName = dictionaryName ]
 ]
 
