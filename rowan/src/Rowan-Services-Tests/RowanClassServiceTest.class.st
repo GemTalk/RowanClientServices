@@ -545,3 +545,9 @@ RowanClassServiceTest >> test_simpleCompileWithoutMetaSet [
 	self assert: methodService first category equals: 'testing'.
 	self assert: (self servicesClassInstance perform: selector).
 ]
+
+{ #category : 'test method compilation' }
+RowanClassServiceTest >> test_zzz [
+	"need a test that returns true at the end of the test list - for a Jadeite test" 
+	self assert: true
+]
