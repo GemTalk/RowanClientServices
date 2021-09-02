@@ -57,19 +57,19 @@ RowanServicesTest >> createServicesTestPackage [
 
 { #category : '*rowan-services-testsv2' }
 RowanServicesTest >> loadRowanSample1 [
-	| projectsHome projectName loadSpec resolvedProject |
+	| projectsHome projectName |
 	projectName := 'RowanSample1'.
 	(Rowan image loadedProjectNamed: projectName ifAbsent: [  ])
 		ifNotNil: [ :prj | Rowan image _removeLoadedProject: prj ].
 	projectsHome := self _testRowanProjectsSandbox.
 	(projectsHome / projectName) ensureDeleteAll.
-	loadSpec := (RwSpecification
+	((RwSpecification
 		fromUrl:
 			'file:$ROWAN_PROJECTS_HOME/Rowan/samples/RowanSample1_resolved_v2.ston')
+		customConditionalAttributes: #('tests');
 		projectsHome: projectsHome;
-		yourself.
-	resolvedProject := loadSpec resolve.
-	resolvedProject load
+		componentNames: #('Core' 'Tests');
+		yourself) resolveStrict load
 ]
 
 { #category : '*rowan-services-testsv2' }
