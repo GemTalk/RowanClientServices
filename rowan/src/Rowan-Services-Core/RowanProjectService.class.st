@@ -383,8 +383,7 @@ RowanProjectService >> packages: object [
 { #category : 'accessing' }
 RowanProjectService >> packageServices [
 
-	^self packageNames collect:[:packageName | RowanPackageService forPackageNamed: packageName]
-
+	^self packageNames collect:[:packageName | RowanPackageService  forProjectNamed: name andPackageNamed: packageName]
 ]
 
 { #category : 'client commands' }

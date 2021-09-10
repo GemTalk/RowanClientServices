@@ -80,6 +80,12 @@ RowanClassService class >> forClassNamed: className package: packageName [
 ]
 
 { #category : 'instance creation' }
+RowanClassService class >> minimalForClass: aClass [ 
+	"Don't get method services. Efficient for classes with many methods"
+	^self new minimalForClass: aClass
+]
+
+{ #category : 'instance creation' }
 RowanClassService class >> minimalForClassNamed: className [ 
 	"Don't get method services. Efficient for classes with many methods"
 	^self new minimalForClassNamed: className
@@ -656,6 +662,15 @@ RowanClassService >> methodsNamed: selector [
 	"For testing. Multiple because class could have both instance and class methods"
 
 	^methods select:[:methodService | methodService selector = selector]
+]
+
+{ #category : 'initialization' }
+RowanClassService >> minimalForClass: aClass [ 
+
+	| theClass |
+	self name: aClass name. 
+	theClass := aClass. 
+	self minimalRefreshFrom: theClass.
 ]
 
 { #category : 'initialization' }
@@ -1284,7 +1299,7 @@ RowanClassService >> updateMethodsAfterRenameFrom: oldClassName to: newClassName
 { #category : 'updates' }
 RowanClassService >> updatePackageAndProject [
 	| packageService projectService |
-	packageService := RowanPackageService forPackageNamed: packageName.
+	packageService := RowanPackageService forProjectNamed: projectName andPackageNamed: packageName.
 	packageService update.
 	projectService := RowanProjectService new name: projectName.
 	projectService update
@@ -1314,7 +1329,7 @@ RowanClassService >> updateTests [
 	"update the test browsers on certain operations"
 
 	RowanBrowserService new packagesWithTests.
-	(RowanPackageService forPackageNamed: packageName) testClasses.
+	(RowanPackageService  forProjectNamed: projectName andPackageNamed: packageName) testClasses.
 	RowanCommandResult addResult: self update
 ]
 

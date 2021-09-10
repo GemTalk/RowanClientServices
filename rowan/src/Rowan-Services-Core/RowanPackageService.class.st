@@ -35,6 +35,19 @@ RowanPackageService class >> forPackageNamed: aName [
 	^ inst
 ]
 
+{ #category : 'instance creation' }
+RowanPackageService class >> forProjectNamed: aProjectName andPackageNamed: aName [
+	| inst |
+	inst := self new
+		name: aName;
+		projectName: aProjectName;
+		yourself.
+	aName isNil
+		ifFalse: [ inst updateIsDirty ].
+	inst setDefaultTemplate.
+	^ inst
+]
+
 { #category : 'comparing' }
 RowanPackageService >> = packageService [
 	(packageService isKindOf: RowanPackageService) ifFalse:[^false].
@@ -155,6 +168,14 @@ RowanPackageService >> loadedClasses [
 ]
 
 { #category : 'rowan' }
+RowanPackageService >> loadedClassExtensionHandles [
+
+	| loadedPackage |
+	loadedPackage := Rowan image loadedPackageNamed: name ifAbsent:[^KeyValueDictionary new].
+	^loadedPackage loadedClassExtensions collect:[:loadedClass | loadedClass handle].
+]
+
+{ #category : 'rowan' }
 RowanPackageService >> loadedClassExtensions [
 
 	| loadedPackage |
@@ -258,8 +279,7 @@ RowanPackageService >> removeClassNamed: className [
 { #category : 'rowan' }
 RowanPackageService >> rowanDirty [
 
-	^(RwPackage newNamed: name) isDirty
-
+	^((RwPackage newNamed: name) projectName: projectName) isDirty
 ]
 
 { #category : 'rowan' }
@@ -345,10 +365,10 @@ RowanPackageService >> testClasses [
 RowanPackageService >> update [
 	super update.
 	Rowan image loadedPackageNamed: name ifAbsent: [^self]. 
-	classes := (self loadedClassNames keys collect:[:string | RowanClassService minimalForClassNamed: string]) asArray.
-	classes addAll: (self loadedClassExtensions keys collect:[:string | 
+	classes := (self loadedClassHandles collect:[:aClass | RowanClassService minimalForClass: aClass]) asArray.
+	classes addAll: (self loadedClassExtensions values collect:[:loadedClassExt | 
 		| classService | 
-		classService := (RowanClassService minimalForClassNamed: string) 
+		classService := (RowanClassService minimalForClass: loadedClassExt handle) 
 			isExtension: true.
 		(Rowan image loadedClassForClass: classService theClass ifAbsent:[]) 
 			ifNotNil:[:cls | classService definedPackageName: cls packageName].
