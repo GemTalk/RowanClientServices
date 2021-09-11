@@ -258,8 +258,9 @@ RowanPackageService >> removeClassNamed: className [
 { #category : 'rowan' }
 RowanPackageService >> rowanDirty [
 
+	(Rowan image packageNames includes: name)
+		ifFalse: [ ^ true ].	"avoid a refresh by assuming it's dirty"
 	^(RwPackage newNamed: name) isDirty
-
 ]
 
 { #category : 'rowan' }

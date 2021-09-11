@@ -108,7 +108,10 @@ RowanComponentService >> update [
 
 { #category : 'clientCommands' }
 RowanComponentService >> updatePackageServices [
-	packageServices := (projectService rwProject allPackageNamesIn: name)
+	| visiblePackageNames |
+	visiblePackageNames := Rowan image packageNames.
+	packageServices := ((projectService rwProject allPackageNamesIn: name) select: [:packageName |
+		visiblePackageNames includes: packageName ])
 		collect: [ :packageName | RowanPackageService forPackageNamed: packageName ].
 	RowanCommandResult addResult: self
 ]

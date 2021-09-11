@@ -776,11 +776,14 @@ RowanClassService >> oop: newValue [
 
 { #category : 'testing' }
 RowanClassService >> packageIsDirty [
-	| behavior |
+	| behavior aPackageName |
 	behavior := self theClass.
 	behavior rowanPackageName = Rowan unpackagedName
 		ifTrue: [ ^ true ].	"avoid a refresh by assuming it's dirty"
-	^ (RowanPackageService forPackageNamed: behavior rowanPackageName) rowanDirty
+	aPackageName := behavior rowanPackageName.
+	(Rowan image packageNames includes: aPackageName)
+		ifFalse: [ ^ true ].	"avoid a refresh by assuming it's dirty"
+	^ (RowanPackageService forPackageNamed: aPackageName) rowanDirty
 ]
 
 { #category : 'Accessing' }
