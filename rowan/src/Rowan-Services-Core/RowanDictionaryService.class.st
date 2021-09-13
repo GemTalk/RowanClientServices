@@ -90,9 +90,9 @@ RowanDictionaryService >> removeClass: classService [
 
 { #category : 'client commands' }
 RowanDictionaryService >> removeClassNamed: className [
-
-	self browserTool removeClassNamed: className.
-
+	[ self browserTool removeClassNamed: className ]
+		on: RwPerformingUnpackagedEditNotification
+		do: [ :ex | ex resume ]
 ]
 
 { #category : 'client commands' }
