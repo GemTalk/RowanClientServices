@@ -355,6 +355,11 @@ RowanClassService >> definedPackageName: newValue [
 
 ]
 
+{ #category : 'Accessing' }
+RowanClassService >> dictionaryName [
+	^dictionaryName
+]
+
 { #category : 'Updating' }
 RowanClassService >> expand: boolean [
 
