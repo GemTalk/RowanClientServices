@@ -82,7 +82,7 @@ RowanPackageService >> createPackageNamed: aString inProject: projName [
 	projectService := RowanProjectService new.
 	projectDefinition := projectService createProjectNamed: projName.  
 	projectDefinition addPackageNamed: name.
-	self projectTools load loadProjectDefinition: projectDefinition.
+	projectDefinition load.
 ]
 
 { #category : 'Updating' }
