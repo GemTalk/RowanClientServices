@@ -29,7 +29,7 @@ RowanClassServiceTest >> createHierarchyWithNonResolvableClass [
 		projectsHome: self _testRowanProjectsSandbox;
 		gemstoneSetDefaultSymbolDictNameTo: self defaultSymbolDictionaryName;
 		yourself.
-	projectDefinition resolve.
+	projectDefinition resolveProject.
 
 	projectDefinition 
 		addLoadComponentNamed: self servicesTestComponentName 
