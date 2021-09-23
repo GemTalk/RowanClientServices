@@ -14,12 +14,13 @@ Class {
 { #category : 'instance creation' }
 RowanComponentService class >> forComponentNamed: componentName projectService: theProjectService [
 	| inst component |
-	component := theProjectService rwProject componentNamed: componentName.
+	component := theProjectService rwProject
+		componentOrPackageGroupNamed: componentName.
 	inst := self new
 		name: componentName;
 		basename: component basename.
 	inst computeSubComponentsUsingProjectService: theProjectService.
-	inst projectService: theProjectService. 
+	inst projectService: theProjectService.
 	^ inst
 ]
 
@@ -67,6 +68,18 @@ RowanComponentService >> computeSubComponentsUsingProjectService: theProjectServ
 			RowanComponentService
 				forComponentNamed: subcomponent name
 				projectService: theProjectService ]
+]
+
+{ #category : 'instance creation' }
+RowanComponentService >> forComponentNamed: componentName projectService: theProjectService [
+	| inst component |
+	component := theProjectService rwProject componentNamed: componentName.
+	inst := self new
+		name: componentName;
+		basename: component basename.
+	inst computeSubComponentsUsingProjectService: theProjectService.
+	inst projectService: theProjectService. 
+	^ inst
 ]
 
 { #category : 'initialization' }
