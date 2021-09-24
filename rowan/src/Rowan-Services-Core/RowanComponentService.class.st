@@ -18,7 +18,7 @@ RowanComponentService class >> forComponentNamed: componentName projectService: 
 		componentOrPackageGroupNamed: componentName.
 	inst := self new
 		name: componentName;
-		basename: component basename.
+		basename: component label.
 	inst computeSubComponentsUsingProjectService: theProjectService.
 	inst projectService: theProjectService.
 	^ inst
@@ -76,7 +76,7 @@ RowanComponentService >> forComponentNamed: componentName projectService: thePro
 	component := theProjectService rwProject componentNamed: componentName.
 	inst := self new
 		name: componentName;
-		basename: component basename.
+		basename: component label.
 	inst computeSubComponentsUsingProjectService: theProjectService.
 	inst projectService: theProjectService. 
 	^ inst
