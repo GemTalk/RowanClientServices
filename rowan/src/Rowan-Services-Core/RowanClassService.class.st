@@ -519,7 +519,7 @@ RowanClassService >> initializeTestMethodsFor: aClass [
 	| testSelectors |
 	(aClass inheritsFrom: TestCase) ifTrue:[
 		aClass isAbstract ifTrue:[^self]. 
-		testSelectors := aClass thisClass suite tests collect:[:method | method selector]. 
+		testSelectors := aClass thisClass allTestSelectors.
 		methods do:[:methodService | 
 			methodService isTestMethod: (testSelectors includes: methodService selector)]].
 ]
