@@ -1108,6 +1108,7 @@ RowanClassService >> selectors [
 { #category : 'perform' }
 RowanClassService >> servicePerform: symbol withArguments: collection [
 	| wasClean |
+	packageName ifNil: [self update]. "the class may not have enough information to perform the symbol"
 	self isUpdatingButFoundToBeDeleted
 		ifTrue: [ ^ self handleDeletedService ].
 	wasClean := self isPackageClean.
