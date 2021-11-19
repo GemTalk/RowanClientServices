@@ -225,6 +225,22 @@ RowanService >> createSampleSymbolDictionary [
 
 ]
 
+{ #category : 'commands support' }
+RowanService >> createServiceFor: aClass unlessExistingIn: newServices expand: toExpand [
+	| service |
+	service := newServices
+		detect: [ :classService | classService name = aClass name ]
+		ifNone: [ RowanClassService new classServiceFromOop: aClass asOop ].
+	(toExpand includes: service theClass)
+		ifTrue: [ service expand: true ]
+		ifFalse: [ service expand: false ].
+
+	aClass subclasses size > 0
+		ifTrue: [ service hasSubclasses: true ].
+
+	^ service
+]
+
 { #category : 'symbol dictionaries' }
 RowanService >> createSymbolDictionaryNamed: aName [
 
@@ -532,38 +548,24 @@ RowanService >> servicePerform: symbol withArguments: collection shouldUpdate: s
 
 { #category : 'commands support' }
 RowanService >> services: services from: levels expand: toExpand classes: theClasses [
-  "In order to avoid the expense of creating duplicate services, we cache
+	"In order to avoid the expense of creating duplicate services, we cache
 them in the newServices temporary for look up"
 
-  | newServices |
-  newServices := Array new.
-  theClasses
-    do: [ :aClass | toExpand addAll: (organizer allSuperclassesOf: aClass) ].
-  levels
-    keysAndValuesDo: [ :key :value | 
-      | newKey service |
-      newKey := key = #'nil'
-        ifTrue: [ #'nil' ]
-        ifFalse: [ 
-          service := newServices
-            detect: [ :classService | classService name = key name ]
-            ifNone: [ RowanClassService new classServiceFromOop: key asOop ].
-          (toExpand includes: service theClass)
-            ifTrue: [ service expand: true ]
-            ifFalse: [ service expand: false ].
-          service ].
-      services
-        at: newKey
-        put:
-          (value
-            collect: [ :cls | 
-              service := newServices
-                detect: [ :classService | classService name = cls name ]
-                ifNone: [ RowanClassService new classServiceFromOop: cls asOop ].
-              (toExpand includes: service theClass)
-                ifTrue: [ service expand: true ]
-                ifFalse: [ service expand: false ].
-              service ]) ]
+	| newServices |
+	newServices := Array new.
+	theClasses
+		do: [ :aClass | toExpand addAll: (organizer allSuperclassesOf: aClass) ].
+	levels
+		keysAndValuesDo: [ :key :value | 
+			| newKey |
+			newKey := key = #'nil'
+				ifTrue: [ #'nil' ]
+				ifFalse: [ self createServiceFor: key unlessExistingIn: newServices expand: toExpand ].
+			services
+				at: newKey
+				put:
+					(value
+						collect: [ :cls | self createServiceFor: cls unlessExistingIn: newServices expand: toExpand ]) ]
 ]
 
 { #category : 'replication' }

@@ -41,7 +41,8 @@ Class {
 		'isInSymbolList',
 		'dictionaryName',
 		'wasRemoved',
-		'renamedName'
+		'renamedName',
+		'hasSubclasses'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -461,6 +462,16 @@ RowanClassService >> hash [
 	^self name hash bitXor: meta hash
 ]
 
+{ #category : 'accessing' }
+RowanClassService >> hasSubclasses [
+	^hasSubclasses
+]
+
+{ #category : 'accessing' }
+RowanClassService >> hasSubclasses: object [
+	hasSubclasses := object
+]
+
 { #category : 'Accessing' }
 RowanClassService >> hierarchyServices [
 
@@ -479,6 +490,7 @@ RowanClassService >> initialize [
 	isInSymbolList := true.
 	categories := Array new.
 	updateAfterCommand := true.
+	hasSubclasses := false.
 ]
 
 { #category : 'initialization' }
