@@ -184,6 +184,7 @@ RowanClassService >> basicRefreshFrom: theClass [
 	instVarNames := classOrMeta instVarNames asArray. 
 	self setIsTestCase.
 	self updateIsExtension.
+	hasSubclasses := (organizer subclassesOf: theClass) notEmpty.
 ]
 
 { #category : 'Accessing' }
@@ -763,20 +764,23 @@ RowanClassService >> objectInBaseNamed: aString [
 
 { #category : 'client commands' }
 RowanClassService >> oneLevelClassHierarchy [
-  "good for expanding an existing hierarchy quickly"
+	"good for expanding an existing hierarchy quickly"
 
-  | behavior sortedSubclasses |
-  behavior := self theClass.
-  hierarchyServices := Dictionary new.
-  hierarchyServices at: #'expand' put: Array new.
-  sortedSubclasses := behavior subclasses
-    asSortedCollection: [ :x :y | x name < y name ].
-  sortedSubclasses
-    do: [ :subclass | 
-      | classService |
-      classService := (self classServiceFromOop: subclass asOop) meta: meta.
-      (hierarchyServices at: #'expand') add: classService ].
-  RowanCommandResult addResult: self
+	| behavior sortedSubclasses |
+	behavior := self theClass.
+	hierarchyServices := Dictionary new.
+	hierarchyServices at: #'expand' put: Array new.
+	sortedSubclasses := behavior subclasses
+		asSortedCollection: [ :x :y | x name < y name ].
+	sortedSubclasses
+		do: [ :subclass | 
+			| classService |
+			classService := (self classServiceFromOop: subclass asOop) meta: meta.
+			(hierarchyServices at: #'expand') add: classService.
+			(organizer subclassesOf: subclass) notEmpty
+				ifTrue: [ classService hasSubclasses: true ] ].
+	updateType := #'updatedOneLevelInClassHierarchy:browser:'.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'Accessing' }
