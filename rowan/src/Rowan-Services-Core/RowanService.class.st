@@ -156,7 +156,7 @@ RowanService >> browserTool [
 { #category : 'commands support' }
 RowanService >> classHierarchy: theClasses [
 	| superclassChains levels services hierarchies toExpand hierarchyServices |
-	superclassChains := self peerHierarchies: theClasses.
+	superclassChains := self superclassChainsFor: theClasses.
 	hierarchies := self extendHierarchies: superclassChains forClasses: theClasses.
 	levels := self hierarchiesByLevel: hierarchies.
 	services := Dictionary new.
