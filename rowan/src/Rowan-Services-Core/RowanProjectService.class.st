@@ -24,7 +24,8 @@ Class {
 		'isDiskDirty',
 		'projectOop',
 		'specService',
-		'componentServices'
+		'componentServices',
+		'definition'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -211,6 +212,12 @@ RowanProjectService >> createProjectNamed: projectName in: symbolDictionaryName 
 		self browserTool createGitPackageProjectNamed: projectName updateDefinition: [:pd | 
 				pd defaultSymbolDictName: symbolDictionaryName; comment:  'Sample Rowan Project'] ].
 
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> definition [
+	definition := RowanProjectDefinitionService named: name. 
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'replication' }
