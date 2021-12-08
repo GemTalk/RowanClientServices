@@ -182,6 +182,7 @@ RowanProjectService >> commitWithMessage: message [
 RowanProjectService >> componentServices [
 	| componentDictionary |
 	componentDictionary := Dictionary new.
+	true ifTrue:[^componentDictionary]. 
 	componentDictionary
 		at: #'nil'
 		put:

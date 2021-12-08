@@ -2,17 +2,17 @@ Class {
 	#name : 'RowanComponentDefinitionService',
 	#superclass : 'RowanDefinitionService',
 	#instVars : [
-		'component'
+		'subcomponentDefinitions'
 	],
 	#category : 'Rowan-Services-Core'
 }
 
 { #category : 'accessing' }
-RowanComponentDefinitionService >> component [
-	^component
+RowanComponentDefinitionService >> subcomponentDefinitions [
+	^subcomponentDefinitions
 ]
 
 { #category : 'accessing' }
-RowanComponentDefinitionService >> component: object [
-	component := object
+RowanComponentDefinitionService >> subcomponentDefinitions: object [
+	subcomponentDefinitions := object
 ]

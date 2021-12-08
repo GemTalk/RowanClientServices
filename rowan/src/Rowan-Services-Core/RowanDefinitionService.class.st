@@ -2,7 +2,8 @@ Class {
 	#name : 'RowanDefinitionService',
 	#superclass : 'RowanService',
 	#instVars : [
-		'name'
+		'name',
+		'properties'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -21,4 +22,14 @@ RowanDefinitionService >> name [
 { #category : 'accessing' }
 RowanDefinitionService >> name: object [
 	name := object
+]
+
+{ #category : 'accessing' }
+RowanDefinitionService >> properties [
+	^properties
+]
+
+{ #category : 'accessing' }
+RowanDefinitionService >> properties: object [
+	properties := object
 ]
