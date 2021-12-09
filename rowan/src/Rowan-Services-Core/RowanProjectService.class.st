@@ -182,7 +182,7 @@ RowanProjectService >> commitWithMessage: message [
 RowanProjectService >> componentServices [
 	| componentDictionary |
 	componentDictionary := Dictionary new.
-	true ifTrue:[^componentDictionary]. 
+	true ifTrue:[^componentDictionary]. "Uncomment this when v3.0 Rowan component gathering is done" 
 	componentDictionary
 		at: #'nil'
 		put:

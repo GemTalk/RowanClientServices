@@ -2,7 +2,7 @@ Class {
 	#name : 'RowanProjectDefinitionService',
 	#superclass : 'RowanDefinitionService',
 	#instVars : [
-		'definition',
+		'definitionOop',
 		'componentDefinitions',
 		'packageDefinitions',
 		'loadSpecification'
@@ -18,6 +18,13 @@ RowanProjectDefinitionService >> componentDefinitions [
 { #category : 'accessing' }
 RowanProjectDefinitionService >> componentDefinitions: object [
 	componentDefinitions := object
+]
+
+{ #category : 'commands' }
+RowanProjectDefinitionService >> editInWindow: handle [
+	definitionOop := (Rowan projectNamed: name) defined asOop.
+	handle
+		ifNotNil: [ RowanBrowserService new saveRootObject: definitionOop windowHandle: handle ]
 ]
 
 { #category : 'accessing' }
@@ -38,19 +45,4 @@ RowanProjectDefinitionService >> packageDefinitions [
 { #category : 'accessing' }
 RowanProjectDefinitionService >> packageDefinitions: object [
 	packageDefinitions := object
-]
-
-{ #category : 'updating' }
-RowanProjectDefinitionService >> update [
-	"|  componentNames |"
-	super update.
-	definition := (Rowan projectNamed: name) defined. 
-	RowanCommandResult addResult: self
-	"self halt. 
-	componentNames := definition componentNames.
-	componentNames do:[:componentName | 
-		| component |
-		component := projectDefinition componentNamed: componentName].
-
-(projectDefinition componentNamed: 'Core')  componentNames "
 ]
