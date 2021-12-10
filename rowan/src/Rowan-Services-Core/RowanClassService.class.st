@@ -1052,46 +1052,49 @@ RowanClassService >> runMethodTests: methodServices [
 
 { #category : 'client commands' }
 RowanClassService >> saveMethodSource: source category: category [
-  | behavior compilationResult gsNMethod updatedCategory methodService |
-  meta
-    ifNil: [ 
-      behavior := Object _objectForOop: oop.
-      meta := behavior isMeta ]
-    ifNotNil: [ 
-      behavior := meta
-        ifTrue: [ self theClass class ]
-        ifFalse: [ self theClass ] ].
-  oop := behavior asOop.
-  self initializeMethodHistoryFor: source.
-  updatedCategory := category ifNil: [ 'other' ].
-  compilationResult := self
-    compileMethod: source
-    behavior: behavior
-    symbolList: Rowan image symbolList
-    inCategory: updatedCategory asSymbol.
-  (gsNMethod := compilationResult key) isNil
-    ifTrue: [ 
-      System
-        signal: 1001
-        args: (Array with: compilationResult value)
-        signalDictionary: GemStoneError ].
-  self update.
-  methodService := self
-    methodServiceFrom: gsNMethod
-    in: behavior
-    compiltationResult: compilationResult.
-  RowanCommandResult addResult: methodService.
-  RowanQueryService new
-    organizer: ClassOrganizer new;
-    hierarchyImplementorsOf: methodService selector
-      inClass: methodService className.	"this will update hierarchy method indicators for client"
-  self selectedMethods: (Array with: methodService).
-  self updateDirtyState.
-  self updateTests.
-  self
-    updateSymbols:
-      gsNMethod _selectorPool asArray , (Array with: methodService selector).
-  methodService addToMethodHistory
+	| behavior compilationResult gsNMethod updatedCategory methodService |
+	meta
+		ifNil: [ 
+			behavior := Object _objectForOop: oop.
+			meta := behavior isMeta ]
+		ifNotNil: [ 
+			behavior := meta
+				ifTrue: [ self theClass class ]
+				ifFalse: [ self theClass ] ].
+	oop := behavior asOop.
+	self initializeMethodHistoryFor: source.
+	updatedCategory := category ifNil: [ 'other' ].
+	compilationResult := self
+		compileMethod: source
+		behavior: behavior
+		symbolList: Rowan image symbolList
+		inCategory: updatedCategory asSymbol.
+	(gsNMethod := compilationResult key) isNil
+		ifTrue: [ 
+			System
+				signal: 1001
+				args: (Array with: compilationResult value)
+				signalDictionary: GemStoneError ].
+	methodService := self
+		methodServiceFrom: gsNMethod
+		in: behavior
+		compiltationResult: compilationResult.
+	RowanCommandResult addResult: methodService.
+	RowanQueryService new
+		organizer: ClassOrganizer new;
+		hierarchyImplementorsOf: methodService selector
+			inClass: methodService className.	"this will update hierarchy method indicators for client"
+	self selectedMethods: (Array with: methodService).
+	self updateDirtyState.
+	methods isEmpty
+		ifTrue: [ self updateTests ]
+		ifFalse: [ 
+			(methods includes: methodService)
+				ifFalse: [ methods add: methodService] ].
+	self
+		updateSymbols:
+			gsNMethod _selectorPool asArray , (Array with: methodService selector).
+	methodService addToMethodHistory
 ]
 
 { #category : 'other' }
