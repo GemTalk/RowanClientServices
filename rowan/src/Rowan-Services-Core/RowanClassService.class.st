@@ -1090,11 +1090,12 @@ RowanClassService >> saveMethodSource: source category: category [
 		ifTrue: [ self updateTests ]
 		ifFalse: [ 
 			(methods includes: methodService)
-				ifFalse: [ methods add: methodService] ].
+				ifFalse: [ methods add: methodService ] ].
 	self
 		updateSymbols:
 			gsNMethod _selectorPool asArray , (Array with: methodService selector).
-	methodService addToMethodHistory
+	methodService addToMethodHistory.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'other' }
