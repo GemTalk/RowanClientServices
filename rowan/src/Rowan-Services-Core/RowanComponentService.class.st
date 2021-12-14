@@ -73,7 +73,7 @@ RowanComponentService >> computeSubComponentsUsingProjectService: theProjectServ
 { #category : 'instance creation' }
 RowanComponentService >> forComponentNamed: componentName projectService: theProjectService [
 	| inst component |
-	component := theProjectService rwProject componentNamed: componentName.
+	component := theProjectService rwProject componentOrPackageGroupNamed: componentName.
 	inst := self new
 		name: componentName;
 		basename: component label.
