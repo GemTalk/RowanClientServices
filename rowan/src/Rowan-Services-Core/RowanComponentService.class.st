@@ -109,10 +109,6 @@ RowanComponentService >> projectService: theProjectService [
 	projectService := theProjectService
 ]
 
-{ #category : 'accessing' }
-RowanComponentService >> subcomponentsOf: rwProject [
-]
-
 { #category : 'updating' }
 RowanComponentService >> update [
 	super update.
