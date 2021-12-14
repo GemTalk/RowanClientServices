@@ -20,11 +20,18 @@ RowanProjectDefinitionService >> componentDefinitions: object [
 	componentDefinitions := object
 ]
 
+{ #category : 'accessing' }
+RowanProjectDefinitionService >> definition [
+
+	^Object _objectForOop: definitionOop
+]
+
 { #category : 'commands' }
 RowanProjectDefinitionService >> editInWindow: handle [
 	definitionOop := (Rowan projectNamed: name) defined asOop.
 	handle
-		ifNotNil: [ RowanBrowserService new saveRootObject: definitionOop windowHandle: handle ]
+		ifNotNil: [ RowanBrowserService new saveRootObject: definitionOop windowHandle: handle ].
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'accessing' }
