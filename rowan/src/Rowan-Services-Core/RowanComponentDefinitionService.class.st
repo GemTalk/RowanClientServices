@@ -11,10 +11,10 @@ Class {
 
 { #category : 'client commands support' }
 RowanComponentDefinitionService >> computePackageNames [
-
-	| projectDefinition |
-	projectDefinition := projectDefinitionService definition. 
-	self halt.
+	| projectDefinition component |
+	projectDefinition := projectDefinitionService definition.
+	component := projectDefinition componentNamed: name.
+	packageNames := component packageNames
 ]
 
 { #category : 'client commands' }
