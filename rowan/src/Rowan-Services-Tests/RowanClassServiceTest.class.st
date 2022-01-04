@@ -61,7 +61,7 @@ RowanClassServiceTest >> test_addedProjectNotOnDisk [
 		pools: #()
 		type: 'normal'.
 	packageDefinition addClassDefinition: classDefinition.
-	Rowan projectTools load loadProjectDefinition: projectDefinition.
+	projectDefinition load.
 
 	(RowanClassService forClassNamed: 'Baijan') update. "<-- walkback occurrred here"
 	projectService := RowanProjectService newNamed: 'Azer'. 

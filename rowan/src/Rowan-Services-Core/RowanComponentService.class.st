@@ -14,12 +14,13 @@ Class {
 { #category : 'instance creation' }
 RowanComponentService class >> forComponentNamed: componentName projectService: theProjectService [
 	| inst component |
-	component := theProjectService rwProject componentNamed: componentName.
+	component := theProjectService rwProject
+		componentOrPackageGroupNamed: componentName.
 	inst := self new
 		name: componentName;
-		basename: component basename.
+		basename: component label.
 	inst computeSubComponentsUsingProjectService: theProjectService.
-	inst projectService: theProjectService. 
+	inst projectService: theProjectService.
 	^ inst
 ]
 
@@ -69,6 +70,18 @@ RowanComponentService >> computeSubComponentsUsingProjectService: theProjectServ
 				projectService: theProjectService ]
 ]
 
+{ #category : 'instance creation' }
+RowanComponentService >> forComponentNamed: componentName projectService: theProjectService [
+	| inst component |
+	component := theProjectService rwProject componentOrPackageGroupNamed: componentName.
+	inst := self new
+		name: componentName;
+		basename: component label.
+	inst computeSubComponentsUsingProjectService: theProjectService.
+	inst projectService: theProjectService. 
+	^ inst
+]
+
 { #category : 'initialization' }
 RowanComponentService >> initialize [
 	" to do "
@@ -94,10 +107,6 @@ RowanComponentService >> projectService [
 { #category : 'accessing' }
 RowanComponentService >> projectService: theProjectService [
 	projectService := theProjectService
-]
-
-{ #category : 'accessing' }
-RowanComponentService >> subcomponentsOf: rwProject [
 ]
 
 { #category : 'updating' }
