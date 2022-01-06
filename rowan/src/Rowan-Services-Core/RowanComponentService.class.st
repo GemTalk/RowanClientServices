@@ -26,9 +26,7 @@ RowanComponentService class >> forComponentNamed: componentName projectService: 
 
 { #category : 'operations' }
 RowanComponentService >> addFlattenedHierarchyTo: dictionary [
-	dictionary
-		at: self
-		put: (componentServices collect: [ :service | service ]).
+	dictionary at: self put: componentServices.
 	componentServices
 		do: [ :componentService | componentService addFlattenedHierarchyTo: dictionary ]
 ]

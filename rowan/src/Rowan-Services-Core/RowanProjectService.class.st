@@ -180,13 +180,17 @@ RowanProjectService >> commitWithMessage: message [
 
 { #category : 'accessing' }
 RowanProjectService >> componentServices [
+	^self componentServicesFor: self rwProject
+]
+
+{ #category : 'client commands support' }
+RowanProjectService >> componentServicesFor: theRwProject [
 	| componentDictionary |
 	componentDictionary := Dictionary new.
-	true ifTrue:[^componentDictionary]. "Uncomment this when v3.0 Rowan component gathering is done" 
 	componentDictionary
 		at: #'nil'
 		put:
-			(self rwProject componentNames
+			(theRwProject componentNames
 				collect: [ :componentName | 
 					| componentService |
 					componentService := RowanComponentService

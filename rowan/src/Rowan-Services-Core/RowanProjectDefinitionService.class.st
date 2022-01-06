@@ -20,18 +20,42 @@ RowanProjectDefinitionService >> componentDefinitions: object [
 	componentDefinitions := object
 ]
 
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> componentDefinitionServicesFor: theRwProject [
+	| componentDictionary |
+	componentDictionary := Dictionary new.
+	componentDictionary
+		at: #'nil'
+		put:
+			(theRwProject componentNames
+				collect: [ :componentName | 
+					| componentDefinitionService |
+					componentDefinitionService := RowanComponentDefinitionService
+						forComponentNamed: componentName
+						project: theRwProject.
+					componentDefinitionService addFlattenedHierarchyTo: componentDictionary. 
+					componentDefinitionService ]).
+
+	^ componentDictionary
+]
+
 { #category : 'accessing' }
 RowanProjectDefinitionService >> definition [
 
 	^Object _objectForOop: definitionOop
 ]
 
-{ #category : 'commands' }
+{ #category : 'client commands' }
 RowanProjectDefinitionService >> editInWindow: handle [
 	definitionOop := (Rowan projectNamed: name) defined asOop.
 	handle
 		ifNotNil: [ RowanBrowserService new saveRootObject: definitionOop windowHandle: handle ].
 	RowanCommandResult addResult: self
+]
+
+{ #category : 'accessing' }
+RowanProjectDefinitionService >> initializeComponentDefinitions [
+	self componentDefinitions: (self componentDefinitionServicesFor: self definition)
 ]
 
 { #category : 'accessing' }
@@ -52,4 +76,11 @@ RowanProjectDefinitionService >> packageDefinitions [
 { #category : 'accessing' }
 RowanProjectDefinitionService >> packageDefinitions: object [
 	packageDefinitions := object
+]
+
+{ #category : 'accessing' }
+RowanProjectDefinitionService >> update [
+
+	self initializeComponentDefinitions.
+	RowanCommandResult addResult: self
 ]
