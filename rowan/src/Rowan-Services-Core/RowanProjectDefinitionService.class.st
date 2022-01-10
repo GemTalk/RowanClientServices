@@ -21,18 +21,18 @@ RowanProjectDefinitionService >> componentDefinitions: object [
 ]
 
 { #category : 'client commands' }
-RowanProjectDefinitionService >> componentDefinitionServicesFor: theRwProject [
+RowanProjectDefinitionService >> componentDefinitionServicesFor: projectDefinition [
 	| componentDictionary |
 	componentDictionary := Dictionary new.
 	componentDictionary
 		at: #'nil'
 		put:
-			(theRwProject componentNames
+			(projectDefinition componentNames
 				collect: [ :componentName | 
 					| componentDefinitionService |
 					componentDefinitionService := RowanComponentDefinitionService
 						forComponentNamed: componentName
-						project: theRwProject.
+						projectDefinition: projectDefinition.
 					componentDefinitionService addFlattenedHierarchyTo: componentDictionary. 
 					componentDefinitionService ]).
 
