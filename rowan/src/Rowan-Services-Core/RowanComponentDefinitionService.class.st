@@ -14,13 +14,19 @@ Class {
 
 { #category : 'instance creation' }
 RowanComponentDefinitionService class >> forComponentNamed: componentName projectDefinition: projectDefinition [
-	| inst subcomponentNames |
+	| inst subcomponentNames component |
 	inst := self new.
 	inst name: componentName.
-	subcomponentNames := (projectDefinition componentOrPackageGroupNamed: componentName)
-		componentNames.
-	inst subcomponentDefinitions: (subcomponentNames
-		collect: [ :subcomponentName | self forComponentNamed: subcomponentName projectDefinition: projectDefinition ]).
+	component := projectDefinition
+		componentOrPackageGroupNamed: componentName
+		ifAbsent: [ nil ].
+	subcomponentNames := component
+		ifNil: [ Array new ]
+		ifNotNil: [ component componentNames ].
+	inst
+		subcomponentDefinitions:
+			(subcomponentNames
+				collect: [ :subcomponentName | self forComponentNamed: subcomponentName projectDefinition: projectDefinition ]).
 	^ inst
 ]
 
@@ -35,7 +41,9 @@ RowanComponentDefinitionService >> addFlattenedHierarchyTo: dictionary [
 RowanComponentDefinitionService >> computePackageNames [
 	| projectDefinition component |
 	projectDefinition := projectDefinitionService definition.
-	component := projectDefinition componentNamed: name.
+	component := projectDefinition
+		componentNamed: name
+		ifAbsent: [ ^ packageNames := Array new ].
 	packageNames := component packageNames
 ]
 

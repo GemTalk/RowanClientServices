@@ -10,6 +10,13 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> addComponent: componentName [
+	self definition addComponentNames: (Array with: componentName).
+	self initializeComponentDefinitions.
+	RowanCommandResult addResult: self
+]
+
 { #category : 'accessing' }
 RowanProjectDefinitionService >> componentDefinitions [
 	^componentDefinitions
@@ -53,9 +60,10 @@ RowanProjectDefinitionService >> editInWindow: handle [
 	RowanCommandResult addResult: self
 ]
 
-{ #category : 'accessing' }
+{ #category : 'initialization' }
 RowanProjectDefinitionService >> initializeComponentDefinitions [
-	self componentDefinitions: (self componentDefinitionServicesFor: self definition)
+	self
+		componentDefinitions: (self componentDefinitionServicesFor: self definition)
 ]
 
 { #category : 'accessing' }
@@ -78,7 +86,7 @@ RowanProjectDefinitionService >> packageDefinitions: object [
 	packageDefinitions := object
 ]
 
-{ #category : 'accessing' }
+{ #category : 'updating' }
 RowanProjectDefinitionService >> update [
 
 	self initializeComponentDefinitions.
