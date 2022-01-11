@@ -7,7 +7,8 @@ Class {
 		'projectDefinitionService',
 		'preloadDoitName',
 		'postloadDoitName',
-		'projectNames'
+		'projectNames',
+		'comment'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -39,8 +40,12 @@ RowanComponentDefinitionService >> addFlattenedHierarchyTo: dictionary [
 
 { #category : 'client commands support' }
 RowanComponentDefinitionService >> computePackageNames [
-	| projectDefinition component |
-	projectDefinition := projectDefinitionService definition.
+	self computePackageNames: projectDefinitionService definition
+]
+
+{ #category : 'client commands support' }
+RowanComponentDefinitionService >> computePackageNames: projectDefinition [
+	| component |
 	component := projectDefinition
 		componentNamed: name
 		ifAbsent: [ ^ packageNames := Array new ].
@@ -49,7 +54,7 @@ RowanComponentDefinitionService >> computePackageNames [
 
 { #category : 'client commands' }
 RowanComponentDefinitionService >> packageNames [
-	packageNames ifNil: [self computePackageNames]. 
+	self computePackageNames. 
 	RowanCommandResult addResult: self.
 ]
 

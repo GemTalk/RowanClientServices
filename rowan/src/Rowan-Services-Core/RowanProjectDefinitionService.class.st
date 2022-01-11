@@ -12,9 +12,18 @@ Class {
 
 { #category : 'client commands' }
 RowanProjectDefinitionService >> addComponent: componentName [
-	self definition addComponentNames: (Array with: componentName).
+	self definition addLoadComponentNamed: componentName.
 	self initializeComponentDefinitions.
 	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> addPackageNamed: packageName toComponentNamed: componentName [
+	| componentDefinitionService |
+	self definition addPackageNamed: packageName toComponentNamed: componentName.
+	componentDefinitionService := RowanComponentDefinitionService forComponentNamed: componentName projectDefinition: self definition.
+	componentDefinitionService computePackageNames: self definition.
+	RowanCommandResult addResult: componentDefinitionService
 ]
 
 { #category : 'accessing' }
@@ -84,6 +93,12 @@ RowanProjectDefinitionService >> packageDefinitions [
 { #category : 'accessing' }
 RowanProjectDefinitionService >> packageDefinitions: object [
 	packageDefinitions := object
+]
+
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> renameComponent: aComponentPath to: aComponentName [
+	self definition renameComponentNamed: aComponentPath to: aComponentName.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'updating' }
