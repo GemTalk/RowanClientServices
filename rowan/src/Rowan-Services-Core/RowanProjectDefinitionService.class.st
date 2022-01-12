@@ -96,6 +96,13 @@ RowanProjectDefinitionService >> packageDefinitions: object [
 ]
 
 { #category : 'client commands' }
+RowanProjectDefinitionService >> removeComponentNamed: componentName [
+	self definition removeComponentNamed: componentName.
+	self initializeComponentDefinitions.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanProjectDefinitionService >> renameComponent: aComponentPath to: aComponentName [
 	self definition renameComponentNamed: aComponentPath to: aComponentName.
 	RowanCommandResult addResult: self
