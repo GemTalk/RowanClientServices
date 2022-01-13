@@ -5,7 +5,8 @@ Class {
 		'definitionOop',
 		'componentDefinitions',
 		'packageDefinitions',
-		'loadSpecification'
+		'loadSpecification',
+		'specService'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -121,7 +122,8 @@ RowanProjectDefinitionService >> renameComponent: aComponentPath to: aComponentN
 
 { #category : 'updating' }
 RowanProjectDefinitionService >> update [
-
 	self initializeComponentDefinitions.
+	specService := RowanSpecificationService new
+		initialize: self definition loadSpecification asOop.
 	RowanCommandResult addResult: self
 ]
