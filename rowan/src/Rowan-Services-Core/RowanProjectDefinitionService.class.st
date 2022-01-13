@@ -26,6 +26,17 @@ RowanProjectDefinitionService >> addPackageNamed: packageName toComponentNamed: 
 	RowanCommandResult addResult: componentDefinitionService
 ]
 
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> addSubcomponentNamed: componentName toComponentNamed: toComponentName [
+	self rowanFixMe.	"What should the default condition be?"
+	self definition
+		addSubcomponentNamed: componentName
+		condition: 'common'
+		toComponentNamed: toComponentName.
+	self initializeComponentDefinitions.
+	RowanCommandResult addResult: self
+]
+
 { #category : 'accessing' }
 RowanProjectDefinitionService >> componentDefinitions [
 	^componentDefinitions
