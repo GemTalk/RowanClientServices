@@ -120,6 +120,13 @@ RowanProjectDefinitionService >> renameComponent: aComponentPath to: aComponentN
 	RowanCommandResult addResult: self
 ]
 
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> setLoadSpecProperty: property to: value [
+	self definition loadSpecification
+		perform: (property , ':') asSymbol
+		with: value
+]
+
 { #category : 'updating' }
 RowanProjectDefinitionService >> update [
 	self initializeComponentDefinitions.
