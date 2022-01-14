@@ -6,7 +6,9 @@ Class {
 		'componentDefinitions',
 		'packageDefinitions',
 		'loadSpecification',
-		'specService'
+		'specService',
+		'comment',
+		'conditionalAttributes'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -130,7 +132,14 @@ RowanProjectDefinitionService >> setLoadSpecProperty: property to: value [
 { #category : 'updating' }
 RowanProjectDefinitionService >> update [
 	self initializeComponentDefinitions.
-	specService := RowanSpecificationService new
-		initialize: self definition loadSpecification asOop.
+	self updateSpecService.
+	comment := self definition comment. 
+	conditionalAttributes := self definition customConditionalAttributes. 
 	RowanCommandResult addResult: self
+]
+
+{ #category : 'updating' }
+RowanProjectDefinitionService >> updateSpecService [
+	specService := RowanSpecificationService new
+		initialize: self definition loadSpecification asOop
 ]
