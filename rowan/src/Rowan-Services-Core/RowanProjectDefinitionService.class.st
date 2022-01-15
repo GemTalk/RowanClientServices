@@ -123,6 +123,11 @@ RowanProjectDefinitionService >> renameComponent: aComponentPath to: aComponentN
 ]
 
 { #category : 'client commands' }
+RowanProjectDefinitionService >> setConditionalAttributes: array [
+	self definition customConditionalAttributes: array
+]
+
+{ #category : 'client commands' }
 RowanProjectDefinitionService >> setLoadSpecProperty: property to: value [
 	self definition loadSpecification
 		perform: (property , ':') asSymbol
@@ -141,5 +146,6 @@ RowanProjectDefinitionService >> update [
 { #category : 'updating' }
 RowanProjectDefinitionService >> updateSpecService [
 	specService := RowanSpecificationService new
-		initialize: self definition loadSpecification asOop
+		initialize: self definition loadSpecification asOop.
+	specService removeUnlistedAttributes
 ]

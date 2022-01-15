@@ -29,3 +29,16 @@ RowanSpecificationService >> initialize: anOop [
 RowanSpecificationService >> instVarPrefix [
 	^ String new
 ]
+
+{ #category : 'accessing' }
+RowanSpecificationService >> removeUnlistedAttributes [
+	self unlistedSpecAttributes
+		do: [ :attribute | objects remove: (objects detect: [ :assoc | assoc key = attribute ]) ]
+]
+
+{ #category : 'constants' }
+RowanSpecificationService >> unlistedSpecAttributes [
+	"Not really unlisted, but we don't display them in the same way in the component editor"
+
+	^ #('customConditionalAttributes' 'comment' 'componentNames')
+]
