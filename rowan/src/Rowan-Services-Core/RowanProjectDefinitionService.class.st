@@ -144,6 +144,19 @@ RowanProjectDefinitionService >> setLoadSpecProperty: property to: value [
 		with: value
 ]
 
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> setPlatformProperty: property to: value [
+	property = #'defaultMethodEnv'
+		ifTrue: [ self definition loadSpecification gemstoneSetDefaultMethodEnvTo: value ].
+	property = #'defaultSymbolDict'
+		ifTrue: [ self definition loadSpecification gemstoneSetDefaultSymbolDictNameTo: value ].
+
+	property = #'useSessionMethods'
+		ifTrue: [ 
+			self definition loadSpecification
+				gemstoneSetDefaultUseSessionMethodsForExtensionsTo: value ]
+]
+
 { #category : 'updating' }
 RowanProjectDefinitionService >> update [
 	self initializeComponentDefinitions.
@@ -165,7 +178,7 @@ RowanProjectDefinitionService >> updateLoadSpecService [
 RowanProjectDefinitionService >> updatePlatformProperties [
 	platformProperties := Dictionary new.
 	platformProperties
-		at: #'methodEnv'
+		at: #'defaultMethodEnv'
 		put:
 			(self definition loadSpecification
 				gemstoneDefaultMethodEnvForUser: self allUsersName).
