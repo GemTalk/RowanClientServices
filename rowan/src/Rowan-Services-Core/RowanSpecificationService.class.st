@@ -17,6 +17,11 @@ RowanSpecificationService >> addInstVars: anObject [
 					-> (Object _objectForOop: (objects at: index) value) printString ]
 ]
 
+{ #category : 'constants' }
+RowanSpecificationService >> hiddenAttributes [
+	^ #('customConditionalAttributes' 'comment' 'componentNames' 'platformProperties' 'mercurialUrl' 'svnUrl' 'projectsHome' 'repositoryResolutionPolicy')
+]
+
 { #category : 'initialization' }
 RowanSpecificationService >> initialize: anOop [
 	"intention revealing - not really an inspect"
@@ -31,14 +36,7 @@ RowanSpecificationService >> instVarPrefix [
 ]
 
 { #category : 'accessing' }
-RowanSpecificationService >> removeUnlistedAttributes [
-	self unlistedSpecAttributes
+RowanSpecificationService >> removeHiddenAttributes [
+	self hiddenAttributes
 		do: [ :attribute | objects remove: (objects detect: [ :assoc | assoc key = attribute ]) ]
-]
-
-{ #category : 'constants' }
-RowanSpecificationService >> unlistedSpecAttributes [
-	"Not really unlisted, but we don't display them in the same way in the component editor"
-
-	^ #('customConditionalAttributes' 'comment' 'componentNames')
 ]

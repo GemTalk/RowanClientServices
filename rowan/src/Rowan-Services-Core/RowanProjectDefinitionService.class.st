@@ -1,3 +1,6 @@
+"
+RowanProjectDefinitionService presents a gui-ready presentation of a Rowan project definition and load specification.
+"
 Class {
 	#name : 'RowanProjectDefinitionService',
 	#superclass : 'RowanDefinitionService',
@@ -8,7 +11,8 @@ Class {
 		'loadSpecification',
 		'specService',
 		'comment',
-		'conditionalAttributes'
+		'conditionalAttributes',
+		'platformProperties'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -38,6 +42,12 @@ RowanProjectDefinitionService >> addSubcomponentNamed: componentName toComponent
 		toComponentNamed: toComponentName.
 	self initializeComponentDefinitions.
 	RowanCommandResult addResult: self
+]
+
+{ #category : 'constants' }
+RowanProjectDefinitionService >> allUsersName [
+
+	^'allusers'
 ]
 
 { #category : 'accessing' }
@@ -137,15 +147,34 @@ RowanProjectDefinitionService >> setLoadSpecProperty: property to: value [
 { #category : 'updating' }
 RowanProjectDefinitionService >> update [
 	self initializeComponentDefinitions.
-	self updateSpecService.
+	self updateLoadSpecService.
 	comment := self definition comment. 
 	conditionalAttributes := self definition customConditionalAttributes. 
+	self updatePlatformProperties. 
 	RowanCommandResult addResult: self
 ]
 
 { #category : 'updating' }
-RowanProjectDefinitionService >> updateSpecService [
+RowanProjectDefinitionService >> updateLoadSpecService [
 	specService := RowanSpecificationService new
 		initialize: self definition loadSpecification asOop.
-	specService removeUnlistedAttributes
+	specService removeHiddenAttributes
+]
+
+{ #category : 'updating' }
+RowanProjectDefinitionService >> updatePlatformProperties [
+	platformProperties := Dictionary new.
+	platformProperties
+		at: #'methodEnv'
+		put:
+			(self definition loadSpecification
+				gemstoneDefaultMethodEnvForUser: self allUsersName).
+	platformProperties
+		at: #'defaultSymbolDict'
+		put: self definition loadSpecification gemstoneDefaultSymbolDictName.
+	platformProperties
+		at: #'useSessionMethods'
+		put:
+			(self definition loadSpecification
+				gemstoneDefaultUseSessionMethodsForExtensionsForUser: self allUsersName)
 ]
