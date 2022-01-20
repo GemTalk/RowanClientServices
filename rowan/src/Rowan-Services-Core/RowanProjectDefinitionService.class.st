@@ -47,7 +47,7 @@ RowanProjectDefinitionService >> addSubcomponentNamed: componentName toComponent
 { #category : 'constants' }
 RowanProjectDefinitionService >> allUsersName [
 
-	^'allusers'
+	^self definition loadSpecification _gemstoneAllUsersName
 ]
 
 { #category : 'accessing' }
@@ -107,6 +107,11 @@ RowanProjectDefinitionService >> loadSpecification [
 { #category : 'accessing' }
 RowanProjectDefinitionService >> loadSpecification: object [
 	loadSpecification := object
+]
+
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> movePackageNamed: aPackageName toComponentNamed: aComponentName [
+	self definition movePackageNamed: aPackageName toComponentNamed: aComponentName
 ]
 
 { #category : 'accessing' }
