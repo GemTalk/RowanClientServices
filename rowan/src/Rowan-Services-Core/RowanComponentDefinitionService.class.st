@@ -21,6 +21,10 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 	component := projectDefinition
 		componentOrPackageGroupNamed: componentName
 		ifAbsent: [ nil ].
+	(projectDefinition componentNamed: componentName ifAbsent: [  ])
+		ifNotNil: [ 
+			"do not set for package groups"
+			self setPrePostDoItsFor: inst component: component ].
 	subcomponentNames := component
 		ifNil: [ Array new ]
 		ifNotNil: [ component componentNames ].
@@ -29,6 +33,18 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 			(subcomponentNames
 				collect: [ :subcomponentName | self forComponentNamed: subcomponentName projectDefinition: projectDefinition ]).
 	^ inst
+]
+
+{ #category : 'private' }
+RowanComponentDefinitionService class >> setPrePostDoItsFor: inst component: component [
+	inst
+		preloadDoitName:
+			(component preloadDoitName
+				ifNotNil: [ :theName | theName -> (component doitDict at: theName) ]).
+	inst
+		postloadDoitName:
+			(component postloadDoitName
+				ifNotNil: [ :theName | theName -> (component doitDict at: theName) ])
 ]
 
 { #category : 'other' }
@@ -56,6 +72,26 @@ RowanComponentDefinitionService >> computePackageNames: projectDefinition [
 RowanComponentDefinitionService >> packageNames [
 	self computePackageNames. 
 	RowanCommandResult addResult: self.
+]
+
+{ #category : 'accessing' }
+RowanComponentDefinitionService >> postloadDoitName [
+	^postloadDoitName
+]
+
+{ #category : 'accessing' }
+RowanComponentDefinitionService >> postloadDoitName: object [
+	postloadDoitName := object
+]
+
+{ #category : 'accessing' }
+RowanComponentDefinitionService >> preloadDoitName [
+	^preloadDoitName
+]
+
+{ #category : 'accessing' }
+RowanComponentDefinitionService >> preloadDoitName: object [
+	preloadDoitName := object
 ]
 
 { #category : 'accessing' }

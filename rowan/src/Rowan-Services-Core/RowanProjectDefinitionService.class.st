@@ -34,6 +34,22 @@ RowanProjectDefinitionService >> addPackageNamed: packageName toComponentNamed: 
 ]
 
 { #category : 'client commands' }
+RowanProjectDefinitionService >> addPostloadDoitName: doitName withSource: doitSource toComponentNamed: aComponentName [
+	self definition
+		addPostloadDoitName: doitName
+		withSource: doitSource
+		toComponentNamed: aComponentName
+]
+
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> addPreloadDoitName: doitName withSource: doitSource toComponentNamed: aComponentName [
+	self definition
+		addPreloadDoitName: doitName
+		withSource: doitSource
+		toComponentNamed: aComponentName
+]
+
+{ #category : 'client commands' }
 RowanProjectDefinitionService >> addSubcomponentNamed: componentName toComponentNamed: toComponentName [
 	self rowanFixMe.	"What should the default condition be?"
 	self definition
