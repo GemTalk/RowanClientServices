@@ -38,7 +38,8 @@ RowanProjectDefinitionService >> addPostloadDoitName: doitName withSource: doitS
 	self definition
 		addPostloadDoitName: doitName
 		withSource: doitSource
-		toComponentNamed: aComponentName
+		toComponentNamed: aComponentName.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
@@ -46,7 +47,8 @@ RowanProjectDefinitionService >> addPreloadDoitName: doitName withSource: doitSo
 	self definition
 		addPreloadDoitName: doitName
 		withSource: doitSource
-		toComponentNamed: aComponentName
+		toComponentNamed: aComponentName.
+	RowanCommandResult addResult: self.
 ]
 
 { #category : 'client commands' }
