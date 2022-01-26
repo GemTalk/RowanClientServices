@@ -111,6 +111,17 @@ RowanProjectDefinitionService >> editInWindow: handle [
 	RowanCommandResult addResult: self
 ]
 
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> export [
+
+	self definition resolveProject export
+]
+
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> exportLoadSpecification [
+	self definition resolveProject exportLoadSpecification
+]
+
 { #category : 'initialization' }
 RowanProjectDefinitionService >> initializeComponentDefinitions [
 	self
@@ -185,7 +196,7 @@ RowanProjectDefinitionService >> update [
 	self initializeComponentDefinitions.
 	self updateLoadSpecService.
 	comment := self definition comment. 
-	conditionalAttributes := self definition customConditionalAttributes. 
+	conditionalAttributes := self definition customConditionalAttributes asOrderedCollection. 
 	self updatePlatformProperties. 
 	RowanCommandResult addResult: self
 ]
