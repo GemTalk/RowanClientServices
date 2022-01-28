@@ -12,7 +12,8 @@ Class {
 		'specService',
 		'comment',
 		'conditionalAttributes',
-		'platformProperties'
+		'platformProperties',
+		'packageGroups'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -130,6 +131,17 @@ RowanProjectDefinitionService >> initializeComponentDefinitions [
 		componentDefinitions: (self componentDefinitionServicesFor: self definition)
 ]
 
+{ #category : 'initialization' }
+RowanProjectDefinitionService >> initializePackageGroups [
+	self
+		packageGroups:
+			(self definition packageGroupNames
+				collect: [ :theName | 
+					RowanPackageGroupService
+						forPackageGroupNamed: theName
+						projectDefinition: self definition ])
+]
+
 { #category : 'accessing' }
 RowanProjectDefinitionService >> loadSpecification [
 	^loadSpecification
@@ -153,6 +165,16 @@ RowanProjectDefinitionService >> packageDefinitions [
 { #category : 'accessing' }
 RowanProjectDefinitionService >> packageDefinitions: object [
 	packageDefinitions := object
+]
+
+{ #category : 'accessing' }
+RowanProjectDefinitionService >> packageGroups [
+	^packageGroups
+]
+
+{ #category : 'accessing' }
+RowanProjectDefinitionService >> packageGroups: object [
+	packageGroups := object
 ]
 
 { #category : 'client commands' }
@@ -196,6 +218,7 @@ RowanProjectDefinitionService >> setPlatformProperty: property to: value [
 { #category : 'updating' }
 RowanProjectDefinitionService >> update [
 	self initializeComponentDefinitions.
+	self initializePackageGroups. 
 	self updateLoadSpecService.
 	comment := self definition comment. 
 	conditionalAttributes := self definition customConditionalAttributes asOrderedCollection. 

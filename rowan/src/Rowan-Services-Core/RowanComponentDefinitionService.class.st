@@ -4,8 +4,8 @@ Class {
 	#instVars : [
 		'subcomponentDefinitions',
 		'packageNames',
-		'projectDefinitionService',
 		'preloadDoitName',
+		'projectDefinitionService',
 		'postloadDoitName',
 		'projectNames',
 		'comment'
@@ -71,6 +71,11 @@ RowanComponentDefinitionService >> computePackageNames: projectDefinition [
 RowanComponentDefinitionService >> packageNames [
 	self computePackageNames. 
 	RowanCommandResult addResult: self.
+]
+
+{ #category : 'accessing' }
+RowanComponentDefinitionService >> packageNames: object [
+	packageNames := object
 ]
 
 { #category : 'accessing' }
