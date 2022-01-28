@@ -35,6 +35,15 @@ RowanProjectDefinitionService >> addPackageNamed: packageName toComponentNamed: 
 ]
 
 { #category : 'client commands' }
+RowanProjectDefinitionService >> addPackagesNamed: packageNames toPackageGroupNamed: packageGroupName [
+	| packageGroupService |
+	(self definition packageGroupNamed: packageGroupName) addPackageNames: packageNames.
+	packageGroupService := RowanPackageGroupService forPackageGroupNamed: packageGroupName projectDefinition: self definition.
+	packageGroupService computePackageNames: self definition.
+	RowanCommandResult addResult: packageGroupService
+]
+
+{ #category : 'client commands' }
 RowanProjectDefinitionService >> addPostloadDoitName: doitName withSource: doitSource toComponentNamed: aComponentName [
 	self definition
 		addPostloadDoitName: doitName
