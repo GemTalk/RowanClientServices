@@ -91,8 +91,10 @@ RowanProjectDefinitionService >> componentDefinitionServicesFor: projectDefiniti
 					componentDefinitionService := RowanComponentDefinitionService
 						forComponentNamed: componentName
 						projectDefinition: projectDefinition.
-					componentDefinitionService addFlattenedHierarchyTo: componentDictionary. 
-					componentDefinitionService ]).
+					componentDefinitionService
+						ifNotNil: [ 
+							componentDefinitionService addFlattenedHierarchyTo: componentDictionary.
+							componentDefinitionService ] ]) asSet asArray.	"eliminate nils"
 
 	^ componentDictionary
 ]

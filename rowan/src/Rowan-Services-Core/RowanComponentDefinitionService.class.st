@@ -21,9 +21,8 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 	component := projectDefinition
 		componentOrPackageGroupNamed: componentName
 		ifAbsent: [ nil ].
-	(projectDefinition componentNamed: componentName ifAbsent: [  ])
+	(projectDefinition componentNamed: componentName ifAbsent: [ ^nil ])
 		ifNotNil: [ 
-			"do not set for package groups"
 			self setPrePostDoItsFor: inst component: component ].
 	subcomponentNames := component
 		ifNil: [ Array new ]
@@ -31,7 +30,7 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 	inst
 		subcomponentDefinitions:
 			(subcomponentNames
-				collect: [ :subcomponentName | self forComponentNamed: subcomponentName projectDefinition: projectDefinition ]).
+				collect: [ :subcomponentName | self forComponentNamed: subcomponentName projectDefinition: projectDefinition ]) asSet asArray.
 	^ inst
 ]
 
