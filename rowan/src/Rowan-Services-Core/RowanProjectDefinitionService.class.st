@@ -36,11 +36,9 @@ RowanProjectDefinitionService >> addPackageGroupNamed: aComponentName [
 ]
 
 { #category : 'client commands' }
-RowanProjectDefinitionService >> addPackageGroupNamed: aComponentName condition: condition comment: aString [
-	self definition
-		addPackageGroupNamed: aComponentName
-		condition: condition
-		comment: aString
+RowanProjectDefinitionService >> addPackageGroupNamed: packageGroupName condition: condition comment: aString [
+	(self definition packageGroupNamed: packageGroupName) condition: condition.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
@@ -240,6 +238,12 @@ RowanProjectDefinitionService >> removePackagesNamed: packageNames fromPackageGr
 { #category : 'client commands' }
 RowanProjectDefinitionService >> renameComponent: aComponentPath to: aComponentName [
 	self definition renameComponentNamed: aComponentPath to: aComponentName.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> renamePackageGroup: packageGroupName to: newPackageGroupName [
+	self definition renamePackageGroupNamed: packageGroupName to: newPackageGroupName.
 	RowanCommandResult addResult: self
 ]
 

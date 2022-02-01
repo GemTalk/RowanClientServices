@@ -21,16 +21,18 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 	component := projectDefinition
 		componentOrPackageGroupNamed: componentName
 		ifAbsent: [ nil ].
-	(projectDefinition componentNamed: componentName ifAbsent: [ ^nil ])
-		ifNotNil: [ 
-			self setPrePostDoItsFor: inst component: component ].
+	(projectDefinition componentNamed: componentName ifAbsent: [ ^ nil ])
+		ifNotNil: [ self setPrePostDoItsFor: inst component: component ].
 	subcomponentNames := component
 		ifNil: [ Array new ]
 		ifNotNil: [ component componentNames ].
 	inst
 		subcomponentDefinitions:
 			(subcomponentNames
-				collect: [ :subcomponentName | self forComponentNamed: subcomponentName projectDefinition: projectDefinition ]) asSet asArray.
+				collect: [ :subcomponentName | 
+					(projectDefinition componentNamed: componentName ifAbsent: [  ])
+						ifNotNil: [ self forComponentNamed: subcomponentName projectDefinition: projectDefinition ] ])
+				asSet asArray.
 	^ inst
 ]
 
@@ -65,6 +67,27 @@ RowanComponentDefinitionService >> computePackageNames: projectDefinition [
 		componentNamed: name
 		ifAbsent: [ ^ packageNames := Array new ].
 	packageNames := component packageNames
+]
+
+{ #category : 'instance creation' }
+RowanComponentDefinitionService >> forComponentNamed: componentName projectDefinition: projectDefinition [
+	| inst subcomponentNames component |
+	inst := self new.
+	inst name: componentName.
+	component := projectDefinition
+		componentOrPackageGroupNamed: componentName
+		ifAbsent: [ nil ].
+	(projectDefinition componentNamed: componentName ifAbsent: [ ^nil ])
+		ifNotNil: [ 
+			self setPrePostDoItsFor: inst component: component ].
+	subcomponentNames := component
+		ifNil: [ Array new ]
+		ifNotNil: [ component componentNames ].
+	inst
+		subcomponentDefinitions:
+			(subcomponentNames
+				collect: [ :subcomponentName | self forComponentNamed: subcomponentName projectDefinition: projectDefinition ]) asSet asArray.
+	^ inst
 ]
 
 { #category : 'client commands' }
