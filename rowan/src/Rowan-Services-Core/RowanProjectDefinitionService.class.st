@@ -219,7 +219,22 @@ RowanProjectDefinitionService >> removePackageGroupNamed: aComponentName [
 { #category : 'client commands' }
 RowanProjectDefinitionService >> removePackageGroupsNamed: packageGroupNames [
 	packageGroupNames
-		do: [ :packageGroupName | self definition removePackageGroupNamed: packageGroupName]
+		do: [ :packageGroupName | self definition removePackageGroupNamed: packageGroupName].
+	RowanCommandResult addResult: self.
+]
+
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> removePackagesFromProjectDefinition: packageNames [
+	packageNames
+		do: [ :packageName | self definition removePackageNamed: packageName ]
+]
+
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> removePackagesNamed: packageNames fromPackageGroupNamed: packageGroupName [
+	packageNames
+		do: [ :packageName | 
+			(self definition packageGroupNamed: packageGroupName)
+				removePackageNamed: packageName ]
 ]
 
 { #category : 'client commands' }
