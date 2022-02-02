@@ -248,6 +248,13 @@ RowanProjectDefinitionService >> renamePackageGroup: packageGroupName to: newPac
 ]
 
 { #category : 'client commands' }
+RowanProjectDefinitionService >> renamePackageNamed: packageName to: newPackageName [
+	self definition renamePackageNamed: packageName to: newPackageName.
+	self update. 
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanProjectDefinitionService >> setConditionalAttributes: array [
 	self definition customConditionalAttributes: array
 ]
