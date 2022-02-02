@@ -65,7 +65,10 @@ RowanServicesTest >> loadRowanSample1 [
 	(projectsHome / projectName) ensureDeleteAll.
 	loadSpec := (RwSpecification
 		fromUrl:
-			'file:$ROWAN_PROJECTS_HOME/Rowan/samples/RowanSample1_resolved_v2.ston')
+			'file:'
+				,
+					((Rowan image _projectForNonTestProject: 'Rowan') repositoryRoot / 'samples'
+						/ 'RowanSample1_resolved_v2.ston') pathString)
 		projectsHome: projectsHome;
 		yourself.
 	resolvedProject := loadSpec resolve.
