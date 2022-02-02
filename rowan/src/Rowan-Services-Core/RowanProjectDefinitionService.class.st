@@ -95,6 +95,11 @@ RowanProjectDefinitionService >> allUsersName [
 ]
 
 { #category : 'accessing' }
+RowanProjectDefinitionService >> comment: projectComment [
+	self definition comment: projectComment
+]
+
+{ #category : 'accessing' }
 RowanProjectDefinitionService >> componentDefinitions [
 	^componentDefinitions
 ]
