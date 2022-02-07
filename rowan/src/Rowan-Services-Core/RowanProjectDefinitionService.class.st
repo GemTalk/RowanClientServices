@@ -96,7 +96,7 @@ RowanProjectDefinitionService >> allUsersName [
 
 { #category : 'accessing' }
 RowanProjectDefinitionService >> comment: projectComment [
-	self definition comment: projectComment
+	self definition loadSpecification comment: projectComment
 ]
 
 { #category : 'accessing' }
@@ -138,7 +138,7 @@ RowanProjectDefinitionService >> definition [
 
 { #category : 'client commands' }
 RowanProjectDefinitionService >> editInWindow: handle [
-	definitionOop := (Rowan projectNamed: name) defined asOop.
+	definitionOop := (Rowan projectNamed: name) defined resolvedProject read asOop.
 	handle
 		ifNotNil: [ RowanBrowserService new saveRootObject: definitionOop windowHandle: handle ].
 	RowanCommandResult addResult: self
@@ -289,7 +289,7 @@ RowanProjectDefinitionService >> update [
 	self initializeComponentDefinitions.
 	self initializePackageGroups. 
 	self updateLoadSpecService.
-	comment := self definition comment. 
+	comment := self definition loadSpecification comment. 
 	conditionalAttributes := self definition customConditionalAttributes asOrderedCollection. 
 	self updatePlatformProperties. 
 	RowanCommandResult addResult: self
