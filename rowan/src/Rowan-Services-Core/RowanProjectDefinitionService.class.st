@@ -138,7 +138,7 @@ RowanProjectDefinitionService >> definition [
 
 { #category : 'client commands' }
 RowanProjectDefinitionService >> editInWindow: handle [
-	definitionOop := (Rowan projectNamed: name) defined resolvedProject read asOop.
+	definitionOop := (Rowan projectNamed: name) defined asOop.
 	handle
 		ifNotNil: [ RowanBrowserService new saveRootObject: definitionOop windowHandle: handle ].
 	RowanCommandResult addResult: self
