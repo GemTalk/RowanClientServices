@@ -297,7 +297,7 @@ RowanProjectDefinitionService >> update [
 
 { #category : 'updating' }
 RowanProjectDefinitionService >> updateLoadSpecService [
-	specService := RowanSpecificationService new
+	specService := RowanLoadSpecService new
 		initialize: self definition loadSpecification asOop.
 	specService removeHiddenAttributes
 ]

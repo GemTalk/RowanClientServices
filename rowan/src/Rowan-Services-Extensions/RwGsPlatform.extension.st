@@ -109,7 +109,7 @@ RwGsPlatform >> serviceClasses [
 		add: RowanProjectService;
 		add: RowanQueryService;
 		add: RowanResolvedProjectService;
-		add: RowanSpecificationService;
+		add: RowanLoadSpecService;
 		add: RowanTestService;
 		add: RowanVariableService.
 	^ array
@@ -123,5 +123,5 @@ RwGsPlatform >> serviceClassFor: className [
 
 { #category : '*rowan-services-extensions' }
 RwGsPlatform >> specificationServiceClass [
-  ^ RowanSpecificationService
+  ^ RowanLoadSpecService
 ]

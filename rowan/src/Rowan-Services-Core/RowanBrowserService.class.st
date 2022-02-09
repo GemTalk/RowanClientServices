@@ -215,7 +215,7 @@ RowanBrowserService >> newProjectNamed: projectName windowHandle: handle [
 	definedProjectService projectOop: (project := Rowan newProjectNamed: projectName) asOop.
 	self saveRootObject: definedProjectService projectOop windowHandle: handle. 
 	definedProjectService := definedProjectService updateType: #newProject:.
-	definedProjectService specService: (RowanSpecificationService new initialize: project loadSpecification asOop).
+	definedProjectService specService: (RowanLoadSpecService new initialize: project loadSpecification asOop).
 	RowanCommandResult addResult: definedProjectService
 ]
 

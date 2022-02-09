@@ -115,7 +115,7 @@ RowanProjectService >> basicRefresh [
 	rowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'.
 	isDiskDirty := self isGitDirty.
 	componentServices := self componentServices.
-	specService := RowanSpecificationService new initialize: self rwProject loadSpecification asOop.
+	specService := RowanLoadSpecService new initialize: self rwProject loadSpecification asOop.
 	RowanCommandResult addResult: self
 ]
 
