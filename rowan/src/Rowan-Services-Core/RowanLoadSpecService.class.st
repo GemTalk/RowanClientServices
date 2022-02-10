@@ -15,14 +15,14 @@ Class {
 { #category : 'command support' }
 RowanLoadSpecService >> addInstVars: anObject [
 	"coerce the oops into strings for display in the browsers"
-
+	objects := Array new. 
 	super addInstVars: anObject.
 	1 to: objects size do: [ :index | 
 		objects
 			at: index
 			put:
 				(objects at: index) key
-					-> (Object _objectForOop: (objects at: index) value) printString ]
+					-> (Object _objectForOop: (objects at: index) value) asString ]
 ]
 
 { #category : 'updating' }
@@ -48,7 +48,7 @@ RowanLoadSpecService >> excludedInstVars [
 
 { #category : 'client commands' }
 RowanLoadSpecService >> exportLoadSpecification [
-	self halt
+	self loadSpec exportTo: loadSpecPath
 ]
 
 { #category : 'constants' }
@@ -144,6 +144,6 @@ RowanLoadSpecService >> updatePlatformProperties [
 
 { #category : 'updating' }
 RowanLoadSpecService >> updateSettableAttributes [
-	self initialize: self loadSpec asOop.
+	self initialize: loadSpecOop.
 	self removeHiddenAttributes
 ]
