@@ -15,14 +15,17 @@ Class {
 { #category : 'command support' }
 RowanLoadSpecService >> addInstVars: anObject [
 	"coerce the oops into strings for display in the browsers"
-	objects := Array new. 
+
+	objects := Array new.
 	super addInstVars: anObject.
 	1 to: objects size do: [ :index | 
 		objects
 			at: index
 			put:
 				(objects at: index) key
-					-> (Object _objectForOop: (objects at: index) value) asString ]
+					->
+						((Object _objectForOop: (objects at: index) value) ifNil: [ String new ])
+							asString ]
 ]
 
 { #category : 'updating' }
@@ -47,8 +50,11 @@ RowanLoadSpecService >> excludedInstVars [
 ]
 
 { #category : 'client commands' }
-RowanLoadSpecService >> exportLoadSpecification [
-	self loadSpec exportTo: loadSpecPath
+RowanLoadSpecService >> export [
+	| path directory |
+	path := Path from: loadSpecPath.
+	directory := path parent fullName. 
+	self loadSpec exportTo:  (FileReference / directory)
 ]
 
 { #category : 'constants' }
@@ -81,6 +87,11 @@ RowanLoadSpecService >> instVarPrefix [
 	^ String new
 ]
 
+{ #category : 'client commands' }
+RowanLoadSpecService >> load [
+	self loadSpec load
+]
+
 { #category : 'accessing' }
 RowanLoadSpecService >> loadSpec [
 
@@ -100,7 +111,7 @@ RowanLoadSpecService >> setConditionalAttributes: array [
 
 { #category : 'client commands' }
 RowanLoadSpecService >> setLoadSpecProperty: property to: value [
-	self definition loadSpecification
+	self loadSpec
 		perform: (property , ':') asSymbol
 		with: value
 ]
