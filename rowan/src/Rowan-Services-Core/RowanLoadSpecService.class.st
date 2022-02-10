@@ -105,8 +105,13 @@ RowanLoadSpecService >> removeHiddenAttributes [
 ]
 
 { #category : 'client commands' }
-RowanLoadSpecService >> setConditionalAttributes: array [
-	self definition customConditionalAttributes: array
+RowanLoadSpecService >> setComment: aString [
+	self loadSpec comment: aString
+]
+
+{ #category : 'client commands' }
+RowanLoadSpecService >> setConditionalAttributes: anArray [
+	self loadSpec customConditionalAttributes: anArray
 ]
 
 { #category : 'client commands' }
@@ -119,14 +124,11 @@ RowanLoadSpecService >> setLoadSpecProperty: property to: value [
 { #category : 'client commands' }
 RowanLoadSpecService >> setPlatformProperty: property to: value [
 	property = #'defaultMethodEnv'
-		ifTrue: [ self definition loadSpecification gemstoneSetDefaultMethodEnvTo: value ].
+		ifTrue: [ self loadSpec gemstoneSetDefaultMethodEnvTo: value ].
 	property = #'defaultSymbolDict'
-		ifTrue: [ self definition loadSpecification gemstoneSetDefaultSymbolDictNameTo: value ].
-
+		ifTrue: [ self loadSpec gemstoneSetDefaultSymbolDictNameTo: value ].
 	property = #'useSessionMethods'
-		ifTrue: [ 
-			self definition loadSpecification
-				gemstoneSetDefaultUseSessionMethodsForExtensionsTo: value ]
+		ifTrue: [ self loadSpec gemstoneSetDefaultUseSessionMethodsForExtensionsTo: value ]
 ]
 
 { #category : 'updating' }
