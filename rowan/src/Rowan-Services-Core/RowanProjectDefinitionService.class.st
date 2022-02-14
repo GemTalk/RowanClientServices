@@ -8,7 +8,6 @@ Class {
 		'definitionOop',
 		'componentDefinitions',
 		'packageDefinitions',
-		'loadSpecification',
 		'specService',
 		'comment',
 		'conditionalAttributes',
@@ -172,16 +171,6 @@ RowanProjectDefinitionService >> initializePackageGroups [
 						projectDefinition: self definition ])
 ]
 
-{ #category : 'accessing' }
-RowanProjectDefinitionService >> loadSpecification [
-	^loadSpecification
-]
-
-{ #category : 'accessing' }
-RowanProjectDefinitionService >> loadSpecification: object [
-	loadSpecification := object
-]
-
 { #category : 'client commands' }
 RowanProjectDefinitionService >> movePackageNamed: aPackageName toComponentNamed: aComponentName [
 	self definition movePackageNamed: aPackageName toComponentNamed: aComponentName
@@ -299,7 +288,7 @@ RowanProjectDefinitionService >> update [
 RowanProjectDefinitionService >> updateLoadSpecService [
 	specService := RowanLoadSpecService new
 		initialize: self definition loadSpecification asOop.
-	specService removeHiddenAttributes
+	specService removeHiddenAttributes.
 ]
 
 { #category : 'updating' }

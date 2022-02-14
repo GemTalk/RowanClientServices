@@ -35,11 +35,12 @@ RowanLoadSpecService >> allUsersName [
 ]
 
 { #category : 'client commands' }
-RowanLoadSpecService >> editInWindow: handle [ 
-	loadSpecOop := (RwSpecification fromFile: loadSpecPath) asOop.
+RowanLoadSpecService >> editInWindow: handle [
+	loadSpecPath
+		ifNotNil: [ :path | loadSpecOop := (RwSpecification fromFile: loadSpecPath) asOop ].
 	handle
 		ifNotNil: [ RowanBrowserService new saveRootObject: loadSpecOop windowHandle: handle ].
-	self update. 
+	self update.
 	RowanCommandResult addResult: self
 ]
 
@@ -74,7 +75,7 @@ RowanLoadSpecService >> initialize [
 
 { #category : 'initialization' }
 RowanLoadSpecService >> initialize: anOop [
-	"needed?"
+	loadSpecOop := anOop. 
 	isOop := true. 
 	maxIndexedVars := 0.
 	conditionalAttributes := Array new. 
