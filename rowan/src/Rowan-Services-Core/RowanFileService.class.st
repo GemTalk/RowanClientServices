@@ -22,3 +22,15 @@ RowanFileService >> directoryContents [
 	answer := (answer asSortedCollection:[:x :y | x key < y key]) asArray. 
 	RowanCommandResult addResult: self
 ]
+
+{ #category : 'client commands' }
+RowanFileService >> diveInto: directory [
+	path := (Path from: path) resolveString: directory.
+	self directoryContents
+]
+
+{ #category : 'client commands' }
+RowanFileService >> pop [
+	path := (Path from: path) parent asString. 
+	self directoryContents
+]
