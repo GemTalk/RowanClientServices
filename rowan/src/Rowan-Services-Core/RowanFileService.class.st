@@ -19,7 +19,8 @@ RowanFileService >> directoryContents [
 			(GsFile contentsOfDirectory: path onClient: false)
 				collect: [ :subpath | subpath -> (GsFile isServerDirectory: subpath) ] ]
 		ifFalse: [ nil ].
-	answer := (answer asSortedCollection:[:x :y | x key < y key]) asArray. 
+	answer ifNil:[^self]. 
+	answer := (answer asSortedCollection:[:x :y | x key < y key]) asArray.
 	RowanCommandResult addResult: self
 ]
 
@@ -27,6 +28,12 @@ RowanFileService >> directoryContents [
 RowanFileService >> diveInto: directory [
 	path := (Path from: path) resolveString: directory.
 	self directoryContents
+]
+
+{ #category : 'client commands' }
+RowanFileService >> isDirectory: directory [
+	answer := GsFile isServerDirectory: directory. 
+	RowanCommandResult addResult: self.
 ]
 
 { #category : 'client commands' }
