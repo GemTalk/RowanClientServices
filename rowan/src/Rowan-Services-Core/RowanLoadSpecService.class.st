@@ -37,7 +37,10 @@ RowanLoadSpecService >> allUsersName [
 { #category : 'client commands' }
 RowanLoadSpecService >> editInWindow: handle [
 	loadSpecPath
-		ifNotNil: [ :path | loadSpecOop := (RwSpecification fromFile: loadSpecPath) asOop ].
+		ifNotNil: [ :path | 
+			[ loadSpecOop := (RwSpecification fromFile: loadSpecPath) asOop ]
+				on: Error
+				do: [ :ex | self inform: 'Not a valid load spec file!'. ^self ] ].
 	handle
 		ifNotNil: [ RowanBrowserService new saveRootObject: loadSpecOop windowHandle: handle ].
 	self update.
@@ -134,6 +137,7 @@ RowanLoadSpecService >> setPlatformProperty: property to: value [
 
 { #category : 'updating' }
 RowanLoadSpecService >> update [
+	loadSpecOop ifNil:[^self]. 
 	self updateSettableAttributes.
 	comment := self loadSpec comment.
 	conditionalAttributes := self loadSpec customConditionalAttributes asOrderedCollection. 
