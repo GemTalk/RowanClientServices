@@ -137,7 +137,7 @@ RowanProjectDefinitionService >> definition [
 
 { #category : 'client commands' }
 RowanProjectDefinitionService >> editInWindow: handle [
-	definitionOop := (Rowan projectNamed: name) defined asOop.
+	self initializeDefinitionOop.
 	handle
 		ifNotNil: [ RowanBrowserService new saveRootObject: definitionOop windowHandle: handle ].
 	RowanCommandResult addResult: self
@@ -160,15 +160,22 @@ RowanProjectDefinitionService >> initializeComponentDefinitions [
 		componentDefinitions: (self componentDefinitionServicesFor: self definition)
 ]
 
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> initializeDefinitionOop [
+	definitionOop := (Rowan projectNamed: name) defined asOop.
+]
+
 { #category : 'initialization' }
 RowanProjectDefinitionService >> initializePackageGroups [
+	definitionOop ifNil: [self initializeDefinitionOop].
 	self
 		packageGroups:
 			(self definition packageGroupNames
 				collect: [ :theName | 
 					RowanPackageGroupService
 						forPackageGroupNamed: theName
-						projectDefinition: self definition ])
+						projectDefinition: self definition ]).
+	wasUpdated := true.
 ]
 
 { #category : 'client commands' }

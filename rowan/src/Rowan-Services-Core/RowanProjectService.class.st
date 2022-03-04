@@ -222,7 +222,8 @@ RowanProjectService >> createProjectNamed: projectName in: symbolDictionaryName 
 { #category : 'accessing' }
 RowanProjectService >> definition [
 	definition := RowanProjectDefinitionService named: name. 
-	RowanCommandResult addResult: self
+	RowanCommandResult addResult: self.
+	^definition
 ]
 
 { #category : 'replication' }
@@ -623,8 +624,11 @@ RowanProjectService >> unload [
 
 { #category : 'update' }
 RowanProjectService >> update [
+	| def |
 	super update.
 	self refresh.
+	def := self definition initializePackageGroups.
+	RowanCommandResult addResult: def
 ]
 
 { #category : 'update' }

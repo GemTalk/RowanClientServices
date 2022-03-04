@@ -39,11 +39,6 @@ RwGsPlatform >> jadeServerClassNamed: className [
 ]
 
 { #category : '*rowan-services-extensions' }
-RwGsPlatform >> loadedProjectServiceClass [
-	^ RowanLoadedProjectService
-]
-
-{ #category : '*rowan-services-extensions' }
 RwGsPlatform >> loggingServiceClass [
 
 	^ RowanLoggingService
@@ -68,11 +63,6 @@ RwGsPlatform >> projectServiceClass [
 
 	^ RowanProjectService
 
-]
-
-{ #category : '*rowan-services-extensions' }
-RwGsPlatform >> resolvedProjectServiceClass [
-	^ RowanResolvedProjectService
 ]
 
 { #category : '*rowan-services-extensions' }
@@ -101,14 +91,12 @@ RwGsPlatform >> serviceClasses [
 		add: RowanDictionaryService;
 		add: RowanFrameService;
 		add: RowanInspectorService;
-		add: RowanLoadedProjectService;
 		add: RowanLoggingService;
 		add: RowanMethodService;
 		add: RowanPackageService;
 		add: RowanProcessService;
 		add: RowanProjectService;
 		add: RowanQueryService;
-		add: RowanResolvedProjectService;
 		add: RowanLoadSpecService;
 		add: RowanTestService;
 		add: RowanVariableService.
