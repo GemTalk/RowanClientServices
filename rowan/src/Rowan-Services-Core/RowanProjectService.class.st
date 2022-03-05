@@ -221,9 +221,10 @@ RowanProjectService >> createProjectNamed: projectName in: symbolDictionaryName 
 
 { #category : 'accessing' }
 RowanProjectService >> definition [
-	definition := RowanProjectDefinitionService named: name. 
+	definition := RowanProjectDefinitionService named: name.
+	definition initializeDefinitionOop.
 	RowanCommandResult addResult: self.
-	^definition
+	^ definition
 ]
 
 { #category : 'replication' }

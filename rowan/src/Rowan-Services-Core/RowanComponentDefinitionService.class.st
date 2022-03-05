@@ -122,6 +122,16 @@ RowanComponentDefinitionService >> preloadDoitName: object [
 ]
 
 { #category : 'accessing' }
+RowanComponentDefinitionService >> projectDefinitionService [
+	^projectDefinitionService
+]
+
+{ #category : 'accessing' }
+RowanComponentDefinitionService >> projectDefinitionService: object [
+	projectDefinitionService := object
+]
+
+{ #category : 'accessing' }
 RowanComponentDefinitionService >> subcomponentDefinitions [
 	^subcomponentDefinitions
 ]

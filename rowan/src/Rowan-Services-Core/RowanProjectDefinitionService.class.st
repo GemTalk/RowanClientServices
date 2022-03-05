@@ -54,7 +54,6 @@ RowanProjectDefinitionService >> addPackagesNamed: packageNames toPackageGroupNa
 	| packageGroupService |
 	(self definition packageGroupNamed: packageGroupName) addPackageNames: packageNames.
 	packageGroupService := RowanPackageGroupService forPackageGroupNamed: packageGroupName projectDefinition: self definition.
-	packageGroupService computePackageNames: self definition.
 	RowanCommandResult addResult: packageGroupService
 ]
 
@@ -174,7 +173,7 @@ RowanProjectDefinitionService >> initializePackageGroups [
 				collect: [ :theName | 
 					RowanPackageGroupService
 						forPackageGroupNamed: theName
-						projectDefinition: self definition ]).
+						projectDefinition: self ]).
 	wasUpdated := true.
 ]
 
