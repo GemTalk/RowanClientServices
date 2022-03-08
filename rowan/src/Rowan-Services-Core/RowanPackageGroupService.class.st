@@ -38,6 +38,12 @@ RowanPackageGroupService >> computePackageNames [
 				select: [ :pkgName | loadedPackageNames includes: pkgName ] ]
 ]
 
+{ #category : 'updating' }
+RowanPackageGroupService >> computePackageServices [
+	packageServices := packageNames
+		collect: [ :packageName | (RowanPackageService forPackageNamed: packageName) update ]
+]
+
 { #category : 'accessing' }
 RowanPackageGroupService >> condition [
 	^condition
@@ -62,8 +68,7 @@ RowanPackageGroupService >> projectDefinition [
 { #category : 'updating' }
 RowanPackageGroupService >> update [
 	self computePackageNames. 
-	packageServices := packageNames
-		collect: [ :packageName | (RowanPackageService forPackageNamed: packageName) update ].
+	self computePackageServices. 
 	wasUpdated := true. 
 	RowanCommandResult addResult: self.
 ]

@@ -12,7 +12,8 @@ Class {
 		'comment',
 		'conditionalAttributes',
 		'platformProperties',
-		'packageGroups'
+		'packageGroups',
+		'showLoadedPackageGroupsOnly'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -53,7 +54,7 @@ RowanProjectDefinitionService >> addPackageNamed: packageName toComponentNamed: 
 RowanProjectDefinitionService >> addPackagesNamed: packageNames toPackageGroupNamed: packageGroupName [
 	| packageGroupService |
 	(self definition packageGroupNamed: packageGroupName) addPackageNames: packageNames.
-	packageGroupService := RowanPackageGroupService forPackageGroupNamed: packageGroupName projectDefinition: self definition.
+	packageGroupService := self packageGroupServiceClass forPackageGroupNamed: packageGroupName projectDefinition: self definition.
 	RowanCommandResult addResult: packageGroupService
 ]
 
@@ -138,7 +139,9 @@ RowanProjectDefinitionService >> definition [
 RowanProjectDefinitionService >> editInWindow: handle [
 	self initializeDefinitionOop.
 	handle
-		ifNotNil: [ RowanBrowserService new saveRootObject: definitionOop windowHandle: handle ].
+		ifNotNil: [ 
+			RowanBrowserService new saveRootObject: self asOop windowHandle: handle.
+			RowanBrowserService new saveRootObject: definitionOop windowHandle: handle ].
 	RowanCommandResult addResult: self
 ]
 
@@ -151,6 +154,13 @@ RowanProjectDefinitionService >> export [
 { #category : 'client commands' }
 RowanProjectDefinitionService >> exportLoadSpecification [
 	self definition resolveProject exportLoadSpecification
+]
+
+{ #category : 'initialization' }
+RowanProjectDefinitionService >> initialize [
+
+	super initialize. 
+	showLoadedPackageGroupsOnly := true.
 ]
 
 { #category : 'initialization' }
@@ -171,7 +181,7 @@ RowanProjectDefinitionService >> initializePackageGroups [
 		packageGroups:
 			(self definition packageGroupNames
 				collect: [ :theName | 
-					RowanPackageGroupService
+					self packageGroupServiceClass
 						forPackageGroupNamed: theName
 						projectDefinition: self ]).
 	wasUpdated := true.
@@ -200,6 +210,13 @@ RowanProjectDefinitionService >> packageGroups [
 { #category : 'accessing' }
 RowanProjectDefinitionService >> packageGroups: object [
 	packageGroups := object
+]
+
+{ #category : 'accessing' }
+RowanProjectDefinitionService >> packageGroupServiceClass [
+	^ showLoadedPackageGroupsOnly
+		ifTrue: [ RowanPackageGroupService ]
+		ifFalse: [ RowanPackageGroupDefinitionService ]
 ]
 
 { #category : 'client commands' }

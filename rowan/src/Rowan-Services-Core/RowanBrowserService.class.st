@@ -354,16 +354,17 @@ RowanBrowserService >> removeMethods: methodServices [
 
 { #category : 'client commands' }
 RowanBrowserService >> saveRootObject: oop windowHandle: integer [
-  " a window has been opened on the client. Save the 
+	" a window has been opened on the client. Save the 
 	root object of the window so it won't be recycled"
 
-  | dictionary |
-  dictionary := SessionTemps current
-    at: #'rowanServicesWindowRegistry'
-    ifAbsentPut: [ Dictionary new ].
-  dictionary at: integer ifAbsentPut: [ Array new ].
-  (dictionary at: integer) add: (Object _objectForOop: oop)
-
+	| dictionary object |
+	dictionary := SessionTemps current
+		at: #'rowanServicesWindowRegistry'
+		ifAbsentPut: [ Dictionary new ].
+	dictionary at: integer ifAbsentPut: [ Array new ].
+	object := Object _objectForOop: oop.
+	((dictionary at: integer) includes: object)
+		ifFalse: [ (dictionary at: integer) add: (Object _objectForOop: oop) ]
 ]
 
 { #category : 'accessing' }
