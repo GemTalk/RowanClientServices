@@ -26,11 +26,16 @@ RowanPackageGroupService class >> forPackageGroupNamed: packageGroupName project
 { #category : 'client commands support' }
 RowanPackageGroupService >> computePackageNames [
 	name = self class allPackagesGroupName
-		ifTrue: [ packageNames := self projectDefinition packageNames ]
+		ifTrue: [ 
+			packageNames := Rowan image
+				packageNamesForLoadedProjectNamed: projectDefinitionService name ]
 		ifFalse: [ 
-			| packageGroup |
+			| loadedPackageNames packageGroup |
+			loadedPackageNames := (Rowan image
+				loadedProjectNamed: projectDefinitionService name) packageNames.
 			packageGroup := self projectDefinition packageGroupNamed: name.
-			packageNames := packageGroup packageNames ]
+			packageNames := packageGroup packageNames
+				select: [ :pkgName | loadedPackageNames includes: pkgName ] ]
 ]
 
 { #category : 'accessing' }
