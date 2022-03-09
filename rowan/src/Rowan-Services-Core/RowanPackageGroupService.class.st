@@ -25,6 +25,7 @@ RowanPackageGroupService class >> forPackageGroupNamed: packageGroupName project
 
 { #category : 'client commands support' }
 RowanPackageGroupService >> computePackageNames [
+	projectDefinitionService := RowanProjectDefinitionService new name: projectDefinitionService name.  "Always get a new one in browser"
 	name = self class allPackagesGroupName
 		ifTrue: [ 
 			packageNames := Rowan image
@@ -33,7 +34,7 @@ RowanPackageGroupService >> computePackageNames [
 			| loadedPackageNames packageGroup |
 			loadedPackageNames := (Rowan image
 				loadedProjectNamed: projectDefinitionService name) packageNames.
-			packageGroup := self projectDefinition packageGroupNamed: name.
+			packageGroup :=  self projectDefinition packageGroupNamed: name. 
 			packageNames := packageGroup packageNames
 				select: [ :pkgName | loadedPackageNames includes: pkgName ] ]
 ]
