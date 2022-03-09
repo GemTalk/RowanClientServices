@@ -171,7 +171,8 @@ RowanProjectDefinitionService >> initializeComponentDefinitions [
 
 { #category : 'client commands' }
 RowanProjectDefinitionService >> initializeDefinitionOop [
-	definitionOop := (Rowan projectNamed: name) defined asOop.
+	definitionOop
+		ifNil: [ definitionOop := (Rowan projectNamed: name) defined asOop ]
 ]
 
 { #category : 'initialization' }
