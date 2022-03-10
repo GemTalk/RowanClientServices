@@ -54,7 +54,7 @@ RowanProjectDefinitionService >> addPackageNamed: packageName toComponentNamed: 
 RowanProjectDefinitionService >> addPackagesNamed: packageNames toPackageGroupNamed: packageGroupName [
 	| packageGroupService |
 	(self definition packageGroupNamed: packageGroupName) addPackageNames: packageNames.
-	packageGroupService := self packageGroupServiceClass forPackageGroupNamed: packageGroupName projectDefinition: self definition.
+	packageGroupService := self packageGroupServiceClass forPackageGroupNamed: packageGroupName projectDefinition: self.
 	RowanCommandResult addResult: packageGroupService
 ]
 
