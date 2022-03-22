@@ -52,6 +52,6 @@ RwRowanProjectIssuesTest >> testIssue150_branches [
 		category: 'accessing'.
 	service
 		commitWithMessage: 'a commit';
-		pushToGit;
+		"pushToGit;" 	"see https://github.com/GemTalk/Rowan/issues/150#issuecomment-1074567333"
 		yourself
 ]
