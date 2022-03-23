@@ -30,7 +30,7 @@ RwRowanProjectIssuesTest >> testIssue150_branches [
 		ifTrue: [
 			"https://github.com/GemTalk/Rowan/issues/805"
 			"have to use https for project url if NOT dhenrich"
-			loadSpec gitUrl: 'https://git@github.com/dalehenrich/dalehenrich/RowanSample3' ].
+			loadSpec gitUrl: 'https://git@github.com/dalehenrich/RowanSample3' ].
 
 	loadSpec resolveStrict load.
 
