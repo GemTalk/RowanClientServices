@@ -94,6 +94,7 @@ RwGsPlatform >> serviceClasses [
 		add: RowanDictionaryService;
 		add: RowanFrameService;
 		add: RowanInspectorService;
+		add: RowanLoadSpecService;
 		add: RowanLoggingService;
 		add: RowanMethodService;
 		add: RowanMethodDefinitionService; 
@@ -105,7 +106,7 @@ RwGsPlatform >> serviceClasses [
 		add: RowanProjectService;
 		add: RowanProjectDefinitionService;
 		add: RowanQueryService;
-		add: RowanLoadSpecService;
+		add: RowanSubcomponentDefinitionService; 
 		add: RowanTestService;
 		add: RowanVariableService.
 	^ array

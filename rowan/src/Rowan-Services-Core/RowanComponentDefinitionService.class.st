@@ -13,6 +13,13 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'private' }
+RowanComponentDefinitionService class >> componentDefinitionServiceClassFor: theComponent [
+	^ (theComponent isKindOf: RwSubcomponent)
+		ifTrue: [ RowanSubcomponentDefinitionService ]
+		ifFalse: [ RowanComponentDefinitionService ]
+]
+
 { #category : 'instance creation' }
 RowanComponentDefinitionService class >> forComponentNamed: componentName projectDefinition: projectDefinition [
 	| inst subcomponentNames component |
@@ -30,9 +37,14 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 		subcomponentDefinitions:
 			(subcomponentNames
 				collect: [ :subcomponentName | 
-					(projectDefinition componentNamed: componentName ifAbsent: [  ])
-						ifNotNil: [ self forComponentNamed: subcomponentName projectDefinition: projectDefinition ] ])
-				asSet asArray.
+					| theComponent |
+					(theComponent := projectDefinition
+						componentNamed: componentName
+						ifAbsent: [  ])
+						ifNotNil: [ 
+							(self componentDefinitionServiceClassFor: theComponent)
+								forComponentNamed: subcomponentName
+								projectDefinition: projectDefinition ] ]) asSet asArray.
 	^ inst
 ]
 
@@ -77,16 +89,20 @@ RowanComponentDefinitionService >> forComponentNamed: componentName projectDefin
 	component := projectDefinition
 		componentOrPackageGroupNamed: componentName
 		ifAbsent: [ nil ].
-	(projectDefinition componentNamed: componentName ifAbsent: [ ^nil ])
-		ifNotNil: [ 
-			self setPrePostDoItsFor: inst component: component ].
+	(projectDefinition componentNamed: componentName ifAbsent: [ ^ nil ])
+		ifNotNil: [ self setPrePostDoItsFor: inst component: component ].
 	subcomponentNames := component
 		ifNil: [ Array new ]
 		ifNotNil: [ component componentNames ].
 	inst
 		subcomponentDefinitions:
 			(subcomponentNames
-				collect: [ :subcomponentName | self forComponentNamed: subcomponentName projectDefinition: projectDefinition ]) asSet asArray.
+				collect: [ :subcomponentName | 
+					(self
+						componentDefinitionServiceClassFor:
+							(projectDefinition componentNamed: subcomponentName))
+						forComponentNamed: subcomponentName
+						projectDefinition: projectDefinition ]) asSet asArray.
 	^ inst
 ]
 

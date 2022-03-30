@@ -45,7 +45,10 @@ RowanProjectDefinitionService >> addPackageGroupNamed: packageGroupName conditio
 RowanProjectDefinitionService >> addPackageNamed: packageName toComponentNamed: componentName [
 	| componentDefinitionService |
 	self definition addPackageNamed: packageName toComponentNamed: componentName.
-	componentDefinitionService := RowanComponentDefinitionService forComponentNamed: componentName projectDefinition: self definition.
+	componentDefinitionService := (self
+		componentDefinitionServiceClassFor: componentName)
+		forComponentNamed: componentName
+		projectDefinition: self definition.
 	componentDefinitionService computePackageNames: self definition.
 	RowanCommandResult addResult: componentDefinitionService
 ]
@@ -108,6 +111,15 @@ RowanProjectDefinitionService >> componentDefinitions: object [
 	componentDefinitions := object
 ]
 
+{ #category : 'accessing' }
+RowanProjectDefinitionService >> componentDefinitionServiceClassFor: componentName [
+	| theComponent |
+	theComponent := self definition componentNamed: componentName.
+	^ (theComponent isKindOf: RwSubcomponent)
+		ifTrue: [ RowanSubcomponentDefinitionService ]
+		ifFalse: [ RowanComponentDefinitionService ]
+]
+
 { #category : 'client commands' }
 RowanProjectDefinitionService >> componentDefinitionServicesFor: projectDefinition [
 	| componentDictionary |
@@ -118,14 +130,14 @@ RowanProjectDefinitionService >> componentDefinitionServicesFor: projectDefiniti
 			(projectDefinition componentNames
 				collect: [ :componentName | 
 					| componentDefinitionService |
-					componentDefinitionService := RowanComponentDefinitionService
+					componentDefinitionService := (self
+						componentDefinitionServiceClassFor: componentName)
 						forComponentNamed: componentName
 						projectDefinition: projectDefinition.
 					componentDefinitionService
 						ifNotNil: [ 
 							componentDefinitionService addFlattenedHierarchyTo: componentDictionary.
 							componentDefinitionService ] ]) asSet asArray.	"eliminate nils"
-
 	^ componentDictionary
 ]
 
@@ -295,6 +307,13 @@ RowanProjectDefinitionService >> setPlatformProperty: property to: value [
 		ifTrue: [ 
 			self definition loadSpecification
 				gemstoneSetDefaultUseSessionMethodsForExtensionsTo: value ]
+]
+
+{ #category : 'client commands' }
+RowanProjectDefinitionService >> subcomponentNamed: subcomponentName condition: condition [
+	| subcomponent |
+	subcomponent := self definition componentNamed: subcomponentName.
+	subcomponent condition: condition.
 ]
 
 { #category : 'updating' }
