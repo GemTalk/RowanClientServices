@@ -52,6 +52,20 @@ RowanProjectService >> = projectService [
 ]
 
 { #category : 'client commands' }
+RowanProjectService >> addNewPackageNamed: packageName inSymbolDictionaryNamed: symbolDictionaryName toComponentNamed: componentName [
+	Rowan image
+		loadedPackageNamed: packageName
+		ifAbsent: [ 
+			self rwProject
+				addNewPackageNamed: packageName
+				inSybolDictionaryNamed: symbolDictionaryName
+				toComponentNamed: componentName.
+			self update.
+			^ self answer: #'added' ].
+	self answer: #'duplicatePackage'
+]
+
+{ #category : 'client commands' }
 RowanProjectService >> addPackageNamed: packageName [
 	self rowanFixMe.	"remove after #addPackageNamed:toComponentNamed: is integrated in v2.0 work"
 	Rowan image
