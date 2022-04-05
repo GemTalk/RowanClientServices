@@ -523,7 +523,7 @@ RowanProjectService >> removeProjectNamed: projectName [
 
 { #category : 'rowan' }
 RowanProjectService >> repositoryRoot [
-	^ (RwProject newNamed: name) repositoryRoot
+	^ self rwProject repositoryRoot
 ]
 
 { #category : 'rowan' }

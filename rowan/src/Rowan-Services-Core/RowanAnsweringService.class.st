@@ -523,6 +523,17 @@ answeringService answer. "
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> projectsRepositoryRoots: projectNames [
+	answer := Dictionary new.
+	projectNames
+		do: [ :projectName | 
+			answer
+				at: projectName
+				put: (RowanProjectService new name: projectName) repositoryRootPath ].
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> removeMethodHistoryFor: methodService [
   | rowanMethodHistory |
   rowanMethodHistory := self userGlobals
