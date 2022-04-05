@@ -115,9 +115,8 @@ RowanProjectDefinitionService >> componentDefinitions: object [
 RowanProjectDefinitionService >> componentDefinitionServiceClassFor: componentName [
 	| theComponent |
 	theComponent := self definition componentNamed: componentName.
-	^ (theComponent isKindOf: RwSubcomponent)
-		ifTrue: [ RowanSubcomponentDefinitionService ]
-		ifFalse: [ RowanComponentDefinitionService ]
+	^ RowanComponentDefinitionService
+		componentDefinitionServiceClassFor: theComponent
 ]
 
 { #category : 'client commands' }

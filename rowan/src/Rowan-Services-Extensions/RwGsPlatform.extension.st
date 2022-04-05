@@ -102,6 +102,7 @@ RwGsPlatform >> serviceClasses [
 		add: RowanPackageDefinitionService;
 		add: RowanPackageGroupService;
 		add: RowanPackageGroupDefinitionService;
+		add: RowanPlatformSubcomponentDefinitionService; 
 		add: RowanProcessService;
 		add: RowanProjectService;
 		add: RowanProjectDefinitionService;

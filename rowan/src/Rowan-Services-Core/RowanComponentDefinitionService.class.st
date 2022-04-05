@@ -15,9 +15,12 @@ Class {
 
 { #category : 'private' }
 RowanComponentDefinitionService class >> componentDefinitionServiceClassFor: theComponent [
-	^ (theComponent isKindOf: RwSubcomponent)
-		ifTrue: [ RowanSubcomponentDefinitionService ]
-		ifFalse: [ RowanComponentDefinitionService ]
+	^ (theComponent isKindOf: RwPlatformSubcomponent)
+		ifTrue: [ RowanPlatformSubcomponentDefinitionService ]
+		ifFalse: [ 
+			(theComponent isKindOf: RwSubcomponent)
+				ifTrue: [ RowanSubcomponentDefinitionService ]
+				ifFalse: [ RowanComponentDefinitionService ] ]
 ]
 
 { #category : 'instance creation' }
@@ -29,7 +32,9 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 		componentOrPackageGroupNamed: componentName
 		ifAbsent: [ nil ].
 	(projectDefinition componentNamed: componentName ifAbsent: [ ^ nil ])
-		ifNotNil: [ self setPrePostDoItsFor: inst component: component ].
+		ifNotNil: [ 
+			inst setPrePostDoItsFrom: component.
+			inst setConditionFrom: component ].
 	subcomponentNames := component
 		ifNil: [ Array new ]
 		ifNotNil: [ component componentNames ].
@@ -37,27 +42,16 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 		subcomponentDefinitions:
 			(subcomponentNames
 				collect: [ :subcomponentName | 
-					| theComponent |
-					(theComponent := projectDefinition
-						componentNamed: componentName
+					| subComponent |
+					(subComponent := projectDefinition
+						componentNamed: subcomponentName
 						ifAbsent: [  ])
 						ifNotNil: [ 
-							(self componentDefinitionServiceClassFor: theComponent)
+							(self componentDefinitionServiceClassFor: subComponent)
 								forComponentNamed: subcomponentName
 								projectDefinition: projectDefinition ] ]) asSet asArray.
 	^ inst
-]
 
-{ #category : 'private' }
-RowanComponentDefinitionService class >> setPrePostDoItsFor: inst component: component [
-	inst
-		preloadDoitName:
-			(component preloadDoitName
-				ifNotNil: [ :theName | theName -> (component doitDict at: theName) ]).
-	inst
-		postloadDoitName:
-			(component postloadDoitName
-				ifNotNil: [ :theName | theName -> (component doitDict at: theName) ])
 ]
 
 { #category : 'other' }
@@ -79,31 +73,6 @@ RowanComponentDefinitionService >> computePackageNames: projectDefinition [
 		componentNamed: name
 		ifAbsent: [ ^ packageNames := Array new ].
 	packageNames := component packageNames
-]
-
-{ #category : 'instance creation' }
-RowanComponentDefinitionService >> forComponentNamed: componentName projectDefinition: projectDefinition [
-	| inst subcomponentNames component |
-	inst := self new.
-	inst name: componentName.
-	component := projectDefinition
-		componentOrPackageGroupNamed: componentName
-		ifAbsent: [ nil ].
-	(projectDefinition componentNamed: componentName ifAbsent: [ ^ nil ])
-		ifNotNil: [ self setPrePostDoItsFor: inst component: component ].
-	subcomponentNames := component
-		ifNil: [ Array new ]
-		ifNotNil: [ component componentNames ].
-	inst
-		subcomponentDefinitions:
-			(subcomponentNames
-				collect: [ :subcomponentName | 
-					(self
-						componentDefinitionServiceClassFor:
-							(projectDefinition componentNamed: subcomponentName))
-						forComponentNamed: subcomponentName
-						projectDefinition: projectDefinition ]) asSet asArray.
-	^ inst
 ]
 
 { #category : 'client commands' }
@@ -145,6 +114,24 @@ RowanComponentDefinitionService >> projectDefinitionService [
 { #category : 'accessing' }
 RowanComponentDefinitionService >> projectDefinitionService: object [
 	projectDefinitionService := object
+]
+
+{ #category : 'accessing' }
+RowanComponentDefinitionService >> setConditionFrom: component [
+
+	"only subcomponents have conditions"
+]
+
+{ #category : 'accessing' }
+RowanComponentDefinitionService >> setPrePostDoItsFrom: component [
+	self
+		preloadDoitName:
+			(component preloadDoitName
+				ifNotNil: [ :theName | theName -> (component doitDict at: theName) ]).
+	self
+		postloadDoitName:
+			(component postloadDoitName
+				ifNotNil: [ :theName | theName -> (component doitDict at: theName) ])
 ]
 
 { #category : 'accessing' }
