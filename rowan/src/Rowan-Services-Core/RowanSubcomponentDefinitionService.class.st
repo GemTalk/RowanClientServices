@@ -9,6 +9,5 @@ Class {
 
 { #category : 'accessing' }
 RowanSubcomponentDefinitionService >> setConditionFrom: component [
-
 	condition := component condition
 ]

@@ -51,7 +51,6 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 								forComponentNamed: subcomponentName
 								projectDefinition: projectDefinition ] ]) asSet asArray.
 	^ inst
-
 ]
 
 { #category : 'other' }
