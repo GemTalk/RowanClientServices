@@ -458,6 +458,7 @@ RowanMethodService >> initialize [
 	failedCompile := false.
 	isMethodForBlock := false.
 	hasMethodHistory := true.
+	inSelectedPackage := true.
 ]
 
 { #category : 'initialization' }
