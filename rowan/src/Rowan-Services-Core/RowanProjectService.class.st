@@ -642,8 +642,10 @@ RowanProjectService >> update [
 	| def |
 	super update.
 	self refresh.
-	def := self definition initializePackageGroups.
-	RowanCommandResult addResult: def
+	name
+		ifNotNil: [ 
+			def := self definition initializePackageGroups.
+			RowanCommandResult addResult: def ]
 ]
 
 { #category : 'update' }
