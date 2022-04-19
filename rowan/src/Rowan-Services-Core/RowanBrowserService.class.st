@@ -381,7 +381,12 @@ RowanBrowserService >> selectedClass: object [
 
 { #category : 'client commands' }
 RowanBrowserService >> unloadProjectsNamed: projectNames [
-	projectNames do: [ :projectName | (Rowan projectNamed: projectName) unload ].
+	projectNames
+		do: [ :projectName | 
+			Rowan
+				projectNamed: projectName
+				ifPresent: [ :proj | proj unload ]
+				ifAbsent: [  ] ].
 	self updateProjects
 ]
 

@@ -642,6 +642,7 @@ RowanProjectService >> update [
 	| def |
 	super update.
 	self refresh.
+	isLoaded ifFalse:[^self]. 
 	name
 		ifNotNil: [ 
 			def := self definition initializePackageGroups.
