@@ -13,7 +13,8 @@ Class {
 		'conditionalAttributes',
 		'platformProperties',
 		'packageGroups',
-		'showLoadedPackageGroupsOnly'
+		'showLoadedPackageGroupsOnly',
+		'definition'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -156,6 +157,11 @@ RowanProjectDefinitionService >> editInWindow: handle [
 	RowanCommandResult addResult: self
 ]
 
+{ #category : 'replication' }
+RowanProjectDefinitionService >> excludedInstVars [
+	^ super excludedInstVars , #(#'definition')
+]
+
 { #category : 'client commands' }
 RowanProjectDefinitionService >> export [
 
@@ -183,7 +189,9 @@ RowanProjectDefinitionService >> initializeComponentDefinitions [
 { #category : 'client commands' }
 RowanProjectDefinitionService >> initializeDefinitionOop [
 	definitionOop
-		ifNil: [ definitionOop := (Rowan projectNamed: name) defined asOop ]
+		ifNil: [ 
+			definition := (Rowan projectNamed: name) defined.
+			definitionOop := definition asOop ]
 ]
 
 { #category : 'initialization' }
