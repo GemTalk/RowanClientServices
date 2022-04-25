@@ -475,6 +475,15 @@ RowanAnsweringService >> needsCommit [
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> packageNamed: packageName [ 
+	| service |
+	service := RowanPackageService forPackageNamed: packageName.
+	service update.
+	answer := service.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> packageOrDictionaryFor: classService [ 
 	| service |
 	service := classService packageName = Rowan unpackagedName
