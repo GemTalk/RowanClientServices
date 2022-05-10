@@ -662,6 +662,14 @@ RowanAnsweringService >> symbolExists: aSymbol [
   RowanCommandResult addResult: self
 ]
 
+{ #category : 'testing' }
+RowanAnsweringService >> symbolListHasNil [
+	"Debugging code - Sending after each test in #tearDown method from client.
+	Halt if symbol list has a nil." 
+	Rowan image symbolList detect:[:symDict | symDict isNil] ifNone:[^false].
+	self halt.
+]
+
 { #category : 'client commands' }
 RowanAnsweringService >> symbolsMatching: string [
   answer := self basicSortedSymbols
