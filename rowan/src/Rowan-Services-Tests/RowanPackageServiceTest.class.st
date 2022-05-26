@@ -81,10 +81,9 @@ RowanPackageServiceTest >> test_compileAndSelectClassDifferentPackage [
 		detect: [ :service | service isClassService ]
 		ifNone: [  ].
 	self deny: classService isNil.
-	classService := RowanCommandResult results
-		detect: [ :service | service name = 'Rowan-Services-Tests']
-		ifNone: [  ].
-	self deny: classService isNil.
+	self
+		assert: RowanCommandResult results first name
+		equals: 'Rowan-Services-Tests'.
 	testsPackage := RowanCommandResult results first.
 	self assert: testsPackage selectedClass name equals: 'RowanTestCompile' ]
 		ensure: [ 
