@@ -459,6 +459,7 @@ RowanMethodService >> initialize [
 	isMethodForBlock := false.
 	hasMethodHistory := true.
 	inSelectedPackage := true.
+	isExtension := false.
 ]
 
 { #category : 'initialization' }
