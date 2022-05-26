@@ -28,67 +28,68 @@ RowanPackageServiceTest >> test_classHierarchy [
 
 { #category : 'tests' }
 RowanPackageServiceTest >> test_compileAndSelectClass [
-  | package browserService |
-  [ 
-  self assert: RowanCommandResult results isEmpty.
-  package := self createServicesTestPackage.
-  self loadServicesTestProject.
-  browserService := RowanBrowserService new.
-  self assert: RowanCommandResult results isEmpty.
-  browserService
-    compileClass:
-      'RowanServicesTest rwSubclass: ''RowanTestCompile'' 
+	| package browserService classService |
+	[ 
+	self assert: RowanCommandResult results isEmpty.
+	package := self createServicesTestPackage.
+	self loadServicesTestProject.
+	browserService := RowanBrowserService new.
+	self assert: RowanCommandResult results isEmpty.
+	browserService
+		compileClass:
+			'RowanServicesTest rwSubclass: ''RowanTestCompile'' 
 		instVarNames: #()
 		classVars: #()
 		classInstVars: #()
 		poolDictionaries: #()
 		category: ''' , self servicesTestPackageName
-        ,
-          '''
+				,
+					'''
 		options: #()'.
-  self assert: RowanCommandResult results size equals: 0.	"we no longer return a service on first stage of compile"
-  browserService recompileMethodsAfterClassCompilation.
-  self assert: RowanCommandResult results size equals: 5.
-  self
-    assert: (RowanCommandResult results at: 4) name
-    equals: 'RowanTestCompile'.
-  self assert: browserService selectedClass name equals: 'RowanTestCompile' ]
-    ensure: [ 
-      Rowan projectTools browser removeClassNamed: 'RowanTestCompile'.
-      self unloadServicesTestProject ]
+	self assert: RowanCommandResult results size equals: 0.	"we no longer return a service on first stage of compile"
+	browserService recompileMethodsAfterClassCompilation.
+	classService := RowanCommandResult results
+		detect: [ :service | service isClassService ]
+		ifNone: [  ].
+	self deny: classService isNil.
+	self assert: browserService selectedClass name equals: 'RowanTestCompile' ]
+		ensure: [ 
+			Rowan projectTools browser removeClassNamed: 'RowanTestCompile'.
+			self unloadServicesTestProject ]
 ]
 
 { #category : 'tests' }
 RowanPackageServiceTest >> test_compileAndSelectClassDifferentPackage [
-  | package browserService testsPackage |
-  [ 
-  self assert: RowanCommandResult results isEmpty.
-  package := self createServicesTestPackage.
-  browserService := RowanBrowserService new.
-  self assert: RowanCommandResult results isEmpty.
-  browserService
-    compileClass:
-      'RowanServicesTest rwSubclass: ''RowanTestCompile''
+	| package browserService testsPackage classService |
+	[ 
+	self assert: RowanCommandResult results isEmpty.
+	package := self createServicesTestPackage.
+	browserService := RowanBrowserService new.
+	self assert: RowanCommandResult results isEmpty.
+	browserService
+		compileClass:
+			'RowanServicesTest rwSubclass: ''RowanTestCompile''
 		instVarNames: #()
 		classVars: #()
 		classInstVars: #()
 		poolDictionaries: #()
 		category: ''Rowan-Services-Tests''
 		options: #()'.
-  self assert: RowanCommandResult results size equals: 0.	"we no longer return a service on first stage of compile"
-  browserService recompileMethodsAfterClassCompilation.
-  self assert: RowanCommandResult results size equals: 5.
-  self
-    assert: (RowanCommandResult results at: 4) name
-    equals: 'RowanTestCompile'.
-  self
-    assert: RowanCommandResult results first name
-    equals: 'Rowan-Services-Tests'.
-  testsPackage := RowanCommandResult results first.
-  self assert: testsPackage selectedClass name equals: 'RowanTestCompile' ]
-    ensure: [ 
-      Rowan projectTools browser removeClassNamed: 'RowanTestCompile'.
-      self unloadServicesTestProject ]
+	self assert: RowanCommandResult results size equals: 0.	"we no longer return a service on first stage of compile"
+	browserService recompileMethodsAfterClassCompilation.
+	classService := RowanCommandResult results
+		detect: [ :service | service isClassService ]
+		ifNone: [  ].
+	self deny: classService isNil.
+	classService := RowanCommandResult results
+		detect: [ :service | service name = 'Rowan-Services-Tests']
+		ifNone: [  ].
+	self deny: classService isNil.
+	testsPackage := RowanCommandResult results first.
+	self assert: testsPackage selectedClass name equals: 'RowanTestCompile' ]
+		ensure: [ 
+			Rowan projectTools browser removeClassNamed: 'RowanTestCompile'.
+			self unloadServicesTestProject ]
 ]
 
 { #category : 'tests' }
