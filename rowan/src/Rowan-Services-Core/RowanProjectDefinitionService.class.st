@@ -196,10 +196,10 @@ RowanProjectDefinitionService >> initializeDefinitionOop [
 
 { #category : 'initialization' }
 RowanProjectDefinitionService >> initializePackageGroups [
-	definitionOop ifNil: [self initializeDefinitionOop].
+	"definitionOop ifNil: [self initializeDefinitionOop]."
 	self
 		packageGroups:
-			(self definition packageGroupNames
+			((Rowan projectNamed: name) packageGroupNames
 				collect: [ :theName | 
 					self packageGroupServiceClass
 						forPackageGroupNamed: theName
