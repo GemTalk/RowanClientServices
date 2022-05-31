@@ -144,7 +144,8 @@ RowanProjectDefinitionService >> componentDefinitionServicesFor: projectDefiniti
 { #category : 'accessing' }
 RowanProjectDefinitionService >> definition [
 
-	^Object _objectForOop: definitionOop
+"	^Object _objectForOop: definitionOop"
+^ Rowan projectNamed: name
 ]
 
 { #category : 'client commands' }
