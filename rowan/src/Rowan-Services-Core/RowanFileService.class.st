@@ -41,3 +41,11 @@ RowanFileService >> pop [
 	path := (Path from: path) parent asString. 
 	self directoryContents
 ]
+
+{ #category : 'client commands' }
+RowanFileService >> readmeContents [
+	answer := (GsFile existsOnServer: path)
+		ifTrue: [ GsFile getContentsOfServerFile: path ]
+		ifFalse: [ String new ].
+	RowanCommandResult addResult: self
+]
