@@ -49,3 +49,11 @@ RowanFileService >> readmeContents [
 		ifFalse: [ String new ].
 	RowanCommandResult addResult: self
 ]
+
+{ #category : 'client commands' }
+RowanFileService >> writeReadme: contents [
+	| file |
+	file := GsFile openWriteOnServer: path.
+	[ file nextPutAll: contents ]
+		ensure: [ file close ]
+]
