@@ -55,8 +55,10 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 
 { #category : 'other' }
 RowanComponentDefinitionService >> addFlattenedHierarchyTo: dictionary [
-	dictionary at: self put: subcomponentDefinitions.
-	subcomponentDefinitions
+	| sortedSubcomponents |
+	sortedSubcomponents := subcomponentDefinitions asSortedCollection:[:x :y | x name < y name]. 
+	dictionary at: self put: sortedSubcomponents asArray.
+	sortedSubcomponents
 		do: [ :componentService | componentService addFlattenedHierarchyTo: dictionary ]
 ]
 
@@ -67,7 +69,7 @@ RowanComponentDefinitionService >> computePackageNames [
 
 { #category : 'client commands support' }
 RowanComponentDefinitionService >> computePackageNames: projectDefinition [
-	| component |
+	| component  |
 	component := projectDefinition
 		componentNamed: name
 		ifAbsent: [ ^ packageNames := Array new ].
