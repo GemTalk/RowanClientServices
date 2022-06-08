@@ -25,7 +25,8 @@ Class {
 		'projectOop',
 		'specService',
 		'componentServices',
-		'definition'
+		'definition',
+		'packageGroups'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -267,6 +268,18 @@ RowanProjectService >> initialize [
 	isDiskDirty := false.
 ]
 
+{ #category : 'other' }
+RowanProjectService >> initializePackageGroups [
+	self
+		packageGroups:
+			(self rwProject packageGroupNames
+				collect: [ :theName | 
+					RowanPackageGroupService
+						forPackageGroupNamed: theName
+						loadedProject: self rwProject ]).
+	wasUpdated := true.
+]
+
 { #category : 'rowan' }
 RowanProjectService >> isDirty [
 	name isNil
@@ -363,6 +376,11 @@ RowanProjectService >> newGitProject: url root: rootPath useSsh: useSsh [
 		gitRootPath: rootPath
 		useSsh: useSsh.
 	(RowanBrowserService new organizer: organizer) updateProjects."
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> packageGroups: object [
+	packageGroups := object
 ]
 
 { #category : 'rowan' }
@@ -639,14 +657,11 @@ RowanProjectService >> unload [
 
 { #category : 'update' }
 RowanProjectService >> update [
-	| def |
 	super update.
 	self refresh.
-	isLoaded ifFalse:[^self]. 
-	name
-		ifNotNil: [ 
-			def := self definition initializePackageGroups.
-			RowanCommandResult addResult: def ]
+	isLoaded
+		ifFalse: [ ^ self ].
+	name ifNotNil: [ self initializePackageGroups ]
 ]
 
 { #category : 'update' }

@@ -3,7 +3,8 @@ Class {
 	#superclass : 'RowanComponentDefinitionService',
 	#instVars : [
 		'condition',
-		'packageServices'
+		'packageServices',
+		'projectName'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -14,6 +15,18 @@ RowanPackageGroupService class >> allPackagesGroupName [
 ]
 
 { #category : 'instance creation' }
+RowanPackageGroupService class >> forPackageGroupNamed: packageGroupName loadedProject: rwProject [
+	| inst packageGroup |
+	packageGroup := rwProject packageGroupNamed: packageGroupName.
+	inst := self new name: packageGroupName.
+	inst condition: packageGroup condition.
+	inst computeLoadedPackageNamesFor: rwProject.
+	inst computePackageServices;
+	projectName: rwProject name. 
+	^ inst
+]
+
+{ #category : 'instance creation' }
 RowanPackageGroupService class >> forPackageGroupNamed: packageGroupName projectDefinition: projectDefService [
 	| inst projectDefinition |
 	inst := self new name: packageGroupName; projectDefinitionService: projectDefService.
@@ -21,6 +34,17 @@ RowanPackageGroupService class >> forPackageGroupNamed: packageGroupName project
 	inst condition: (projectDefinition packageGroupNamed: packageGroupName) condition.
 	inst computePackageNames.
 	^ inst
+]
+
+{ #category : 'client commands support' }
+RowanPackageGroupService >> computeLoadedPackageNamesFor: rwProject [
+	| packageGroup |
+	packageNames := name = self class allPackagesGroupName
+		ifTrue: [ Rowan image packageNamesForLoadedProjectNamed: rwProject name ]
+		ifFalse: [ 
+			packageGroup := rwProject packageGroupNamed: name.
+			packageGroup packageNames
+				select: [ :packageName | (Rowan image loadedPackageNamed: packageName ifAbsent: [  ]) notNil ] ]
 ]
 
 { #category : 'client commands support' }
@@ -66,9 +90,21 @@ RowanPackageGroupService >> projectDefinition [
 	^projectDefinitionService initializeDefinitionOop definition
 ]
 
+{ #category : 'accessing' }
+RowanPackageGroupService >> projectName [
+	^projectName
+]
+
+{ #category : 'accessing' }
+RowanPackageGroupService >> projectName: object [
+	projectName := object
+]
+
 { #category : 'updating' }
 RowanPackageGroupService >> update [
-	self computePackageNames. 
+	| rwProject |
+	rwProject := Rowan projectNamed: projectName. 
+	self computeLoadedPackageNamesFor: rwProject.
 	self computePackageServices. 
 	wasUpdated := true. 
 	RowanCommandResult addResult: self.
