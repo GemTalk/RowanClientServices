@@ -103,9 +103,10 @@ RowanPackageGroupService >> projectName: object [
 { #category : 'updating' }
 RowanPackageGroupService >> update [
 	| rwProject |
-	rwProject := Rowan projectNamed: projectName. 
+	rwProject := Rowan projectNamed: projectName.
 	self computeLoadedPackageNamesFor: rwProject.
-	self computePackageServices. 
-	wasUpdated := true. 
+	self computePackageServices.
+	wasUpdated := true.
 	RowanCommandResult addResult: self.
+	shouldUpdate := false	"don't perform the secondary update"
 ]

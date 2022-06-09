@@ -25,7 +25,6 @@ Class {
 		'projectOop',
 		'specService',
 		'componentServices',
-		'definition',
 		'packageGroups'
 	],
 	#category : 'Rowan-Services-Core'
@@ -232,14 +231,6 @@ RowanProjectService >> createProjectNamed: projectName in: symbolDictionaryName 
 		self browserTool createGitPackageProjectNamed: projectName updateDefinition: [:pd | 
 				pd defaultSymbolDictName: symbolDictionaryName; comment:  'Sample Rowan Project'] ].
 
-]
-
-{ #category : 'accessing' }
-RowanProjectService >> definition [
-	definition := RowanProjectDefinitionService named: name.
-	definition initializeDefinitionOop.
-	RowanCommandResult addResult: self.
-	^ definition
 ]
 
 { #category : 'replication' }
@@ -661,7 +652,8 @@ RowanProjectService >> update [
 	self refresh.
 	isLoaded
 		ifFalse: [ ^ self ].
-	name ifNotNil: [ self initializePackageGroups ]
+	name ifNotNil: [ self initializePackageGroups ].
+	shouldUpdate := false.
 ]
 
 { #category : 'update' }

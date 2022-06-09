@@ -22,7 +22,8 @@ Class {
 		'updateType',
 		'organizer',
 		'updates',
-		'wasUpdated'
+		'wasUpdated',
+		'shouldUpdate'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -530,10 +531,11 @@ RowanService >> servicePerform: symbol withArguments: collection [
 ]
 
 { #category : 'perform' }
-RowanService >> servicePerform: symbol withArguments: collection shouldUpdate: shouldUpdate [
+RowanService >> servicePerform: commandSymbol withArguments: collection shouldUpdate: possiblyUpdate [
 	"each service updates itself after performing a command.
 	Therefore, if the command is #update, don't run it here"
 
+	shouldUpdate := possiblyUpdate.	"let the command decide if an update is actually needed"
 	SessionTemps current
 		at: #'versionsVerified'
 		ifAbsent: [ 
@@ -541,7 +543,7 @@ RowanService >> servicePerform: symbol withArguments: collection shouldUpdate: s
 			self
 				inform:
 					'Version mismatch failure. Client version is older than server version.' ].
-	super perform: symbol withArguments: collection.
+	super perform: commandSymbol withArguments: collection.
 	shouldUpdate
 		ifTrue: [ self update ]
 ]
