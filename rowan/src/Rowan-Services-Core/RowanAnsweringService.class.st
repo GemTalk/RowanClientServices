@@ -362,6 +362,14 @@ RowanAnsweringService >> exec: aString inFrame: level ofProcess: processOop cont
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> execReturningObject: aString [
+
+	"don't return complex objects - ston will likely break" 
+	answer := aString evaluate. 
+	RowanCommandResult addResult: self.
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> expressionSelector: string [
   "try to uncover a selector in the string. 
 	If it's not possible, return the string and 
