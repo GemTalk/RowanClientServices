@@ -73,17 +73,20 @@ RowanBrowserService >> allPackages [
 
 { #category : 'client commands support' }
 RowanBrowserService >> basicAllClasses [
-  | theClasses |
+  | theClasses time packageNames |
+	time := System millisecondsToRun:[
   theClasses := SortedCollection sortBlock: [ :x :y | x name < y name ].
+	packageNames := Rowan image packageNames. 
   theClasses
     addAll:
       (organizer classes
-        collect: [ :class | 
+        collect: [ :theClass | 
           | service |
-          service := RowanClassService new name: class name.
-          service packageName: class rowanPackageName.
-          service projectName: class rowanProjectName.
-          service ]).
+          service := RowanClassService new name: theClass name.
+          service packageName: (self computePackageNameFor: theClass in: packageNames).
+          service projectName: theClass rowanProjectName.
+          service ])].
+	Transcript cr; show: time printString; flush. 
   ^ theClasses asArray
 ]
 
@@ -144,6 +147,20 @@ RowanBrowserService >> compileClass: definitionString [
     _compileInContext: nil
     symbolList: Rowan image symbolList.
   SessionTemps current at: #'jadeiteCompileClassMethod' put: anonymousMethod
+]
+
+{ #category : 'client commands support' }
+RowanBrowserService >> computePackageNameFor: theClass in: packageNames [
+	"Similar to Behavior>>rowanPackageNames but pass in a cached list of packageNames for performance"
+
+	| loadedClass packageName |
+	loadedClass := Rowan image
+		loadedClassForClass: theClass thisClass
+		ifAbsent: [ ^ Rowan unpackagedName ].
+	packageName := loadedClass loadedPackage name.
+	^ (packageNames includes: packageName)
+		ifTrue: [ packageName ]
+		ifFalse: [ Rowan unpackagedName ]
 ]
 
 { #category : 'client commands support' }
