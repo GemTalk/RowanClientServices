@@ -150,20 +150,6 @@ RowanBrowserService >> compileClass: definitionString [
 ]
 
 { #category : 'client commands support' }
-RowanBrowserService >> computePackageNameFor: theClass in: packageNames [
-	"Similar to Behavior>>rowanPackageNames but pass in a cached list of packageNames for performance"
-
-	| loadedClass packageName |
-	loadedClass := Rowan image
-		loadedClassForClass: theClass thisClass
-		ifAbsent: [ ^ Rowan unpackagedName ].
-	packageName := loadedClass loadedPackage name.
-	^ (packageNames includes: packageName)
-		ifTrue: [ packageName ]
-		ifFalse: [ Rowan unpackagedName ]
-]
-
-{ #category : 'client commands support' }
 RowanBrowserService >> confirmDuplicateName: definitionString [
   | className |
   className := (definitionString subStrings at: 3) copyWithout: $'.

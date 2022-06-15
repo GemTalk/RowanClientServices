@@ -343,17 +343,21 @@ RowanPackageService >> testClasses [
 
 { #category : 'updates' }
 RowanPackageService >> update [
+	| allPackageNames |
 	super update.
 	Rowan image loadedPackageNamed: name ifAbsent: [ ^ self ].
+	allPackageNames := Rowan image packageNames.
 	classes := (self loadedClassNames keys
-		collect: [ :string | RowanClassService minimalForClassNamed: string ]) asArray.
+		collect: [ :string | RowanClassService minimalForClassNamed: string packageNames: allPackageNames ])
+		asArray.
 	classes
 		addAll:
 			(self loadedClassExtensions keys
 				collect: [ :string | 
 					| classService |
-					classService := (RowanClassService minimalForClassNamed: string)
-						isExtension: true.
+					classService := (RowanClassService
+						minimalForClassNamed: string
+						packageNames: allPackageNames) isExtension: true.
 					(Rowan image loadedClassForClass: classService theClass ifAbsent: [  ])
 						ifNotNil: [ :cls | classService definedPackageName: cls packageName ].
 					classService ]).

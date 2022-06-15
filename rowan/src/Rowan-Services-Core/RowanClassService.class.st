@@ -86,6 +86,12 @@ RowanClassService class >> minimalForClassNamed: className [
 	^self new minimalForClassNamed: className
 ]
 
+{ #category : 'instance creation' }
+RowanClassService class >> minimalForClassNamed: className packageNames: packageNames [
+	"Don't get method services. Efficient for classes with many methods"
+	^self new minimalForClassNamed: className packageNames: packageNames
+]
+
 { #category : 'comparing' }
 RowanClassService >> = classService [
 	(classService class canUnderstand: #isClassService) ifFalse:[^false].
@@ -207,6 +213,113 @@ RowanClassService >> classComment: string [
 RowanClassService >> classCreationTemplate [
 	
 	^self browserTool classCreationTemplateForClass: self theClass hybridBrowser: true.
+]
+
+{ #category : 'rowan' }
+RowanClassService >> classCreationTemplateUsing: packageNames [
+	"copying RwPrjBrowserToolV2>>classCreationTemplateForClass:hybridBrowser: with one change for performance"
+
+	| result anArray lfsp newByteSubclass civs superClass className thePackageName nonRowanClass |
+	result := String new.
+	superClass := self theClass superclass.
+	className := self theClass name asString.
+	superClass
+		ifNil: [ result addAll: 'nil' ]
+		ifNotNil: [ result addAll: superClass name asString ].
+	lfsp := Character lf asString tab.
+	newByteSubclass := false.
+	thePackageName := self computePackageNameFor: self theClass in: packageNames. "performance improvement here"
+	nonRowanClass := thePackageName = Rowan unpackagedName.
+	(self theClass isBytes _and: [ superClass isBytes not ])
+		ifTrue: [ 
+			nonRowanClass
+				ifTrue: [ result addAll: ' byteSubclass: ''' ]
+				ifFalse: [ result addAll: ' rwByteSubclass: ''' ].
+			result
+				addAll: className;
+				addLast: $'.
+			newByteSubclass := true ]
+		ifFalse: [ 
+			(self theClass isIndexable and: [ superClass isIndexable not ])
+				ifTrue: [ 
+					nonRowanClass
+						ifTrue: [ result addAll: ' indexableSubclass: ''' ]
+						ifFalse: [ result addAll: ' rwIndexableSubclass: ''' ].
+					result
+						addAll: className;
+						addLast: $' ]
+				ifFalse: [ 
+					nonRowanClass
+						ifTrue: [ result addAll: ' subclass: ''' ]
+						ifFalse: [ result addAll: ' rwSubclass: ''' ].
+					result
+						addAll: className;
+						addLast: $' ] ].
+	newByteSubclass
+		ifFalse: [ 
+			result
+				addAll: lfsp;
+				addAll: 'instVarNames: #(';
+				addAll:
+						(self theClass _instVarNamesWithSeparator: lfsp , '                 ');
+				add: $) ].
+	result
+		addAll: lfsp;
+		addLast: 'classVars: #('.
+	self theClass _sortedClassVarNames
+		do: [ :aKey | 
+			result addLast: $ .
+			(aKey includesValue: $')
+				ifTrue: [ result addAll: aKey _asSource ]
+				ifFalse: [ result addAll: aKey ] ].
+	result addLast: $).
+	result
+		addAll: lfsp;
+		addLast: 'classInstVars: #('.
+	civs := self theClass class allInstVarNames.
+	civs removeFrom: 1 to: self theClass class superClass instSize.
+	civs
+		do: [ :civName | 
+			result addLast: $ .
+			(civName includesValue: $')
+				ifTrue: [ result addAll: civName _asSource ]
+				ifFalse: [ result addAll: civName ] ].
+	result addLast: $).
+	result
+		addAll: lfsp;
+		addAll: 'poolDictionaries: '.
+	result addAll: '#()'.	"ignored for now"
+	nonRowanClass
+		ifTrue: [ 
+			"if the class is unpackaged, then we need to provide for the specification of symbol dictionary into which the class will be installed"
+			result
+				addAll: lfsp;
+				addAll: 'inDictionary: '.
+			anArray := Rowan image symbolList dictionariesAndSymbolsOf: self theClass.
+			anArray isEmpty
+				ifTrue: [ result addAll: '''''' ]
+				ifFalse: [ result addAll: ((anArray at: 1) at: 1) name asString ] ]
+		ifFalse: [ 
+			result
+				addAll: lfsp;
+				addAll: 'category: '.
+			result addAll: self theClass category printString.
+			(true and: [ thePackageName = self theClass category ])
+				ifFalse: [ 
+					result
+						addAll: lfsp;
+						addAll: 'packageName: '.
+					result addAll: thePackageName printString ] ].
+	self theClass _hasConstraints
+		ifTrue: [ 
+			result
+				add: lfsp;
+				add: self theClass _rwDefinitionOfConstraints ].
+	result
+		add: lfsp;
+		add: self theClass _rwOptionsForDefinition.
+	result add: Character lf.
+	^ result
 ]
 
 { #category : 'client commands' }
@@ -686,6 +799,14 @@ RowanClassService >> minimalForClassNamed: className [
 ]
 
 { #category : 'initialization' }
+RowanClassService >> minimalForClassNamed: className packageNames: packageNames [
+	| theClass |
+	self name: className.
+	theClass := self theClass.
+	self minimalRefreshFrom: theClass packageNames: packageNames
+]
+
+{ #category : 'initialization' }
 RowanClassService >> minimalRefreshFrom: theClass [
 	| classOrMeta  |
 	command := nil. 
@@ -699,6 +820,25 @@ RowanClassService >> minimalRefreshFrom: theClass [
 	projectName := classOrMeta rowanProjectName.
 	instVarNames := classOrMeta instVarNames asArray. 
 	template := self classCreationTemplate.
+	self initializeVariablesFor: classOrMeta. 
+	self initializeCategoriesFor: classOrMeta.
+	self setIsTestCase.
+]
+
+{ #category : 'initialization' }
+RowanClassService >> minimalRefreshFrom: theClass packageNames: packageNames [
+	| classOrMeta  |
+	command := nil. 
+	commandArgs := nil. 
+	versions := theClass classHistory size.
+	version := theClass classHistory indexOf: theClass.
+	oop := theClass asOop.
+	classOrMeta := meta == true ifTrue:[theClass class] ifFalse:[theClass].
+	packageName := definedPackageName := (self computePackageNameFor: classOrMeta in: packageNames).
+	self setDictionary: classOrMeta.
+	projectName := classOrMeta rowanProjectName.
+	instVarNames := classOrMeta instVarNames asArray. 
+	template := self classCreationTemplateUsing: packageNames.
 	self initializeVariablesFor: classOrMeta. 
 	self initializeCategoriesFor: classOrMeta.
 	self setIsTestCase.

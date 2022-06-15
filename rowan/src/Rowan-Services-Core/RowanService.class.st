@@ -211,6 +211,20 @@ RowanService >> commandArgs: anArray [
 	commandArgs := anArray
 ]
 
+{ #category : 'commands support' }
+RowanService >> computePackageNameFor: theClass in: packageNames [
+	"Similar to Behavior>>rowanPackageNames but pass in a cached list of packageNames for performance"
+
+	| loadedClass packageName |
+	loadedClass := Rowan image
+		loadedClassForClass: theClass thisClass
+		ifAbsent: [ ^ Rowan unpackagedName ].
+	packageName := loadedClass loadedPackage name.
+	^ (packageNames includes: packageName)
+		ifTrue: [ packageName ]
+		ifFalse: [ Rowan unpackagedName ]
+]
+
 { #category : 'symbol dictionaries' }
 RowanService >> createDefaultSymbolDictionary [
 
