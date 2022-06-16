@@ -938,10 +938,13 @@ RowanClassService >> oop: newValue [
 { #category : 'testing' }
 RowanClassService >> packageIsDirty [
 	| behavior |
-	behavior := self theClass.
-	behavior rowanPackageName = Rowan unpackagedName
+	packageName
+		ifNil: [ 
+			behavior := self theClass.
+			packageName := behavior rowanPackageName ].
+	packageName = Rowan unpackagedName
 		ifTrue: [ ^ true ].	"avoid a refresh by assuming it's dirty"
-	^ (RowanPackageService forPackageNamed: behavior rowanPackageName) rowanDirty
+	^ (RowanPackageService forPackageNamed: packageName) rowanDirty
 ]
 
 { #category : 'Accessing' }
@@ -1268,11 +1271,14 @@ RowanClassService >> selectors [
 { #category : 'perform' }
 RowanClassService >> servicePerform: symbol withArguments: collection [
 	| wasClean |
-	packageName ifNil: [self update]. "the class may not have enough information to perform the symbol"
+	packageName ifNil: [ self update ].	"the class may not have enough information to perform the symbol"
 	self isUpdatingButFoundToBeDeleted
 		ifTrue: [ ^ self handleDeletedService ].
 	wasClean := self isPackageClean.
-	super servicePerform: symbol withArguments: collection shouldUpdate: updateAfterCommand.
+	super
+		servicePerform: symbol
+		withArguments: collection
+		shouldUpdate: updateAfterCommand.
 	wasClean
 		ifTrue: [ self updatePackageAndProject ]
 ]

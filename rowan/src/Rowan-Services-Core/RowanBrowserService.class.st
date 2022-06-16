@@ -73,21 +73,20 @@ RowanBrowserService >> allPackages [
 
 { #category : 'client commands support' }
 RowanBrowserService >> basicAllClasses [
-  | theClasses time packageNames |
-	time := System millisecondsToRun:[
-  theClasses := SortedCollection sortBlock: [ :x :y | x name < y name ].
-	packageNames := Rowan image packageNames. 
-  theClasses
-    addAll:
-      (organizer classes
-        collect: [ :theClass | 
-          | service |
-          service := RowanClassService new name: theClass name.
-          service packageName: (self computePackageNameFor: theClass in: packageNames).
-          service projectName: theClass rowanProjectName.
-          service ])].
-	Transcript cr; show: time printString; flush. 
-  ^ theClasses asArray
+	| theClasses packageNames |
+	theClasses := SortedCollection sortBlock: [ :x :y | x name < y name ].
+	packageNames := Rowan image packageNames.
+	theClasses
+		addAll:
+			(organizer classes
+				collect: [ :theClass | 
+					| service |
+					service := RowanClassService new name: theClass name.
+					service
+						packageName: (self computePackageNameFor: theClass in: packageNames).
+					service projectName: theClass rowanProjectName.
+					service ]).
+	^ theClasses asArray
 ]
 
 { #category : 'client commands' }
@@ -232,11 +231,13 @@ RowanBrowserService >> openWindows [
 
 { #category : 'client commands' }
 RowanBrowserService >> packagesWithTests [
+	| packageNames |
 	organizer := ClassOrganizer new.	"when we call this method, our world has changed from a reload, etc."
 	testPackages := Set new.
 	testCount := 0.
 	testPackages := Set new.
 	testCount := 0.
+	packageNames := Rowan image packageNames. 
 	(organizer allSubclassesOf: TestCase)
 		do: [ :sub | 
 			| packageName testMethodCount |
@@ -245,7 +246,7 @@ RowanBrowserService >> packagesWithTests [
 			testCount := testCount + testMethodCount.
 			testMethodCount > 0
 				ifTrue: [ 
-					packageName := sub rowanPackageName.
+					packageName := self computePackageNameFor: sub in: packageNames.
 					packageName = Rowan unpackagedName
 						ifFalse: [ 
 							testPackages
