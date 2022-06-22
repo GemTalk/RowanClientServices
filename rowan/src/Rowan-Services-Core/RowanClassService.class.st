@@ -1229,11 +1229,10 @@ RowanClassService >> saveMethodSource: source category: category [
 			inClass: methodService className.	"this will update hierarchy method indicators for client"
 	self selectedMethods: (Array with: methodService).
 	self updateDirtyState.
-	methods isEmpty
-		ifTrue: [ self updateTests ]
-		ifFalse: [ 
-			(methods includes: methodService)
-				ifFalse: [ methods add: methodService ] ].
+	(methods includes: methodService)
+		ifFalse: [ methods add: methodService ].
+	methodService isTestMethod
+		ifTrue: [ self updateTests ].
 	self
 		updateSymbols:
 			gsNMethod _selectorPool asArray , (Array with: methodService selector).
