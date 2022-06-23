@@ -773,6 +773,20 @@ RowanClassService >> methodServicesFor: classOrMeta organizer: theOrganizer [
 ]
 
 { #category : 'private' }
+RowanClassService >> methodServicesFor: classOrMeta organizer: theOrganizer subclasses: subclasses [
+	methods
+		addAll:
+			(classOrMeta selectors
+				collect: [ :sel | 
+					RowanMethodService
+						forSelector: sel
+						class: classOrMeta thisClass
+						meta: meta
+						organizer: theOrganizer
+						subclasses: subclasses])
+]
+
+{ #category : 'private' }
 RowanClassService >> methodsIn: theClass categories: theCategories [
 
 	| selectors |
@@ -1026,26 +1040,29 @@ RowanClassService >> refreshFrom: theClass [
 	| classOrMeta  |
 	self basicRefreshFrom: theClass. 
 	classOrMeta := meta == true ifTrue:[theClass class] ifFalse:[theClass].
-	self refreshMethodsFor: classOrMeta
-
+	self refreshMethodsFor: classOrMeta.
+	shouldUpdate := false.
 ]
 
 { #category : 'initialization' }
 RowanClassService >> refreshMethodsFor: classOrMeta [
-	| gsNMethods |
-	methods := SortedCollection sortBlock: [:x :y | x selector < y selector].
-	self methodServicesFor: classOrMeta organizer: organizer.
+	| gsNMethods subclasses |
+	methods := SortedCollection sortBlock: [ :x :y | x selector < y selector ].
+	subclasses := organizer allSubclassesOf: classOrMeta thisClass.
+	self methodServicesFor: classOrMeta organizer: organizer subclasses: subclasses.
 	methods := methods asOrderedCollection.
-	classOrMeta allInstVarNames do:[:instVar | 
+	classOrMeta allInstVarNames
+		do: [ :instVar | 
 			gsNMethods := organizer accessorsOf: instVar inClass: classOrMeta.
-			gsNMethods do:[:gsNMethod |
-				| service |
-				service := methods detect:[:methodService | methodService selector = gsNMethod selector] ifNone:[].
-				service ifNotNil:[
-					service accessedInstVars add: instVar asString]
-	]].
-	self initializeTestMethodsFor: classOrMeta thisClass. 
-	self setVisibleTests. "methods must be available"
+			gsNMethods
+				do: [ :gsNMethod | 
+					| service |
+					service := methods
+						detect: [ :methodService | methodService selector = gsNMethod selector ]
+						ifNone: [  ].
+					service ifNotNil: [ service accessedInstVars add: instVar asString ] ] ].
+	self initializeTestMethodsFor: classOrMeta thisClass.
+	self setVisibleTests	"methods must be available"
 ]
 
 { #category : 'client commands' }

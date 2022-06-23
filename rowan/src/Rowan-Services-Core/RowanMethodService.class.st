@@ -55,13 +55,46 @@ RowanMethodService class >> forGsNMethod: aGsNMethod organizer: anOrganizer [
 
 { #category : 'instance creation' }
 RowanMethodService class >> forSelector: sel class: theClass meta: boolean organizer: anOrganizer [
-
-	| service |
-	service := self new. 
-	service selector: sel;
+	| service block |
+	block := [ 
+	service := self new.
+	service
+		selector: sel;
 		meta: boolean.
-	service forClass: theClass organizer: anOrganizer.
-	^service
+	service forClass: theClass organizer: anOrganizer ].
+	(UserGlobals at: #'shouldProfile')
+		ifTrue: [ 
+			| profile |
+			profile := ProfMonitor monitorBlock: block intervalNs: 100000.
+			UserGlobals at: #'shouldProfile' put: false.
+			Transcript
+				cr;
+				show: profile;
+				flush ]
+		ifFalse: [ block value ].
+	^ service
+]
+
+{ #category : 'instance creation' }
+RowanMethodService class >> forSelector: sel class: theClass meta: boolean organizer: anOrganizer subclasses: theSubclasses [
+	| service block |
+	block := [ 
+	service := self new.
+	service
+		selector: sel;
+		meta: boolean.
+	service forClass: theClass organizer: anOrganizer subclasses: theSubclasses ].
+	(UserGlobals at: #'shouldProfile')
+		ifTrue: [ 
+			| profile |
+			profile := ProfMonitor monitorBlock: block intervalNs: 100000.
+			UserGlobals at: #'shouldProfile' put: false.
+			Transcript
+				cr;
+				show: profile;
+				flush ]
+		ifFalse: [ block value ].
+	^ service
 ]
 
 { #category : 'utility' }
@@ -408,6 +441,42 @@ RowanMethodService >> forClass: theClass organizer: theOrganizer [
 	self setDefinedClass: classOrMeta
 ]
 
+{ #category : 'initialization' }
+RowanMethodService >> forClass: theClass organizer: theOrganizer subclasses: subclasses [
+	"assume meta and selector are set"
+
+	| classOrMeta gsNMethod |
+	organizer := theOrganizer.
+	classOrMeta := meta
+		ifTrue: [ theClass class ]
+		ifFalse: [ theClass ].
+	gsNMethod := classOrMeta compiledMethodAt: selector.
+	definedPackage := gsNMethod rowanPackageName.
+	oop := gsNMethod asOop.
+	stepPoints := self stepPointsFor: gsNMethod.
+	breakPoints := self breakPointsFor: gsNMethod.
+	self updateSource: gsNMethod sourceString.
+	category := (classOrMeta categoryOfSelector: selector) asString.
+	className := theClass name asString.
+	packageName := gsNMethod rowanPackageName.
+	projectName := gsNMethod rowanProjectName.
+	self setSupersAndSubsFor: classOrMeta using: subclasses.
+	isExtension := self rowanIsExtension.
+	self initializeTestMethodsFor: classOrMeta thisClass.
+	self setDefinedClass: classOrMeta
+]
+
+{ #category : 'instance creation' }
+RowanMethodService >> forSelector: sel class: theClass meta: boolean organizer: anOrganizer [
+
+	| service |
+	service := self new. 
+	service selector: sel;
+		meta: boolean.
+	service forClass: theClass organizer: anOrganizer.
+	^service
+]
+
 { #category : 'Accessing' }
 RowanMethodService >> gsNMethod [
 
@@ -727,21 +796,58 @@ RowanMethodService >> setHasMethodHistory [
 
 { #category : 'initialization' }
 RowanMethodService >> setSupersAndSubsFor: theClass [
+	| theSuper implementingClass |
+	theSuper := theClass superClass.
+	theSuper
+		ifNotNil: [ 
+			implementingClass := theSuper whichClassIncludesSelector: selector.
+			hasSupers := implementingClass notNil.
+			hasSupers
+				ifTrue: [ 
+					comparisonSource := (implementingClass
+						compiledMethodAt: selector
+						environmentId: 0
+						otherwise: nil) sourceString.
+					superDisplayString := implementingClass name , '>>' , selector ] ].
+	(organizer allSubclassesOf: theClass thisClass)
+		do: [ :cls | 
+			| aClass |
+			aClass := theClass isMeta
+				ifTrue: [ cls class ]
+				ifFalse: [ cls ].
+			(hasSubs := (aClass
+				compiledMethodAt: selector
+				environmentId: 0
+				otherwise: nil) notNil)
+				ifTrue: [ ^ self ] ]
+]
 
-	| theSuper |
-	theSuper := theClass superClass. 
-	hasSupers := false. 
-	[theSuper notNil and:[hasSupers not]] whileTrue:[
-		hasSupers := theSuper selectors includes: selector.
-		hasSupers ifTrue:[
-			comparisonSource := theSuper sourceCodeAt: selector.
-			superDisplayString := theSuper name, '>>', selector].
-		theSuper := theSuper superClass].
-	(organizer allSubclassesOf: theClass thisClass) do:[:cls |
-		| aClass |
-		aClass := theClass isMeta ifTrue:[cls class] ifFalse:[cls]. 
-		(hasSubs := aClass includesSelector: selector) ifTrue:[
-		^self]].
+{ #category : 'initialization' }
+RowanMethodService >> setSupersAndSubsFor: theClass using: subclasses [
+	| theSuper implementingClass |
+	theSuper := theClass superClass.
+	theSuper
+		ifNotNil: [ 
+			implementingClass := theSuper whichClassIncludesSelector: selector.
+			hasSupers := implementingClass notNil.
+			hasSupers
+				ifTrue: [ 
+					comparisonSource := (implementingClass
+						compiledMethodAt: selector
+						environmentId: 0
+						otherwise: nil) sourceString.
+					superDisplayString := implementingClass name , '>>' , selector ] ].
+	subclasses
+		do: [ :cls | 
+			| aClass |
+			aClass := theClass isMeta
+				ifTrue: [ cls class ]
+				ifFalse: [ cls ].
+			(hasSubs := (aClass
+				compiledMethodAt: selector
+				environmentId: 0
+				otherwise: nil) notNil)
+				ifTrue: [ ^ self ] ]
 ]
 
 { #category : 'Accessing' }
