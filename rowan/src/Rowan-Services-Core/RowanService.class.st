@@ -156,56 +156,23 @@ RowanService >> browserTool [
 
 { #category : 'commands support' }
 RowanService >> classHierarchy: theClasses [
-	| superclassChains levels services hierarchies toExpand hierarchyServices time |
-	time := System
-		millisecondsToRun: [ superclassChains := self superclassChainsFor: theClasses ].
-	Transcript
-		cr;
-		show: 'superclassChainsFor:';
-		show: time printString;
-		flush.
-	time := System
-		millisecondsToRun: [ hierarchies := self extendHierarchies: superclassChains forClasses: theClasses ].
-	Transcript
-		cr;
-		show: 'extendHierarchies:forClasses:';
-		show: time printString;
-		flush.
-	time := System
-		millisecondsToRun: [ levels := self hierarchiesByLevel: hierarchies ].
-	Transcript
-		cr;
-		show: 'hierarchiesByLevel:';
-		show: time printString;
-		flush.
+	| superclassChains levels services hierarchies toExpand hierarchyServices |
+	superclassChains := self superclassChainsFor: theClasses.
+	hierarchies := self extendHierarchies: superclassChains forClasses: theClasses.
+	levels := self hierarchiesByLevel: hierarchies.
 	services := Dictionary new.
 	toExpand := Set new.
-	time := System
-		millisecondsToRun: [ 
-			self
-				services: services
-				from: levels
-				expand: toExpand
-				classes: theClasses ].
-	Transcript
-		cr;
-		show: 'services:from:expand:classes:';
-		show: time printString;
-		flush.
-	time := System
-		millisecondsToRun: [ 
-			hierarchyServices := services reject: [ :array | array isEmpty ].
-			hierarchyServices copy
-				keysAndValuesDo: [ :key :value | 
-					hierarchyServices
-						at: key
-						put: (value asSet asSortedCollection: [ :x :y | x name < y name ]) asArray ] ].
-	Transcript
-		cr;
-		show: 'cleanup';
-		show: time printString;
-		flush.
-
+	self
+		services: services
+		from: levels
+		expand: toExpand
+		classes: theClasses.
+	hierarchyServices := services reject: [ :array | array isEmpty ].
+	hierarchyServices copy
+		keysAndValuesDo: [ :key :value | 
+			hierarchyServices
+				at: key
+				put: (value asSet asSortedCollection: [ :x :y | x name < y name ]) asArray ].
 	^ hierarchyServices
 ]
 
