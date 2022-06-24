@@ -92,6 +92,7 @@ RwGsPlatform >> serviceClasses [
 		add: RowanDefinedProjectService;
 		add: RowanDefinitionService;
 		add: RowanDictionaryService;
+		add: RowanFileService;
 		add: RowanFrameService;
 		add: RowanInspectorService;
 		add: RowanLoadSpecService;
