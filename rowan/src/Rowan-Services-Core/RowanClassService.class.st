@@ -1074,6 +1074,7 @@ RowanClassService >> removeCategories: theCategories [
 	theCategories do: [:category |
 		theClass rwRemoveCategory: category.
 		].
+	shouldUpdate := true.
 ]
 
 { #category : 'client commands' }
