@@ -374,6 +374,15 @@ RowanClassService >> classServiceFromOop: anOop [
 			classService minimalRefreshFrom: theClass]
 ]
 
+{ #category : 'instance creation' }
+RowanClassService >> classServiceFromOop: anOop packageNames: packageNames [
+	| theClass className classService |
+	theClass := Object _objectForOop: anOop. 
+	className := theClass name. 
+	classService := RowanClassService new name: className.
+	^classService minimalRefreshFrom: theClass packageNames: packageNames
+]
+
 { #category : 'Accessing' }
 RowanClassService >> classType [
 	^classType

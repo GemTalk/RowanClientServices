@@ -156,23 +156,56 @@ RowanService >> browserTool [
 
 { #category : 'commands support' }
 RowanService >> classHierarchy: theClasses [
-	| superclassChains levels services hierarchies toExpand hierarchyServices |
-	superclassChains := self superclassChainsFor: theClasses.
-	hierarchies := self extendHierarchies: superclassChains forClasses: theClasses.
-	levels := self hierarchiesByLevel: hierarchies.
+	| superclassChains levels services hierarchies toExpand hierarchyServices time |
+	time := System
+		millisecondsToRun: [ superclassChains := self superclassChainsFor: theClasses ].
+	Transcript
+		cr;
+		show: 'superclassChainsFor:';
+		show: time printString;
+		flush.
+	time := System
+		millisecondsToRun: [ hierarchies := self extendHierarchies: superclassChains forClasses: theClasses ].
+	Transcript
+		cr;
+		show: 'extendHierarchies:forClasses:';
+		show: time printString;
+		flush.
+	time := System
+		millisecondsToRun: [ levels := self hierarchiesByLevel: hierarchies ].
+	Transcript
+		cr;
+		show: 'hierarchiesByLevel:';
+		show: time printString;
+		flush.
 	services := Dictionary new.
 	toExpand := Set new.
-	self
-		services: services
-		from: levels
-		expand: toExpand
-		classes: theClasses.
-	hierarchyServices := services reject: [ :array | array isEmpty ].
-	hierarchyServices copy
-		keysAndValuesDo: [ :key :value | 
-			hierarchyServices
-				at: key
-				put: (value asSet asSortedCollection: [ :x :y | x name < y name ]) asArray ].
+	time := System
+		millisecondsToRun: [ 
+			self
+				services: services
+				from: levels
+				expand: toExpand
+				classes: theClasses ].
+	Transcript
+		cr;
+		show: 'services:from:expand:classes:';
+		show: time printString;
+		flush.
+	time := System
+		millisecondsToRun: [ 
+			hierarchyServices := services reject: [ :array | array isEmpty ].
+			hierarchyServices copy
+				keysAndValuesDo: [ :key :value | 
+					hierarchyServices
+						at: key
+						put: (value asSet asSortedCollection: [ :x :y | x name < y name ]) asArray ] ].
+	Transcript
+		cr;
+		show: 'cleanup';
+		show: time printString;
+		flush.
+
 	^ hierarchyServices
 ]
 
@@ -241,16 +274,19 @@ RowanService >> createSampleSymbolDictionary [
 ]
 
 { #category : 'commands support' }
-RowanService >> createServiceFor: aClass unlessExistingIn: newServices expand: toExpand [
+RowanService >> createServiceFor: aClass unlessExistingIn: newServices expand: toExpand packageNames: packageNames [
 	| service |
 	service := newServices
-		detect: [ :classService | classService name = aClass name ]
-		ifNone: [ RowanClassService new classServiceFromOop: aClass asOop ].
+		detect: [ :classService | classService name asString = aClass name asString ]
+		ifNone: [ 
+			RowanClassService new
+				classServiceFromOop: aClass asOop
+				packageNames: packageNames ].
 	(toExpand includes: service theClass)
 		ifTrue: [ service expand: true ]
 		ifFalse: [ service expand: false ].
 
-	aClass subclasses size > 0
+	(organizer subclassesOf: aClass) size > 0
 		ifTrue: [ service hasSubclasses: true ].
 
 	^ service
@@ -567,7 +603,8 @@ RowanService >> services: services from: levels expand: toExpand classes: theCla
 	"In order to avoid the expense of creating duplicate services, we cache
 them in the newServices temporary for look up"
 
-	| newServices |
+	| newServices allPackageNames |
+	allPackageNames := Rowan image packageNames.
 	newServices := Array new.
 	theClasses
 		do: [ :aClass | toExpand addAll: (organizer allSuperclassesOf: aClass) ].
@@ -576,12 +613,22 @@ them in the newServices temporary for look up"
 			| newKey |
 			newKey := key = #'nil'
 				ifTrue: [ #'nil' ]
-				ifFalse: [ self createServiceFor: key unlessExistingIn: newServices expand: toExpand ].
+				ifFalse: [ 
+					self
+						createServiceFor: key
+						unlessExistingIn: newServices
+						expand: toExpand
+						packageNames: allPackageNames ].
 			services
 				at: newKey
 				put:
 					(value
-						collect: [ :cls | self createServiceFor: cls unlessExistingIn: newServices expand: toExpand ]) ]
+						collect: [ :cls | 
+							self
+								createServiceFor: cls
+								unlessExistingIn: newServices
+								expand: toExpand
+								packageNames: allPackageNames ]) ]
 ]
 
 { #category : 'replication' }
