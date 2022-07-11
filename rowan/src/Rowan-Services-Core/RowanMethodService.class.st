@@ -55,45 +55,23 @@ RowanMethodService class >> forGsNMethod: aGsNMethod organizer: anOrganizer [
 
 { #category : 'instance creation' }
 RowanMethodService class >> forSelector: sel class: theClass meta: boolean organizer: anOrganizer [
-	| service block |
-	block := [ 
+	| service |
 	service := self new.
 	service
 		selector: sel;
 		meta: boolean.
-	service forClass: theClass organizer: anOrganizer ].
-	(UserGlobals at: #'shouldProfile')
-		ifTrue: [ 
-			| profile |
-			profile := ProfMonitor monitorBlock: block intervalNs: 100000.
-			UserGlobals at: #'shouldProfile' put: false.
-			Transcript
-				cr;
-				show: profile;
-				flush ]
-		ifFalse: [ block value ].
+	service forClass: theClass organizer: anOrganizer.
 	^ service
 ]
 
 { #category : 'instance creation' }
 RowanMethodService class >> forSelector: sel class: theClass meta: boolean organizer: anOrganizer subclasses: theSubclasses [
-	| service block |
-	block := [ 
+	| service |
 	service := self new.
 	service
 		selector: sel;
 		meta: boolean.
-	service forClass: theClass organizer: anOrganizer subclasses: theSubclasses ].
-	(UserGlobals at: #'shouldProfile')
-		ifTrue: [ 
-			| profile |
-			profile := ProfMonitor monitorBlock: block intervalNs: 100000.
-			UserGlobals at: #'shouldProfile' put: false.
-			Transcript
-				cr;
-				show: profile;
-				flush ]
-		ifFalse: [ block value ].
+	service forClass: theClass organizer: anOrganizer subclasses: theSubclasses.
 	^ service
 ]
 
