@@ -218,7 +218,7 @@ RowanProjectService >> componentServicesFor: theRwProject [
 
 { #category : 'client commands' }
 RowanProjectService >> createProjectComponent: componentName symDict: defaultSymbolDictName convention: packageConvention format: packageFormat projectsHome: projectsHome type: repositoryType [
-	| definedProject |
+	| definedProject  |
 	Rowan version < '3.0.0' asRwSemanticVersionNumber
 		ifTrue: [ self error: 'This script needs to be run against a Rowan v3 solo extent' ].
 	definedProject := (Rowan newProjectNamed: name)
@@ -232,8 +232,8 @@ RowanProjectService >> createProjectComponent: componentName symDict: defaultSym
 	(projectsHome asFileReference / name / 'rowan')
 		ensureDeleteAll.
 	definedProject resolveProject write.
-	self update.
-	RowanCommandResult addResult: self
+	definedProject load. 
+	RowanBrowserService new updateProjects
 ]
 
 { #category : 'examples' }
