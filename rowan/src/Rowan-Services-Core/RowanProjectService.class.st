@@ -216,6 +216,26 @@ RowanProjectService >> componentServicesFor: theRwProject [
 	^ componentDictionary
 ]
 
+{ #category : 'client commands' }
+RowanProjectService >> createProjectComponent: componentName symDict: defaultSymbolDictName convention: packageConvention format: packageFormat projectsHome: projectsHome type: repositoryType [
+	| definedProject |
+	Rowan version < '3.0.0' asRwSemanticVersionNumber
+		ifTrue: [ self error: 'This script needs to be run against a Rowan v3 solo extent' ].
+	definedProject := (Rowan newProjectNamed: name)
+		addLoadComponentNamed: componentName;
+		packageConvention: packageConvention;
+		gemstoneSetDefaultSymbolDictNameTo: defaultSymbolDictName;
+		repoType: repositoryType asSymbol;
+		packageFormat: packageFormat;
+		projectsHome: projectsHome;
+		yourself.
+	(projectsHome asFileReference / name / 'rowan')
+		ensureDeleteAll.
+	definedProject resolveProject write.
+	self update.
+	RowanCommandResult addResult: self
+]
+
 { #category : 'examples' }
 RowanProjectService >> createProjectNamed: projectName [ 
 
