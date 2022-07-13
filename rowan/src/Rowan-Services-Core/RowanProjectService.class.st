@@ -292,6 +292,19 @@ RowanProjectService >> initializePackageGroups [
 	wasUpdated := true.
 ]
 
+{ #category : 'client commands' }
+RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames resolveStrict: strict [
+	| spec browserService |
+	spec := (RwSpecification fromUrl: path)
+		projectsHome: projectsHomePath;
+		yourself.
+	spec componentNames: componentNames.
+	strict
+		ifTrue: [ spec resolveStrict ].
+	spec resolve load.
+	browserService := RowanBrowserService new updateProjects.
+]
+
 { #category : 'rowan' }
 RowanProjectService >> isDirty [
 	name isNil
