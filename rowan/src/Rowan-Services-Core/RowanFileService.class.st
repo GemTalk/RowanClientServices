@@ -51,7 +51,7 @@ RowanFileService >> readmeContents [
 ]
 
 { #category : 'client commands' }
-RowanFileService >> writeReadme: contents [
+RowanFileService >> write: contents [
 	| file |
 	file := GsFile openWriteOnServer: path.
 	[ file nextPutAll: contents ]
