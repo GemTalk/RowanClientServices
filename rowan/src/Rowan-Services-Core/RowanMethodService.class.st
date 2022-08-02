@@ -895,13 +895,16 @@ RowanMethodService >> update [
 
 { #category : 'updates' }
 RowanMethodService >> updateLatest [
-  | theClass compiledMethod |
-  theClass := (RowanClassService new name: className) theClass.
-  theClass ifNil: [ ^ self ].
-  compiledMethod := theClass compiledMethodAt: selector otherwise: nil.
-  compiledMethod ifNil: [ ^ self ].
-  oop := compiledMethod asOop.
-  super updateLatest
+	| theClass compiledMethod |
+	theClass := (RowanClassService new name: className) theClass.
+	theClass ifNil: [ ^ self ].
+	compiledMethod := theClass compiledMethodAt: selector otherwise: nil.
+	compiledMethod
+		ifNil: [ 
+			self updateType: #'removed:'.
+			^ RowanCommandResult addResult: self ].
+	oop := compiledMethod asOop.
+	super updateLatest
 ]
 
 { #category : 'private' }
