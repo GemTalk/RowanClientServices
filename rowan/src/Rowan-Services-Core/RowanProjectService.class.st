@@ -25,7 +25,8 @@ Class {
 		'projectOop',
 		'specService',
 		'componentServices',
-		'packageGroups'
+		'packageGroups',
+		'defaultSymbolDictionaryName'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -252,6 +253,15 @@ RowanProjectService >> createProjectNamed: projectName in: symbolDictionaryName 
 		self browserTool createGitPackageProjectNamed: projectName updateDefinition: [:pd | 
 				pd defaultSymbolDictName: symbolDictionaryName; comment:  'Sample Rowan Project'] ].
 
+]
+
+{ #category : 'client commands' }
+RowanProjectService >> defaultSymbolDictionaryFromLoadSpec [
+	| loadSpec |
+	loadSpec := self rwProject loadSpecification.
+	defaultSymbolDictionaryName := loadSpec platformProperties
+		at: #'defaultSymbolDictName'
+		ifAbsent: [ loadSpec _gemstoneDefaultSymbolDictName ]
 ]
 
 { #category : 'replication' }
@@ -686,8 +696,11 @@ RowanProjectService >> update [
 	self refresh.
 	isLoaded
 		ifFalse: [ ^ self ].
-	name ifNotNil: [ self initializePackageGroups ].
-	shouldUpdate := false.
+	name
+		ifNotNil: [ 
+			self initializePackageGroups.
+			self defaultSymbolDictionaryFromLoadSpec ].
+	shouldUpdate := false
 ]
 
 { #category : 'update' }

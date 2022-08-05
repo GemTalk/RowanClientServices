@@ -295,9 +295,9 @@ RowanService >> createSymbolDictionaryNamed: aName [
 
 { #category : 'symbol dictionaries' }
 RowanService >> defaultSymbolDictionary [
+	"used?"
 
 	^self symbolDictionaryNamed: self defaultSymbolDictionaryName
-
 ]
 
 { #category : 'symbol dictionaries' }
