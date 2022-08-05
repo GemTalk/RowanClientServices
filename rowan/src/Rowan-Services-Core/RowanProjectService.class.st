@@ -216,6 +216,27 @@ RowanProjectService >> componentServicesFor: theRwProject [
 	^ componentDictionary
 ]
 
+{ #category : 'client commands' }
+RowanProjectService >> createProjectComponent: componentName symDict: defaultSymbolDictName convention: packageConvention format: packageFormat projectsHome: projectsHome type: repositoryType [
+	| definedProject resolvedProject |
+	Rowan version < '3.0.0' asRwSemanticVersionNumber
+		ifTrue: [ self error: 'This script needs to be run against a Rowan v3 solo extent' ].
+	definedProject := (Rowan newProjectNamed: name)
+		addLoadComponentNamed: componentName;
+		packageConvention: packageConvention;
+		gemstoneSetDefaultSymbolDictNameTo: defaultSymbolDictName;
+		repoType: repositoryType asSymbol;
+		packageFormat: packageFormat;
+		projectsHome: projectsHome;
+		yourself.
+	(projectsHome asFileReference / name / 'rowan')
+		ensureDeleteAll.
+	resolvedProject := definedProject resolveProject.
+	resolvedProject write.
+	resolvedProject loadAsDefined.
+	RowanBrowserService new updateProjects
+]
+
 { #category : 'examples' }
 RowanProjectService >> createProjectNamed: projectName [ 
 
@@ -269,6 +290,19 @@ RowanProjectService >> initializePackageGroups [
 						forPackageGroupNamed: theName
 						loadedProject: self rwProject ]).
 	wasUpdated := true.
+]
+
+{ #category : 'client commands' }
+RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames resolveStrict: strict [
+	| spec browserService |
+	spec := (RwSpecification fromUrl: path)
+		projectsHome: projectsHomePath;
+		yourself.
+	spec componentNames: componentNames.
+	strict
+		ifTrue: [ spec resolveStrict ].
+	spec resolve load.
+	browserService := RowanBrowserService new updateProjects.
 ]
 
 { #category : 'rowan' }

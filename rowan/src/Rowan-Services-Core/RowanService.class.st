@@ -59,6 +59,17 @@ RowanService class >> isClientClass [
 	^true
 ]
 
+{ #category : 'testing' }
+RowanService class >> isRowanClientServicesVersionSupported: lowerLimit [
+	"return a two element arg showing if the version is supported and the version"
+
+	| low high version |
+	low := RwSemanticVersionNumber fromString: lowerLimit.
+	high := low copy incrementMinorVersion.
+	version := RwSemanticVersionNumber fromString: RowanService version.
+	^ low <= version and: [ version <= high ]
+]
+
 { #category : 'rsr' }
 RowanService class >> isServerClass [
 	
@@ -111,10 +122,15 @@ RowanService class >> templateClassName [
 
 { #category : 'accessing' }
 RowanService class >> version [
-  "change this method carefully and only at Jadeite release boundaries.
-	Failure to do so will prevent logins"
+	^ '3.0.0'
+]
 
-  ^ 3200
+{ #category : 'accessing' }
+RowanService class >> versionRangeHigh: lowRange [
+	| low high |
+	low := RwSemanticVersionNumber fromString: lowRange.
+	high := low incrementMinorVersion.
+	^high printString
 ]
 
 { #category : 'commands support' }
@@ -553,13 +569,6 @@ RowanService >> servicePerform: commandSymbol withArguments: collection shouldUp
 	Therefore, if the command is #update, don't run it here"
 
 	shouldUpdate := possiblyUpdate.	"let the command decide if an update is actually needed"
-	SessionTemps current
-		at: #'versionsVerified'
-		ifAbsent: [ 
-			SessionTemps current at: #'versionsVerified' put: false.
-			self
-				inform:
-					'Version mismatch failure. Client version is older than server version.' ].
 	super perform: commandSymbol withArguments: collection.
 	shouldUpdate
 		ifTrue: [ self update ]
