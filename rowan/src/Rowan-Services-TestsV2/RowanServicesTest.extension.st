@@ -57,15 +57,16 @@ RowanServicesTest >> createServicesTestPackage [
 
 { #category : '*rowan-services-testsv2' }
 RowanServicesTest >> loadRowanSample1 [
-	| projectsHome projectName |
+	| projectsHome projectName specPath |
 	projectName := 'RowanSample1'.
 	(Rowan image loadedProjectNamed: projectName ifAbsent: [  ])
 		ifNotNil: [ :prj | Rowan image _removeLoadedProject: prj ].
 	projectsHome := self _testRowanProjectsSandbox.
 	(projectsHome / projectName) ensureDeleteAll.
+	specPath := (Rowan image _projectForNonTestProject: 'Rowan') repositoryRoot / 'samples/RowanSample1_resolved_v2.ston' .
 	((RwSpecification
 		fromUrl:
-			'file:$ROWAN_PROJECTS_HOME/Rowan/samples/RowanSample1_resolved_v2.ston')
+			'file:', specPath pathString)
 		customConditionalAttributes: #('tests');
 		projectsHome: projectsHome;
 		componentNames: #('Core' 'Tests');
@@ -74,15 +75,16 @@ RowanServicesTest >> loadRowanSample1 [
 
 { #category : '*rowan-services-testsv2' }
 RowanServicesTest >> loadRowanSample9 [
-	| projectsHome projectName loadSpec resolvedProject |
+	| projectsHome projectName loadSpec resolvedProject specPath |
 	projectName := 'RowanSample9'.
 	(Rowan image loadedProjectNamed: projectName ifAbsent: [  ])
 		ifNotNil: [ :prj | Rowan image _removeLoadedProject: prj ].
 	projectsHome := self _testRowanProjectsSandbox.
 	(projectsHome / projectName) ensureDeleteAll.
+	specPath := (Rowan image _projectForNonTestProject: 'Rowan') repositoryRoot / 'samples/RowanSample9_spec_0002.ston' .
 	loadSpec := (RwSpecification
 		fromUrl:
-			'file:$ROWAN_PROJECTS_HOME/Rowan/samples/RowanSample9_spec_0002.ston')
+			'file:', specPath pathString)
 		projectsHome: projectsHome;
 		yourself.
 	resolvedProject := loadSpec resolveStrict.
