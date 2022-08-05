@@ -179,11 +179,10 @@ RowanServicesTest >> servicesTestProjectName [
 RowanServicesTest >> setUp [
 	| user symListP symListT dictP dictT index projectsHome |
 	"ensure results are clean as service requests not coming through #updateFromSton: like the client"
-  super setUp.
-  projectsHome := self _testRowanProjectsSandbox.
-  preserveRowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'.
-  System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME' put: projectsHome pathString.
-  SessionTemps current at: #'versionsVerified' put: false.
+	super setUp.
+	projectsHome := self _testRowanProjectsSandbox.
+	preserveRowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'.
+	System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME' put: projectsHome pathString.
 	RowanAnsweringService new setEnableInteractionHandler: false. 
 	RowanCommandResult initializeResults.
 	Rowan platform _alternateImageClass: Rowan image testImageClass.
