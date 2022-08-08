@@ -5,7 +5,8 @@ Class {
 	#name : 'RowanServicesTest',
 	#superclass : 'TestCase',
 	#instVars : [
-		'defaultProjectDefinition'
+		'defaultProjectDefinition',
+		'preserveRowanProjectsHome'
 	],
 	#category : 'Rowan-Services-Tests'
 }
@@ -176,9 +177,12 @@ RowanServicesTest >> servicesTestProjectName [
 
 { #category : 'setup teardown' }
 RowanServicesTest >> setUp [
-	| user symListP symListT dictP dictT index |
+	| user symListP symListT dictP dictT index projectsHome |
 	"ensure results are clean as service requests not coming through #updateFromSton: like the client"
-  super setUp.
+	super setUp.
+	projectsHome := self _testRowanProjectsSandbox.
+	preserveRowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'.
+	System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME' put: projectsHome pathString.
 	RowanAnsweringService new setEnableInteractionHandler: false. 
 	RowanCommandResult initializeResults.
 	Rowan platform _alternateImageClass: Rowan image testImageClass.
@@ -216,6 +220,7 @@ RowanServicesTest >> setUp [
 { #category : 'setup teardown' }
 RowanServicesTest >> tearDown [
   super tearDown.
+  System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME' put: preserveRowanProjectsHome.
   Rowan platform _alternateImageClass: nil.
   RowanCommandResult initializeResults.	"squash the gui updates"
   RowanAnsweringService new setEnableInteractionHandler: true
