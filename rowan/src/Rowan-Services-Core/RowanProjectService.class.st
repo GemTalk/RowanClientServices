@@ -650,9 +650,11 @@ RowanProjectService >> servicePerform: symbol withArguments: collection [
 { #category : 'rowan' }
 RowanProjectService >> setExistsOnDisk [
 	"might be a better test than #repositorySha for
-	determining if a project exists on disk." 
+	determining if a project exists on disk."
 
-	existsOnDisk := self rwProject existsOnDisk.
+	existsOnDisk := (System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME')
+		ifNil: [ false ]
+		ifNotNil: [ self rwProject existsOnDisk ]
 ]
 
 { #category : 'accessing' }
