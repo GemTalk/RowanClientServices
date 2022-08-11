@@ -38,7 +38,7 @@ RowanFileService >> isDirectory: directory [
 
 { #category : 'client commands' }
 RowanFileService >> pop [
-	path := (Path from: path) parent asString. 
+	path := (Path from: path) parent pathString. 
 	self directoryContents
 ]
 
