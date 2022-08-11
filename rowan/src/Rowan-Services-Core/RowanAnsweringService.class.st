@@ -97,12 +97,21 @@ RowanAnsweringService >> autocompleteSymbols [
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicExec: aString context: oop [
-	answer := [true -> (aString evaluateInContext: (Object _objectForOop: oop) symbolList: Rowan image symbolList) asOop] 
-		on: CompileError do: [:ex | 
-			false -> ex errorDetails
-	].
-	answer key ifTrue:[(RowanService autoCommit == true) ifTrue:[System commitTransaction]].
-	^answer
+	| object symbolList |
+	object := Object _objectForOop: oop.
+	symbolList := Rowan image symbolList.
+	[ aString _compileInContext: object symbolList: symbolList ]
+		on: CompileError
+		do: [ :ex | 
+			answer := false -> ex errorDetails.
+			^ answer ].
+	answer := true
+		-> (aString evaluateInContext: object symbolList: symbolList) asOop.
+	answer key
+		ifTrue: [ 
+			RowanService autoCommit == true
+				ifTrue: [ System commitTransaction ] ].
+	^ answer
 ]
 
 { #category : 'client command support' }
