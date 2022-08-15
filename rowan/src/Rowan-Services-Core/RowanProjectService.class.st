@@ -308,11 +308,10 @@ RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePa
 	spec := (RwSpecification fromUrl: path)
 		projectsHome: projectsHomePath;
 		yourself.
-	spec componentNames: componentNames.
 	strict
 		ifTrue: [ spec resolveStrict ].
 	spec resolve load.
-	browserService := RowanBrowserService new updateProjects.
+	browserService := RowanBrowserService new updateProjects
 ]
 
 { #category : 'rowan' }
