@@ -60,7 +60,7 @@ RowanServicesTest >> loadRowanSample1 [
 	| projectsHome projectName specPath |
 	projectName := 'RowanSample1'.
 	(Rowan image loadedProjectNamed: projectName ifAbsent: [  ])
-		ifNotNil: [ :prj | Rowan image _removeLoadedProject: prj ].
+		ifNotNil: [ :prj | prj unload ].
 	projectsHome := self _testRowanProjectsSandbox.
 	(projectsHome / projectName) ensureDeleteAll.
 	specPath := (Rowan image _projectForNonTestProject: 'Rowan') repositoryRoot / 'samples/RowanSample1_resolved_v2.ston' .
@@ -78,7 +78,7 @@ RowanServicesTest >> loadRowanSample9 [
 	| projectsHome projectName loadSpec resolvedProject specPath |
 	projectName := 'RowanSample9'.
 	(Rowan image loadedProjectNamed: projectName ifAbsent: [  ])
-		ifNotNil: [ :prj | Rowan image _removeLoadedProject: prj ].
+		ifNotNil: [ :prj | prj unload ].
 	projectsHome := self _testRowanProjectsSandbox.
 	(projectsHome / projectName) ensureDeleteAll.
 	specPath := (Rowan image _projectForNonTestProject: 'Rowan') repositoryRoot / 'samples/RowanSample9_spec_0002.ston' .

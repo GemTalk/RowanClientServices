@@ -95,8 +95,8 @@ RowanProjectServiceTest >> test_updateAddsCommandResult [
 	RowanCommandResult initializeResults. 
 	self assert: RowanCommandResult results size equals: 0. 
 	projectService update. 
-	self assert: RowanCommandResult results size equals: 1. 
-	self assert: RowanCommandResult results first == projectService.
+	self assert: RowanCommandResult results size equals: 2.  "project service & load spec service" 
+	self assert: RowanCommandResult results last == projectService.
 ]
 
 { #category : 'support' }
