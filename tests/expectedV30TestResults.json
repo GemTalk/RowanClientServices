@@ -6,12 +6,12 @@
 	"notes" : "",
 	"properties" : { },
 	"resultsSummary" : {
-		"errors" : 3,
-		"failures" : 3,
-		"passed" : 117,
-		"summary" : "123 Tests with 3 Failures, 3 Errors and 0 DeprecationWarnings in 12.70s",
-		"tests" : 123,
-		"time" : 12.698
+		"errors" : 2,
+		"failures" : 1,
+		"passed" : 125,
+		"summary" : "128 Tests with 1 Failures, 2 Errors and 0 DeprecationWarnings in 10.80s",
+		"tests" : 128,
+		"time" : 10.803
 	},
 	"suiteName" : "RowanClientServices projects Test Suite",
 	"testCases" : [
@@ -443,7 +443,7 @@
 		},
 		{
 			"className" : "RowanPackageServiceTest",
-			"status" : "errors",
+			"status" : "passed",
 			"selector" : "test_compileClassSelectsPackageAndClass",
 			"time" : "0"
 		},
@@ -467,7 +467,7 @@
 		},
 		{
 			"className" : "RowanPackageServiceTest",
-			"status" : "failures",
+			"status" : "passed",
 			"selector" : "test_testClassesIncludesExtensions",
 			"time" : "0"
 		},
@@ -515,7 +515,7 @@
 		},
 		{
 			"className" : "RowanProjectServiceTest",
-			"status" : "failures",
+			"status" : "passed",
 			"selector" : "test_updateAddsCommandResult",
 			"time" : "0"
 		},
@@ -752,7 +752,37 @@
 			"status" : "passed",
 			"selector" : "test_zzz",
 			"time" : "0"
+		},
+		{
+			"className" : "RowanVersionTest",
+			"status" : "passed",
+			"selector" : "test_isAbstract",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanVersionTest",
+			"status" : "passed",
+			"selector" : "test_majorVersion",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanVersionTest",
+			"status" : "passed",
+			"selector" : "test_minorVersion",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanVersionTest",
+			"status" : "passed",
+			"selector" : "test_patchVersion",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanVersionTest",
+			"status" : "passed",
+			"selector" : "test_version",
+			"time" : "0"
 		}
 	],
-	"timeStamp" : "2022-08-11T17:08:12.997437-07:00"
+	"timeStamp" : "2022-08-18T14:07:57.597923-07:00"
 }
