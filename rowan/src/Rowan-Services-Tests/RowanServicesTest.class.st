@@ -180,12 +180,12 @@ RowanServicesTest >> setUp [
 	| user symListP symListT dictP dictT index projectsHome |
 	"ensure results are clean as service requests not coming through #updateFromSton: like the client"
 	super setUp.
+	Rowan platform _alternateImageClass: Rowan image testImageClass.
 	projectsHome := self _testRowanProjectsSandbox.
 	preserveRowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'.
 	System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME' put: projectsHome pathString.
 	RowanAnsweringService new setEnableInteractionHandler: false. 
 	RowanCommandResult initializeResults.
-	Rowan platform _alternateImageClass: Rowan image testImageClass.
 "ensure that project is unloaded"
 	(Rowan image loadedProjectNamed: self servicesTestProjectName ifAbsent: [  ])
 		ifNotNil: [ :prj | Rowan image _removeLoadedProject: prj ].

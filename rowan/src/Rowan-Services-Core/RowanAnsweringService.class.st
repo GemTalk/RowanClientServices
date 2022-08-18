@@ -97,12 +97,21 @@ RowanAnsweringService >> autocompleteSymbols [
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicExec: aString context: oop [
-	answer := [true -> (aString evaluateInContext: (Object _objectForOop: oop) symbolList: Rowan image symbolList) asOop] 
-		on: CompileError do: [:ex | 
-			false -> ex errorDetails
-	].
-	answer key ifTrue:[(RowanService autoCommit == true) ifTrue:[System commitTransaction]].
-	^answer
+	| object symbolList |
+	object := Object _objectForOop: oop.
+	symbolList := Rowan image symbolList.
+	[ aString _compileInContext: object symbolList: symbolList ]
+		on: CompileError
+		do: [ :ex | 
+			answer := false -> ex errorDetails.
+			^ answer ].
+	answer := true
+		-> (aString evaluateInContext: object symbolList: symbolList) asOop.
+	answer key
+		ifTrue: [ 
+			RowanService autoCommit == true
+				ifTrue: [ System commitTransaction ] ].
+	^ answer
 ]
 
 { #category : 'client command support' }
@@ -288,56 +297,57 @@ RowanAnsweringService >> exec: aString context: oop inWindow: handle [
 
 { #category : 'client commands' }
 RowanAnsweringService >> exec: aString inFrame: level ofProcess: processOop context: oop [
-  | symbolList frameContents symbolDictionary process |
-  symbolList := Rowan image symbolList.
-  process := Object _objectForOop: processOop.
-  process _isTerminated
-    ifTrue: [ 
-      RowanCommandResult addResult: self.
-      ^ self ].
-  frameContents := process _frameContentsAt: level.
-  frameContents
-    ifNotNil: [ 
-      symbolDictionary := SymbolDictionary new.
-      1 to: (frameContents at: 9) size do: [ :index | 
-        ((frameContents at: 9) at: index) first = $.
-          ifFalse: [ 
-            symbolDictionary
-              at: ((frameContents at: 9) at: index) asSymbol
-              put: (frameContents at: 11 + index - 1) ] ].
-      symbolList add: symbolDictionary before: symbolList first ].
-  [ 
-  answer := [ 
-  true
-    ->
-      (aString evaluateInContext: (Object _objectForOop: oop) symbolList: symbolList)
-        asOop ]
-    on: CompileError
-    do: [ :ex | false -> ex errorDetails ].
-  answer key
-    ifTrue: [ 
-      RowanService autoCommit == true
-        ifTrue: [ System commitTransaction ] ].
-  RowanCommandResult addResult: self ]
-    ensure: [ 
-      1 to: (frameContents at: 9) size do: [ :index | 
-        | argsAndTemps |
-        argsAndTemps := frameContents at: 9.
-        (argsAndTemps at: index) first = $.
-          ifFalse: [ 
-            | variableService |
-            process
-              _frameAt: level
-              tempAt: index
-              put: (symbolDictionary at: (argsAndTemps at: index)).
-            variableService := RowanVariableService
-              oop: (symbolDictionary at: (argsAndTemps at: index)) asOop
-              key: (argsAndTemps at: index)
-              value: (symbolDictionary at: (argsAndTemps at: index)) printString
-              className: (frameContents at: 8) class name asString.
-            RowanCommandResult addResult: variableService ] ].
-      symbolList remove: symbolDictionary ].	"return answer for testing"
-  ^ answer
+	| symbolList frameContents symbolDictionary process |
+	symbolList := Rowan image symbolList.
+	process := Object _objectForOop: processOop.
+	process _isTerminated
+		ifTrue: [ 
+			RowanCommandResult addResult: self.
+			^ false -> 'Process with oop ' , process asOop printString
+				, ' was terminated.' ].
+	frameContents := process _frameContentsAt: level.
+	frameContents
+		ifNotNil: [ 
+			symbolDictionary := SymbolDictionary new.
+			1 to: (frameContents at: 9) size do: [ :index | 
+				((frameContents at: 9) at: index) first = $.
+					ifFalse: [ 
+						symbolDictionary
+							at: ((frameContents at: 9) at: index) asSymbol
+							put: (frameContents at: 11 + index - 1) ] ].
+			symbolList add: symbolDictionary before: symbolList first ].
+	[ 
+	answer := [ 
+	true
+		->
+			(aString evaluateInContext: (Object _objectForOop: oop) symbolList: symbolList)
+				asOop ]
+		on: CompileError
+		do: [ :ex | false -> ex errorDetails ].
+	answer key
+		ifTrue: [ 
+			RowanService autoCommit == true
+				ifTrue: [ System commitTransaction ] ].
+	RowanCommandResult addResult: self ]
+		ensure: [ 
+			1 to: (frameContents at: 9) size do: [ :index | 
+				| argsAndTemps |
+				argsAndTemps := frameContents at: 9.
+				(argsAndTemps at: index) first = $.
+					ifFalse: [ 
+						| variableService |
+						process
+							_frameAt: level
+							tempAt: index
+							put: (symbolDictionary at: (argsAndTemps at: index)).
+						variableService := RowanVariableService
+							oop: (symbolDictionary at: (argsAndTemps at: index)) asOop
+							key: (argsAndTemps at: index)
+							value: (symbolDictionary at: (argsAndTemps at: index)) printString
+							className: (frameContents at: 8) class name asString.
+						RowanCommandResult addResult: variableService ] ].
+			symbolList remove: symbolDictionary ].	"return answer for testing"
+	^ answer
 ]
 
 { #category : 'client commands' }

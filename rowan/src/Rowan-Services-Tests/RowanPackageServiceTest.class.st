@@ -114,7 +114,7 @@ RowanPackageServiceTest >> test_compileClassSelectsPackageAndClass [
 			options: #()'.
   self assert: RowanCommandResult results size equals: 0.	"we no longer return a service on first stage of compile"
   browserService recompileMethodsAfterClassCompilation.
-  newClassService := RowanCommandResult results at: 4.
+  newClassService := RowanCommandResult results at: RowanCommandResult results size - 1. "penultimate service put on the return stack" 
   self assert: newClassService name equals: 'TestCompileClass' ]
     ensure: [ 
       RowanBrowserService new
@@ -133,15 +133,20 @@ RowanPackageServiceTest >> test_projectIsDirtyWithNonUpdatedPackage [
 { #category : 'tests' }
 RowanPackageServiceTest >> test_testClassesIncludesExtensions [
 	| packageService testClassNames |
-	self jadeiteIssueTested: #issue378 withTitle: '(3.0.53) test class not defined in package shows up in package of SUnit browser'.
-	packageService := RowanPackageService forPackageNamed: 'Rowan-Services-TestsV2'.
-	packageService testClasses. 
-	testClassNames := packageService jadeite_testClasses collect:[:classService | classService name].
-	self assert: (testClassNames includes: 'RwRowanProjectIssuesTest'). "extension tests"
-	self assert: (testClassNames includes: 'RowanPackageServiceTest').
+	self
+		jadeiteIssueTested: #'issue378'
+		withTitle:
+			'(3.0.53) test class not defined in package shows up in package of SUnit browser'.
+	packageService := RowanPackageService
+		forPackageNamed: 'Rowan-Services-Tests-Extensions'.
+	packageService testClasses.
+	testClassNames := packageService jadeite_testClasses
+		collect: [ :classService | classService name ].
+	self assert: (testClassNames includes: 'RwRowanProjectIssuesTest').	"extension tests"
 
 	packageService := RowanPackageService forPackageNamed: 'Rowan-Tests'.
-	packageService testClasses. 
-	testClassNames := packageService jadeite_testClasses collect:[:classService | classService name].
-	self assert: (testClassNames includes: 'RwRowanProjectIssuesTest').
+	packageService testClasses.
+	testClassNames := packageService jadeite_testClasses
+		collect: [ :classService | classService name ].
+	self assert: (testClassNames includes: 'RwRowanProjectIssuesTest')
 ]

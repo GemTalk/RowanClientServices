@@ -25,7 +25,8 @@ Class {
 		'projectOop',
 		'specService',
 		'componentServices',
-		'packageGroups'
+		'packageGroups',
+		'defaultSymbolDictionaryName'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -254,6 +255,15 @@ RowanProjectService >> createProjectNamed: projectName in: symbolDictionaryName 
 
 ]
 
+{ #category : 'client commands' }
+RowanProjectService >> defaultSymbolDictionaryFromLoadSpec [
+	| loadSpec |
+	loadSpec := self rwProject loadSpecification.
+	defaultSymbolDictionaryName := loadSpec platformProperties
+		at: #'defaultSymbolDictName'
+		ifAbsent: [ loadSpec _gemstoneDefaultSymbolDictName ]
+]
+
 { #category : 'replication' }
 RowanProjectService >> excludedInstVars [
 
@@ -298,11 +308,10 @@ RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePa
 	spec := (RwSpecification fromUrl: path)
 		projectsHome: projectsHomePath;
 		yourself.
-	spec componentNames: componentNames.
 	strict
 		ifTrue: [ spec resolveStrict ].
 	spec resolve load.
-	browserService := RowanBrowserService new updateProjects.
+	browserService := RowanBrowserService new updateProjects
 ]
 
 { #category : 'rowan' }
@@ -640,9 +649,11 @@ RowanProjectService >> servicePerform: symbol withArguments: collection [
 { #category : 'rowan' }
 RowanProjectService >> setExistsOnDisk [
 	"might be a better test than #repositorySha for
-	determining if a project exists on disk." 
+	determining if a project exists on disk."
 
-	existsOnDisk := self rwProject existsOnDisk.
+	existsOnDisk := (System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME')
+		ifNil: [ false ]
+		ifNotNil: [ self rwProject existsOnDisk ]
 ]
 
 { #category : 'accessing' }
@@ -686,8 +697,11 @@ RowanProjectService >> update [
 	self refresh.
 	isLoaded
 		ifFalse: [ ^ self ].
-	name ifNotNil: [ self initializePackageGroups ].
-	shouldUpdate := false.
+	name
+		ifNotNil: [ 
+			self initializePackageGroups.
+			self defaultSymbolDictionaryFromLoadSpec ].
+	shouldUpdate := false
 ]
 
 { #category : 'update' }

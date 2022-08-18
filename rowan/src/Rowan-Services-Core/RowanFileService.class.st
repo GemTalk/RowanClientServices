@@ -14,13 +14,13 @@ Class {
 
 { #category : 'client commands' }
 RowanFileService >> directoryContents [
-	answer := (GsFile isServerDirectory: path)
+	answer := ((GsFile isServerDirectory: path) ifNil: [ false ])
 		ifTrue: [ 
 			(GsFile contentsOfDirectory: path onClient: false)
-				collect: [ :subpath | subpath -> (GsFile isServerDirectory: subpath) ] ]
+				collect: [ :subpath | subpath -> ((GsFile isServerDirectory: subpath) ifNil: [ false ]) ] ]
 		ifFalse: [ nil ].
-	answer ifNil:[^self]. 
-	answer := (answer asSortedCollection:[:x :y | x key < y key]) asArray.
+	answer ifNil: [ ^ self ].
+	answer := (answer asSortedCollection: [ :x :y | x key < y key ]) asArray.
 	RowanCommandResult addResult: self
 ]
 
@@ -38,7 +38,7 @@ RowanFileService >> isDirectory: directory [
 
 { #category : 'client commands' }
 RowanFileService >> pop [
-	path := (Path from: path) parent asString. 
+	path := (Path from: path) parent pathString. 
 	self directoryContents
 ]
 

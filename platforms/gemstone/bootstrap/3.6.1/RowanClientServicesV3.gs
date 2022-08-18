@@ -690,7 +690,7 @@ removeallclassmethods RowanProcessService
 doit
 (RowanService
 	subclass: 'RowanProjectService'
-	instVarNames: #( rwProject name sha branch isSkew isDirty packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop specService componentServices packageGroups )
+	instVarNames: #( rwProject name sha branch isSkew isDirty packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop specService componentServices packageGroups defaultSymbolDictionaryName )
 	classVars: #()
 	classInstVars: #()
 	poolDictionaries: #()
@@ -6853,13 +6853,21 @@ isClientClass
 category: 'testing'
 classmethod: RowanService
 isRowanClientServicesVersionSupported: lowerLimit
+	^ self
+		isRowanClientServicesVersionSupported: RowanService version
+		lowerLimit: lowerLimit
+%
+
+category: 'testing'
+classmethod: RowanService
+isRowanClientServicesVersionSupported: versionString lowerLimit: lowerLimit
 	"return a two element arg showing if the version is supported and the version"
 
 	| low high version |
 	low := RwSemanticVersionNumber fromString: lowerLimit.
 	high := low copy incrementMinorVersion.
-	version := RwSemanticVersionNumber fromString: RowanService version.
-	^ low <= version and: [ version <= high ]
+	version := RwSemanticVersionNumber fromString: versionString.
+	^ low <= version and: [ version < high ]
 %
 
 category: 'rsr'
@@ -7099,6 +7107,7 @@ createSymbolDictionaryNamed: aName
 category: 'symbol dictionaries'
 method: RowanService
 defaultSymbolDictionary
+	"used?"
 
 	^self symbolDictionaryNamed: self defaultSymbolDictionaryName
 %
@@ -13393,13 +13402,16 @@ update
 category: 'updates'
 method: RowanMethodService
 updateLatest
-  | theClass compiledMethod |
-  theClass := (RowanClassService new name: className) theClass.
-  theClass ifNil: [ ^ self ].
-  compiledMethod := theClass compiledMethodAt: selector otherwise: nil.
-  compiledMethod ifNil: [ ^ self ].
-  oop := compiledMethod asOop.
-  super updateLatest
+	| theClass compiledMethod |
+	theClass := (RowanClassService new name: className) theClass.
+	theClass ifNil: [ ^ self ].
+	compiledMethod := theClass compiledMethodAt: selector otherwise: nil.
+	compiledMethod
+		ifNil: [ 
+			self updateType: #'removed:'.
+			^ RowanCommandResult addResult: self ].
+	oop := compiledMethod asOop.
+	super updateLatest
 %
 
 category: 'private'
@@ -14195,6 +14207,16 @@ createProjectNamed: projectName in: symbolDictionaryName
 				pd defaultSymbolDictName: symbolDictionaryName; comment:  'Sample Rowan Project'] ].
 %
 
+category: 'client commands'
+method: RowanProjectService
+defaultSymbolDictionaryFromLoadSpec
+	| loadSpec |
+	loadSpec := self rwProject loadSpecification.
+	defaultSymbolDictionaryName := loadSpec platformProperties
+		at: #'defaultSymbolDictName'
+		ifAbsent: [ loadSpec _gemstoneDefaultSymbolDictName ]
+%
+
 category: 'replication'
 method: RowanProjectService
 excludedInstVars
@@ -14670,8 +14692,11 @@ update
 	self refresh.
 	isLoaded
 		ifFalse: [ ^ self ].
-	name ifNotNil: [ self initializePackageGroups ].
-	shouldUpdate := false.
+	name
+		ifNotNil: [ 
+			self initializePackageGroups.
+			self defaultSymbolDictionaryFromLoadSpec ].
+	shouldUpdate := false
 %
 
 category: 'update'

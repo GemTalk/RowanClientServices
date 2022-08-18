@@ -61,13 +61,20 @@ RowanService class >> isClientClass [
 
 { #category : 'testing' }
 RowanService class >> isRowanClientServicesVersionSupported: lowerLimit [
+	^ self
+		isRowanClientServicesVersionSupported: RowanService version
+		lowerLimit: lowerLimit
+]
+
+{ #category : 'testing' }
+RowanService class >> isRowanClientServicesVersionSupported: versionString lowerLimit: lowerLimit [
 	"return a two element arg showing if the version is supported and the version"
 
 	| low high version |
 	low := RwSemanticVersionNumber fromString: lowerLimit.
 	high := low copy incrementMinorVersion.
-	version := RwSemanticVersionNumber fromString: RowanService version.
-	^ low <= version and: [ version <= high ]
+	version := RwSemanticVersionNumber fromString: versionString.
+	^ low <= version and: [ version < high ]
 ]
 
 { #category : 'rsr' }
@@ -122,7 +129,7 @@ RowanService class >> templateClassName [
 
 { #category : 'accessing' }
 RowanService class >> version [
-	^ '3.0.0'
+	^ '3.0.1'
 ]
 
 { #category : 'accessing' }
@@ -288,9 +295,9 @@ RowanService >> createSymbolDictionaryNamed: aName [
 
 { #category : 'symbol dictionaries' }
 RowanService >> defaultSymbolDictionary [
+	"used?"
 
 	^self symbolDictionaryNamed: self defaultSymbolDictionaryName
-
 ]
 
 { #category : 'symbol dictionaries' }

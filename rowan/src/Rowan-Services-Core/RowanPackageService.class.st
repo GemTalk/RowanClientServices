@@ -18,7 +18,8 @@ Class {
 		'projectName',
 		'testClasses',
 		'hierarchyServices',
-		'selectedClass'
+		'selectedClass',
+		'dictionaryName'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -343,9 +344,9 @@ RowanPackageService >> testClasses [
 
 { #category : 'updates' }
 RowanPackageService >> update [
-	| allPackageNames |
+	| allPackageNames thePackage |
 	super update.
-	Rowan image loadedPackageNamed: name ifAbsent: [ ^ self ].
+	thePackage := Rowan image loadedPackageNamed: name ifAbsent: [ ^ self ].
 	allPackageNames := Rowan image packageNames.
 	classes := (self loadedClassNames keys
 		collect: [ :string | RowanClassService minimalForClassNamed: string packageNames: allPackageNames ])
@@ -365,6 +366,7 @@ RowanPackageService >> update [
 	self updateIsDirty.
 	projectName := (Rowan image loadedPackageNamed: name) projectName.
 	RowanCommandResult addResult: self.
+	dictionaryName := thePackage gs_symbolDictionary. 
 	shouldUpdate := false
 ]
 
