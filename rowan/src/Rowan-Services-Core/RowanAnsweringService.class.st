@@ -297,7 +297,7 @@ RowanAnsweringService >> exec: aString context: oop inWindow: handle [
 
 { #category : 'client commands' }
 RowanAnsweringService >> exec: aString inFrame: level ofProcess: processOop context: oop [
-	| symbolList frameContents symbolDictionary process |
+	| symbolList frameContents symbolDictionary process | 
 	symbolList := Rowan image symbolList.
 	process := Object _objectForOop: processOop.
 	process _isTerminated
@@ -308,7 +308,7 @@ RowanAnsweringService >> exec: aString inFrame: level ofProcess: processOop cont
 	frameContents := process _frameContentsAt: level.
 	frameContents
 		ifNotNil: [ 
-			symbolDictionary := SymbolDictionary new.
+			symbolDictionary := SymbolDictionary new name: ('DebuggerExecution', processOop printString) asSymbol. 
 			1 to: (frameContents at: 9) size do: [ :index | 
 				((frameContents at: 9) at: index) first = $.
 					ifFalse: [ 
