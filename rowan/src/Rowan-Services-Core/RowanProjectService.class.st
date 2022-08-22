@@ -564,6 +564,18 @@ RowanProjectService >> reloadProject [
 	self basicLoadProject: [ self rwProject reload ]
 ]
 
+{ #category : 'client commands' }
+RowanProjectService >> removePackagesNamed: packageServices [
+	| loadedRwPackage |
+	packageServices
+		do: [ :packageService | 
+			loadedRwPackage := Rowan image
+				loadedPackageNamed: packageService name
+				ifAbsent: [  ].
+			loadedRwPackage
+				ifNotNil: [ self rwProject removePackageNamed: packageService name ] ].
+]
+
 { #category : 'rowan' }
 RowanProjectService >> removeProjectNamed: projectName [
    "remove project"
