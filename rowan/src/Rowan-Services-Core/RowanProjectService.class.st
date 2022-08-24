@@ -303,6 +303,20 @@ RowanProjectService >> initializePackageGroups [
 ]
 
 { #category : 'client commands' }
+RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: strict [
+	| spec browserService |
+	spec := (RwSpecification fromUrl: path)
+		projectsHome: projectsHomePath;
+		componentNames: componentNames;
+		customConditionalAttributes: attributes;
+		yourself.
+	strict
+		ifTrue: [ spec resolveStrict ].
+	spec resolve load.
+	browserService := RowanBrowserService new updateProjects
+]
+
+{ #category : 'client commands' }
 RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames resolveStrict: strict [
 	| spec browserService |
 	spec := (RwSpecification fromUrl: path)

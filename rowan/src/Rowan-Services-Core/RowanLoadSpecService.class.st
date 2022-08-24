@@ -7,6 +7,7 @@ Class {
 		'comment',
 		'conditionalAttributes',
 		'platformProperties',
+		'componentNames',
 		'loadSpec'
 	],
 	#category : 'Rowan-Services-Core'
@@ -47,10 +48,9 @@ RowanLoadSpecService >> editInWindow: handle [
 	RowanCommandResult addResult: self
 ]
 
-{ #category : 'ston' }
+{ #category : 'replicatoin' }
 RowanLoadSpecService >> excludedInstVars [
-
-	^super excludedInstVars, #( #loadSpec)
+	^ super excludedInstVars , #(#'loadSpec')
 ]
 
 { #category : 'client commands' }
@@ -137,11 +137,15 @@ RowanLoadSpecService >> setPlatformProperty: property to: value [
 
 { #category : 'updating' }
 RowanLoadSpecService >> update [
-	loadSpecOop ifNil:[^self]. 
+	loadSpecOop
+		ifNil: [ loadSpecOop := (RwSpecification fromFile: loadSpecPath) asOop ].
 	self updateSettableAttributes.
 	comment := self loadSpec comment.
-	conditionalAttributes := self loadSpec customConditionalAttributes asOrderedCollection. 
+	componentNames := self loadSpec componentNames. 
+	conditionalAttributes := self loadSpec customConditionalAttributes
+		asOrderedCollection.
 	self updatePlatformProperties.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'updating' }
