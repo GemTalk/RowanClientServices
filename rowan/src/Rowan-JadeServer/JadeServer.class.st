@@ -190,6 +190,21 @@ JadeServer >> debugString: aString fromContext: anObject environment: anInteger 
 ]
 
 { #category : 'category' }
+JadeServer >> descriptionOfConfigOption: aString [
+	| dict key string |
+	dict := self systemConfigAsDictionary.
+	(string := dict at: aString ifAbsent: [ nil ]) notNil
+		ifTrue: [ ^ string ].
+	string := aString asUppercase.
+	dict keys
+		do: [ :each1 | 
+			key := (each1 reject: [ :each2 | each2 = $_ ]) asUppercase.
+			key = string
+				ifTrue: [ ^ dict at: each1 ] ].
+	^ ''
+]
+
+{ #category : 'category' }
 JadeServer >> errorListFor: aCollection [ 
 
 	| stream |
@@ -257,6 +272,34 @@ JadeServer >> interactionHandlerActive [
 ]
 
 { #category : 'category' }
+JadeServer >> mcInitials: aString [
+        "Do initial setup and return useful information"
+
+        | mcPlatformSupport packagePolicyEnabledFlag string x |
+        string := 'Jade-' , GsSession currentSession serialNumber printString , '-' , System myUserProfile userId.
+        [
+                self mcInitialsA: string.
+        ] whileFalse: [ "Keep shortening it till it fits!"
+                string := string copyFrom: 1 to: string size - 1.
+        ].
+        mcPlatformSupport := self objectInBaseNamed: #'MCPlatformSupport'.
+        mcPlatformSupport notNil ifTrue: [mcPlatformSupport setAuthorInitials: aString].
+        packagePolicyEnabledFlag := (x := self objectInBaseNamed: #'GsPackagePolicy') isNil ifTrue: ['0'] ifFalse: [x current enabled ifTrue: ['1'] ifFalse: ['0']].
+        ^System session printString , Character space asString ,
+                (GsSession serialOfSession: System session) printString , Character space asString ,
+                packagePolicyEnabledFlag
+
+]
+
+{ #category : 'category' }
+JadeServer >> mcInitialsA: aString [
+        "Subclasses provide error handling, typically means string is too long"
+
+        System _cacheName: aString.
+
+]
+
+{ #category : 'category' }
 JadeServer >> mySessionInfo [ 
 
 	| dict stream |
@@ -295,6 +338,13 @@ JadeServer >> nextPutAll: anObject [
 		signal: 2336
 		args: args
 		signalDictionary: GemStoneError.
+]
+
+{ #category : 'category' }
+JadeServer >> objectInBaseNamed: aString [
+
+        ^[(SymbolList withAll: self class sharedPools) objectNamed: aString asSymbol] on: Error do: [:ex | ex return: nil].
+
 ]
 
 { #category : 'category' }
@@ -348,6 +398,40 @@ JadeServer >> stoneInfo [
 	^stream contents
 ]
 
+{ #category : 'category' }
+JadeServer >> systemConfigAsDictionary [
+	| char dict i line list stream |
+	list := Array new.
+	stream := GsFile openReadOnServer: '$GEMSTONE/bin/initial.config'.
+	[ 
+	[ 
+	line := stream nextLine
+		reject: [ :each | each == Character cr or: [ each == Character lf ] ].
+	(2 < line size and: [ (line copyFrom: 1 to: 2) = '#=' ])
+		ifTrue: [ list add: (WriteStream on: String new) ]
+		ifFalse: [ 
+			list last
+				nextPutAll: line;
+				cr ].
+	stream atEnd not ] whileTrue: [  ] ]
+		ensure: [ stream close ].
+	list := list copyFrom: 3 to: list size.
+	list := list collect: [ :each | each contents ].
+	dict := Dictionary new.
+	list
+		do: [ :each | 
+			line := (ReadStream on: each) nextLine.
+			line = '# End of Default GemStone Configuration Options'
+				ifTrue: [ ^ dict ].
+			(2 < line size and: [ (line copyFrom: 1 to: 2) = '# ' ])
+				ifTrue: [ 
+					i := 3.
+					[ i <= line size and: [ (char := line at: i) == $_ or: [ char isAlphaNumeric ] ] ]
+						whileTrue: [ i := i + 1 ].
+					dict at: (line copyFrom: 3 to: i - 1) put: each ] ].
+	self error: 'End of file not recognized!'
+]
+
 { #category : 'jadeite' }
 JadeServer >> updateFromSton: stonString [
 	| services organizer resultString |
@@ -377,39 +461,3 @@ JadeServer >> updateFromSton: stonString [
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
 			ex pass ]
 ]
-
-{ #category : 'category' }
-JadeServer >> mcInitials: aString [
-        "Do initial setup and return useful information"
-
-        | mcPlatformSupport packagePolicyEnabledFlag string x |
-        string := 'Jade-' , GsSession currentSession serialNumber printString , '-' , System myUserProfile userId.
-        [
-                self mcInitialsA: string.
-        ] whileFalse: [ "Keep shortening it till it fits!"
-                string := string copyFrom: 1 to: string size - 1.
-        ].
-        mcPlatformSupport := self objectInBaseNamed: #'MCPlatformSupport'.
-        mcPlatformSupport notNil ifTrue: [mcPlatformSupport setAuthorInitials: aString].
-        packagePolicyEnabledFlag := (x := self objectInBaseNamed: #'GsPackagePolicy') isNil ifTrue: ['0'] ifFalse: [x current enabled ifTrue: ['1'] ifFalse: ['0']].
-        ^System session printString , Character space asString ,
-                (GsSession serialOfSession: System session) printString , Character space asString ,
-                packagePolicyEnabledFlag
-
-]
-
-{ #category : 'category' }
-JadeServer >> mcInitialsA: aString [
-        "Subclasses provide error handling, typically means string is too long"
-
-        System _cacheName: aString.
-
-]
-
-{ #category : 'category' }
-JadeServer >> objectInBaseNamed: aString [
-
-        ^[(SymbolList withAll: self class sharedPools) objectNamed: aString asSymbol] on: Error do: [:ex | ex return: nil].
-
-]
-
