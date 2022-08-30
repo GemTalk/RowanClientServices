@@ -156,6 +156,20 @@ JadeServer >> _mcDescriptionOfPatch: aPatch baseName: aString1 alternateName: aS
 	^stream contents.
 ]
 
+{ #category : 'category' }
+JadeServer >> allSessions [
+	| list stream |
+	stream := WriteStream on: String new.
+	stream nextPutAll: '<?xml version=''1.0'' ?><sessions>'.
+	list := System currentSessionNames subStrings: Character lf.
+	list := list reject: [ :each | each isEmpty ].
+	list := list collect: [ :each | (each subStrings at: 3) asNumber ].
+	list do: [ :each | self addSessionWithId: each toStream: stream ].
+	^ stream
+		nextPutAll: '</sessions>';
+		contents
+]
+
 { #category : 'jadeite' }
 JadeServer >> autoCommitIfRequired [
 	| commitResult |
