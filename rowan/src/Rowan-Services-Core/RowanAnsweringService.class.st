@@ -303,8 +303,8 @@ RowanAnsweringService >> exec: aString inFrame: level ofProcess: processOop cont
 	process _isTerminated
 		ifTrue: [ 
 			RowanCommandResult addResult: self.
-			^ false -> 'Process with oop ' , process asOop printString
-				, ' was terminated.' ].
+			^ false -> ('Process with oop ' , process asOop printString
+				, ' was terminated.') ].
 	frameContents := process _frameContentsAt: level.
 	frameContents
 		ifNotNil: [ 
