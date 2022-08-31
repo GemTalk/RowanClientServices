@@ -51,6 +51,11 @@ RowanFileService >> readmeContents [
 ]
 
 { #category : 'client commands' }
+RowanFileService >> remove [
+	GsFile removeServerFile: path
+]
+
+{ #category : 'client commands' }
 RowanFileService >> write: contents [
 	| file |
 	file := GsFile openWriteOnServer: path.
