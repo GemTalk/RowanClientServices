@@ -157,6 +157,24 @@ JadeServer >> _mcDescriptionOfPatch: aPatch baseName: aString1 alternateName: aS
 ]
 
 { #category : 'category' }
+JadeServer >> addProcess: aProcess to: aStream withStatus: aString scheduler: aScheduler [ 
+
+	| x |
+	aStream lf
+"1"	nextPutAll: aString; tab;
+"2"	nextPutAll: aProcess asOop printString; tab;
+"3"	nextPutAll: aProcess priority printString; tab;
+"4"	nextPutAll: (aProcess createdByApplication ifTrue: ['Y'] ifFalse: ['']); tab; 
+"5"	nextPutAll: ((x := aProcess stackId) == -1 	ifTrue: [''] ifFalse: [x printString]); tab;
+"6"	nextPutAll: ((x := aProcess waitingOn) 	isNil ifTrue: [''] ifFalse: [x asOop printString]); tab;
+"7"	nextPutAll: ((x := aProcess _signalTime) 	isNil ifTrue: [''] ifFalse: [(x - aScheduler _now) printString]); tab;
+"8"	nextPutAll: (aProcess isPartialContinuation	ifTrue: ['partial'] ifFalse: [aProcess isContinuation ifTrue: ['full'] ifFalse: ['']]); tab;
+"9"	"type: forked or main"
+"10"	"live or terminated"
+	yourself.
+]
+
+{ #category : 'category' }
 JadeServer >> allSessions [
 	| list stream |
 	stream := WriteStream on: String new.
@@ -367,6 +385,28 @@ JadeServer >> oopOf: anObject [
 ]
 
 { #category : 'category' }
+JadeServer >> processes [ 
+
+	| scheduler stream |
+	scheduler := ProcessorScheduler scheduler.
+	stream := (WriteStream on: String new)
+		nextPutAll: 'highestPriority'; 			space; nextPutAll: scheduler highestPriority 			printString; tab;
+		nextPutAll: 'highIOPriority'; 			space; nextPutAll: scheduler highIOPriority 			printString; tab;
+		nextPutAll: 'lowestPriority'; 			space; nextPutAll: scheduler lowestPriority 				printString; tab;
+		nextPutAll: 'lowIOPriority'; 				space; nextPutAll: scheduler lowIOPriority 				printString; tab;
+		nextPutAll: 'systemBackgroundPriority'; 	space; nextPutAll: scheduler systemBackgroundPriority 	printString; tab;
+		nextPutAll: 'timingPriority'; 			space; nextPutAll: scheduler timingPriority 			printString; tab;
+		nextPutAll: 'userBackgroundPriority'; 		space; nextPutAll: scheduler userBackgroundPriority 		printString; tab;
+		nextPutAll: 'userInterruptPriority'; 		space; nextPutAll: scheduler userInterruptPriority 		printString; tab;
+		nextPutAll: 'userSchedulingPriority'; 		space; nextPutAll: scheduler userSchedulingPriority 		printString; tab;
+		yourself.
+	scheduler readyProcesses 		do: [:each | self addProcess: each to: stream withStatus: 'ready'		scheduler: scheduler].
+	scheduler suspendedProcesses 	do: [:each | self addProcess: each to: stream withStatus: 'suspended'	scheduler: scheduler].
+	self waitingProcesses			do: [:each | self addProcess: each to: stream withStatus: 'waiting'	scheduler: scheduler].
+	^stream contents.
+]
+
+{ #category : 'category' }
 JadeServer >> reset [ 
 	"WriteStream protocol"
 ]
@@ -474,4 +514,10 @@ JadeServer >> updateFromSton: stonString [
 		do: [ :ex | 
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
 			ex pass ]
+]
+
+{ #category : 'category' }
+JadeServer >> waitingProcesses [ 
+
+	^ProcessorScheduler scheduler waitingProcesses
 ]
