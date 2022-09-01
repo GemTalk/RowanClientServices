@@ -63,7 +63,9 @@ RowanProjectService >> addNewPackageNamed: packageName inSymbolDictionaryNamed: 
 				toComponentNamed: componentName.
 			self update.
 			^ self answer: #'added' ].
-	self answer: #'duplicatePackage'
+	self answer: #'duplicatePackage'.
+	self update. 
+	RowanCommandResult addResult: self.
 ]
 
 { #category : 'client commands' }
