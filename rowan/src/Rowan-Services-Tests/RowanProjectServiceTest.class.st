@@ -5,6 +5,19 @@ Class {
 }
 
 { #category : 'support' }
+RowanProjectServiceTest >> createDefaultProjectNamed: projectName [
+	| projectService |
+	projectService := RowanProjectService new name: projectName.
+	projectService
+		createProjectComponent: 'Core'
+		symDict: 'UserGlobals'
+		convention: 'RowanHybrid'
+		format: 'tonel'
+		projectsHome: '$ROWAN_PROJECTS_HOME'
+		type: 'git'
+]
+
+{ #category : 'support' }
 RowanProjectServiceTest >> existingProjectNamed: projectName [
 
 	| projectService |
@@ -58,6 +71,24 @@ RowanProjectServiceTest >> test_addedProjectNotOnDisk [
 RowanProjectServiceTest >> test_commandResultSessionTemp [
 
 	self assert: RowanCommandResult results == (SessionTemps current at: #rowanCommandResults)
+]
+
+{ #category : 'tests' }
+RowanProjectServiceTest >> test_createProject [
+	"a git project without a remote origin should not be able to be loaded with resolve strict true"
+
+	| gitDirectoryReference projectName |
+	projectName := 'Test_createProject'.
+	gitDirectoryReference := FileSystem disk / '$ROWAN_PROJECTS_HOME'
+		/ projectName.
+	self deny: gitDirectoryReference exists.
+	[ 
+	self createDefaultProjectNamed: projectName.
+	self assert: gitDirectoryReference exists ]
+		ensure: [ 
+			(RowanProjectService new name: projectName) unload. 
+			gitDirectoryReference deleteAll.
+			self deny: gitDirectoryReference exists ]
 ]
 
 { #category : 'tests' }
