@@ -7,7 +7,7 @@ RwRowanProjectIssuesTest >> testIssue150_branches [
 	"The issue #150 tests are mainly aimed at verifying that the given commands do not fail - ensuring that git version supports the
 		commands and arguments used by Jadeite. "
 
-	| rowanProject projectName service testBranch testClass queryService loadSpec |
+	[ | rowanProject projectName service testBranch testClass queryService loadSpec |
 	rowanProject := Rowan image _projectForNonTestProject: 'Rowan'.
 	projectName := 'RowanSample3'.
 
@@ -65,5 +65,9 @@ RwRowanProjectIssuesTest >> testIssue150_branches [
 		ifTrue: [ 
 			"at a minimum I know that I've got credentials to push to github"
 			"see https://github.com/GemTalk/Rowan/issues/150#issuecomment-1074567333"
-			service pushToGit ]
+			service pushToGit ]] on: Error do: [:ex |
+GsFile 
+	gciLogServer: 'LOGGING error during RwRowanProjectIssuesTest >> testIssue150_branches';
+	gciLogServer: (GsProcess stackReportToLevel:300);
+	yourself ]
 ]
