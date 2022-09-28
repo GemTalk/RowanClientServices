@@ -630,6 +630,13 @@ RowanMethodService >> packageName: newValue [
 
 ]
 
+{ #category : 'services' }
+RowanMethodService >> packageService [
+	"construct a package service based on the package this method resides in"
+
+	^ RowanPackageService forPackageNamed: packageName
+]
+
 { #category : 'printing' }
 RowanMethodService >> printOn: aStream [
 
@@ -639,6 +646,13 @@ RowanMethodService >> printOn: aStream [
 				nextPutAll: '>>'; 
 				nextPutAll: (selector ifNil:[nil printString]);
 				nextPut: $)
+]
+
+{ #category : 'services' }
+RowanMethodService >> projectService [
+	"construct a project service based on the package this method resides in"
+
+	^ RowanProjectService new name: projectName
 ]
 
 { #category : 'client commands' }
@@ -905,6 +919,19 @@ RowanMethodService >> updateLatest [
 			^ RowanCommandResult addResult: self ].
 	oop := compiledMethod asOop.
 	super updateLatest
+]
+
+{ #category : 'updates' }
+RowanMethodService >> updatePackageProjectAfterCategoryChange: beforePackageName [
+	"the dirty state of the package & project may have changed so update packages
+	and projects both before and after the move"
+
+	| beforePackageService |
+	(beforePackageService := RowanPackageService forPackageNamed: beforePackageName)
+		update.
+	(RowanProjectService new name: beforePackageService projectName) update.
+	self packageService update.
+	self projectService update
 ]
 
 { #category : 'private' }

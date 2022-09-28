@@ -869,23 +869,20 @@ RowanClassService >> minimalRefreshFrom: theClass packageNames: packageNames [
 
 { #category : 'client commands' }
 RowanClassService >> moveMethods: methodServices to: category [
+	"update the dirty flag of the project & package both before and after the move"
+
 	| behavior |
 	behavior := self classOrMeta.
 	methodServices
 		do: [ :methodService | 
+			| beforePackageName |
+			methodService organizer: organizer.
+			beforePackageName := methodService packageName.
 			behavior rwMoveMethod: methodService selector toCategory: category.
-			methodService category: category ].
+			methodService update.
+			methodService updatePackageProjectAfterCategoryChange: beforePackageName ].
 	self update.
-	self selectedMethods: methodServices.
-	category first = $*
-		ifTrue: [ 
-			| packageService projectService |
-			packageService := RowanPackageService
-				forPackageNamed: (category copyWithout: $*).
-			packageService update.
-
-			projectService := RowanProjectService new name: packageService projectName.
-			projectService update ]
+	self selectedMethods: methodServices
 ]
 
 { #category : 'client commands' }
