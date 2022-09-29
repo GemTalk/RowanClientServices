@@ -115,21 +115,6 @@ JadeServer64bit >> mcInitialsA: aString [
 ]
 
 { #category : 'category' }
-JadeServer64bit >> metacelloConfigurations [
-
-	| list |
-	list := Array new.
-	Rowan image symbolList do: [:eachSymbolList | 
-		eachSymbolList do: [:eachGlobal | 
-			(eachGlobal isBehavior and: [
-			(eachGlobal class includesSelector: #'isMetacelloConfig') and: [
-			eachGlobal isMetacelloConfig]]) ifTrue: [list add: eachGlobal].
-		].
-	].
-	^list
-]
-
-{ #category : 'category' }
 JadeServer64bit >> objectForOop: anInteger [
 
 	^Object _objectForOop: anInteger.
