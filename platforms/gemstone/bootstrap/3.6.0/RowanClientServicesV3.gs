@@ -814,6 +814,40 @@ theJadeiteServer
 
 !		Instance methods for 'JadeServer'
 
+category: 'category'
+method: JadeServer
+addProcess: aProcess to: aStream withStatus: aString scheduler: aScheduler 
+
+	| x |
+	aStream lf
+"1"	nextPutAll: aString; tab;
+"2"	nextPutAll: aProcess asOop printString; tab;
+"3"	nextPutAll: aProcess priority printString; tab;
+"4"	nextPutAll: (aProcess createdByApplication ifTrue: ['Y'] ifFalse: ['']); tab; 
+"5"	nextPutAll: ((x := aProcess stackId) == -1 	ifTrue: [''] ifFalse: [x printString]); tab;
+"6"	nextPutAll: ((x := aProcess waitingOn) 	isNil ifTrue: [''] ifFalse: [x asOop printString]); tab;
+"7"	nextPutAll: ((x := aProcess _signalTime) 	isNil ifTrue: [''] ifFalse: [(x - aScheduler _now) printString]); tab;
+"8"	nextPutAll: (aProcess isPartialContinuation	ifTrue: ['partial'] ifFalse: [aProcess isContinuation ifTrue: ['full'] ifFalse: ['']]); tab;
+"9"	"type: forked or main"
+"10"	"live or terminated"
+	yourself.
+%
+
+category: 'category'
+method: JadeServer
+allSessions
+	| list stream |
+	stream := WriteStream on: String new.
+	stream nextPutAll: '<?xml version=''1.0'' ?><sessions>'.
+	list := System currentSessionNames subStrings: Character lf.
+	list := list reject: [ :each | each isEmpty ].
+	list := list collect: [ :each | (each subStrings at: 3) asNumber ].
+	list do: [ :each | self addSessionWithId: each toStream: stream ].
+	^ stream
+		nextPutAll: '</sessions>';
+		contents
+%
+
 category: 'jadeite'
 method: JadeServer
 autoCommitIfRequired
@@ -849,6 +883,22 @@ debugString: aString fromContext: anObject environment: anInteger
 	^ (RowanDebuggerService new debugStringFrom: aString)
 		evaluateInContext: anObject
 		symbolList: GsSession currentSession symbolList
+%
+
+category: 'category'
+method: JadeServer
+descriptionOfConfigOption: aString
+	| dict key string |
+	dict := self systemConfigAsDictionary.
+	(string := dict at: aString ifAbsent: [ nil ]) notNil
+		ifTrue: [ ^ string ].
+	string := aString asUppercase.
+	dict keys
+		do: [ :each1 | 
+			key := (each1 reject: [ :each2 | each2 = $_ ]) asUppercase.
+			key = string
+				ifTrue: [ ^ dict at: each1 ] ].
+	^ ''
 %
 
 category: 'category'
@@ -1009,6 +1059,29 @@ oopOf: anObject
 
 category: 'category'
 method: JadeServer
+processes 
+
+	| scheduler stream |
+	scheduler := ProcessorScheduler scheduler.
+	stream := (WriteStream on: String new)
+		nextPutAll: 'highestPriority'; 			space; nextPutAll: scheduler highestPriority 			printString; tab;
+		nextPutAll: 'highIOPriority'; 			space; nextPutAll: scheduler highIOPriority 			printString; tab;
+		nextPutAll: 'lowestPriority'; 			space; nextPutAll: scheduler lowestPriority 				printString; tab;
+		nextPutAll: 'lowIOPriority'; 				space; nextPutAll: scheduler lowIOPriority 				printString; tab;
+		nextPutAll: 'systemBackgroundPriority'; 	space; nextPutAll: scheduler systemBackgroundPriority 	printString; tab;
+		nextPutAll: 'timingPriority'; 			space; nextPutAll: scheduler timingPriority 			printString; tab;
+		nextPutAll: 'userBackgroundPriority'; 		space; nextPutAll: scheduler userBackgroundPriority 		printString; tab;
+		nextPutAll: 'userInterruptPriority'; 		space; nextPutAll: scheduler userInterruptPriority 		printString; tab;
+		nextPutAll: 'userSchedulingPriority'; 		space; nextPutAll: scheduler userSchedulingPriority 		printString; tab;
+		yourself.
+	scheduler readyProcesses 		do: [:each | self addProcess: each to: stream withStatus: 'ready'		scheduler: scheduler].
+	scheduler suspendedProcesses 	do: [:each | self addProcess: each to: stream withStatus: 'suspended'	scheduler: scheduler].
+	self waitingProcesses			do: [:each | self addProcess: each to: stream withStatus: 'waiting'	scheduler: scheduler].
+	^stream contents.
+%
+
+category: 'category'
+method: JadeServer
 reset 
 	"WriteStream protocol"
 %
@@ -1057,6 +1130,41 @@ stoneInfo
 	^stream contents
 %
 
+category: 'category'
+method: JadeServer
+systemConfigAsDictionary
+	| char dict i line list stream |
+	list := Array new.
+	stream := GsFile openReadOnServer: '$GEMSTONE/bin/initial.config'.
+	[ 
+	[ 
+	line := stream nextLine
+		reject: [ :each | each == Character cr or: [ each == Character lf ] ].
+	(2 < line size and: [ (line copyFrom: 1 to: 2) = '#=' ])
+		ifTrue: [ list add: (WriteStream on: String new) ]
+		ifFalse: [ 
+			list last
+				nextPutAll: line;
+				cr ].
+	stream atEnd not ] whileTrue: [  ] ]
+		ensure: [ stream close ].
+	list := list copyFrom: 3 to: list size.
+	list := list collect: [ :each | each contents ].
+	dict := Dictionary new.
+	list
+		do: [ :each | 
+			line := (ReadStream on: each) nextLine.
+			line = '# End of Default GemStone Configuration Options'
+				ifTrue: [ ^ dict ].
+			(2 < line size and: [ (line copyFrom: 1 to: 2) = '# ' ])
+				ifTrue: [ 
+					i := 3.
+					[ i <= line size and: [ (char := line at: i) == $_ or: [ char isAlphaNumeric ] ] ]
+						whileTrue: [ i := i + 1 ].
+					dict at: (line copyFrom: 3 to: i - 1) put: each ] ].
+	self error: 'End of file not recognized!'
+%
+
 category: 'jadeite'
 method: JadeServer
 updateFromSton: stonString
@@ -1086,6 +1194,13 @@ updateFromSton: stonString
 		do: [ :ex | 
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
 			ex pass ]
+%
+
+category: 'category'
+method: JadeServer
+waitingProcesses 
+
+	^ProcessorScheduler scheduler waitingProcesses
 %
 
 category: 'category'
@@ -1295,22 +1410,6 @@ mcInitialsA: aString
 		ex return: false.
 	].
 
-%
-
-category: 'category'
-method: JadeServer64bit
-metacelloConfigurations
-
-	| list |
-	list := Array new.
-	Rowan image symbolList do: [:eachSymbolList | 
-		eachSymbolList do: [:eachGlobal | 
-			(eachGlobal isBehavior and: [
-			(eachGlobal class includesSelector: #'isMetacelloConfig') and: [
-			eachGlobal isMetacelloConfig]]) ifTrue: [list add: eachGlobal].
-		].
-	].
-	^list
 %
 
 category: 'category'
@@ -3406,8 +3505,8 @@ exec: aString inFrame: level ofProcess: processOop context: oop
 	process _isTerminated
 		ifTrue: [ 
 			RowanCommandResult addResult: self.
-			^ false -> 'Process with oop ' , process asOop printString
-				, ' was terminated.' ].
+			^ false -> ('Process with oop ' , process asOop printString
+				, ' was terminated.') ].
 	frameContents := process _frameContentsAt: level.
 	frameContents
 		ifNotNil: [ 
@@ -3907,6 +4006,12 @@ readmeContents
 		ifTrue: [ GsFile getContentsOfServerFile: path ]
 		ifFalse: [ String new ].
 	RowanCommandResult addResult: self
+%
+
+category: 'client commands'
+method: RowanFileService
+remove
+	GsFile removeServerFile: path
 %
 
 category: 'client commands'
@@ -5264,23 +5369,20 @@ minimalRefreshFrom: theClass packageNames: packageNames
 category: 'client commands'
 method: RowanClassService
 moveMethods: methodServices to: category
+	"update the dirty flag of the project & package both before and after the move"
+
 	| behavior |
 	behavior := self classOrMeta.
 	methodServices
 		do: [ :methodService | 
+			| beforePackageName |
+			methodService organizer: organizer.
+			beforePackageName := methodService packageName.
 			behavior rwMoveMethod: methodService selector toCategory: category.
-			methodService category: category ].
+			methodService update.
+			methodService updatePackageProjectAfterCategoryChange: beforePackageName ].
 	self update.
-	self selectedMethods: methodServices.
-	category first = $*
-		ifTrue: [ 
-			| packageService projectService |
-			packageService := RowanPackageService
-				forPackageNamed: (category copyWithout: $*).
-			packageService update.
-
-			projectService := RowanProjectService new name: packageService projectName.
-			projectService update ]
+	self selectedMethods: methodServices
 %
 
 category: 'client commands'
@@ -8626,6 +8728,14 @@ packageName: newValue
 	packageName := newValue
 %
 
+category: 'services'
+method: RowanMethodService
+packageService
+	"construct a package service based on the package this method resides in"
+
+	^ RowanPackageService forPackageNamed: packageName
+%
+
 category: 'printing'
 method: RowanMethodService
 printOn: aStream
@@ -8636,6 +8746,14 @@ printOn: aStream
 				nextPutAll: '>>'; 
 				nextPutAll: (selector ifNil:[nil printString]);
 				nextPut: $)
+%
+
+category: 'services'
+method: RowanMethodService
+projectService
+	"construct a project service based on the package this method resides in"
+
+	^ RowanProjectService new name: projectName
 %
 
 category: 'client commands'
@@ -8922,6 +9040,20 @@ updateLatest
 			^ RowanCommandResult addResult: self ].
 	oop := compiledMethod asOop.
 	super updateLatest
+%
+
+category: 'updates'
+method: RowanMethodService
+updatePackageProjectAfterCategoryChange: beforePackageName
+	"the dirty state of the package & project may have changed so update packages
+	and projects both before and after the move"
+
+	| beforePackageService |
+	(beforePackageService := RowanPackageService forPackageNamed: beforePackageName)
+		update.
+	(RowanProjectService new name: beforePackageService projectName) update.
+	self packageService update.
+	self projectService update
 %
 
 category: 'private'
@@ -9514,7 +9646,9 @@ addNewPackageNamed: packageName inSymbolDictionaryNamed: symbolDictionaryName to
 				toComponentNamed: componentName.
 			self update.
 			^ self answer: #'added' ].
-	self answer: #'duplicatePackage'
+	self answer: #'duplicatePackage'.
+	self update. 
+	RowanCommandResult addResult: self.
 %
 
 category: 'client commands'
