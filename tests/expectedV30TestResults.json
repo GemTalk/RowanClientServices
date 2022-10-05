@@ -8,10 +8,10 @@
 	"resultsSummary" : {
 		"errors" : 2,
 		"failures" : 1,
-		"passed" : 125,
-		"summary" : "128 Tests with 1 Failures, 2 Errors and 0 DeprecationWarnings in 10.81s",
-		"tests" : 128,
-		"time" : 10.808
+		"passed" : 126,
+		"summary" : "129 Tests with 1 Failures, 2 Errors and 0 DeprecationWarnings in 9.69s",
+		"tests" : 129,
+		"time" : 9.694000000000001
 	},
 	"suiteName" : "RowanClientServices projects Test Suite",
 	"testCases" : [
@@ -498,6 +498,12 @@
 		{
 			"className" : "RowanProjectServiceTest",
 			"status" : "passed",
+			"selector" : "test_createProject",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanProjectServiceTest",
+			"status" : "passed",
 			"selector" : "test_isAbstract",
 			"time" : "0"
 		},
@@ -784,5 +790,5 @@
 			"time" : "0"
 		}
 	],
-	"timeStamp" : "2022-08-26T15:27:16.366652-07:00"
+	"timeStamp" : "2022-10-05T14:34:02.606224-07:00"
 }
