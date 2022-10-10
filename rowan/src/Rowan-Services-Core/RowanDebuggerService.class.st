@@ -83,16 +83,36 @@ RowanDebuggerService >> terminateProcess: processOop [
 
 { #category : 'updating' }
 RowanDebuggerService >> updateProcesses [
-  processes := OrderedCollection
-    with:
-      (RowanProcessService onActiveProcess: (Object _objectForOop: initialProcessOop)).
-  ProcessorScheduler scheduler readyProcesses
-    do: [ :each | processes add: (RowanProcessService new oop: each asOop; status: 'ready')]. 
-  ProcessorScheduler scheduler suspendedProcesses
-    do: [ :each | processes add: (RowanProcessService new oop: each asOop; status: 'suspended')]. 
-  ProcessorScheduler scheduler waitingProcesses
-    do: [ :each | processes add: (RowanProcessService new oop: each asOop; status: 'waiting')]. 
-  RowanCommandResult addResult: self.
-  (self registeredWindowsIncludesOop: initialProcessOop) 
-		ifTrue:[	"the oop should be there but just in case" self releaseProcessOop: initialProcessOop.].
+	| gsProcess |
+	gsProcess := Object _objectForOop: initialProcessOop.
+	(gsProcess isKindOf: GsProcess)
+		ifFalse: [ ^ processes := OrderedCollection new	"might be a dead debugger" ].
+	processes := OrderedCollection
+		with: (RowanProcessService onActiveProcess: gsProcess).
+	ProcessorScheduler scheduler readyProcesses
+		do: [ :each | 
+			processes
+				add:
+					(RowanProcessService new
+						oop: each asOop;
+						status: 'ready') ].
+	ProcessorScheduler scheduler suspendedProcesses
+		do: [ :each | 
+			processes
+				add:
+					(RowanProcessService new
+						oop: each asOop;
+						status: 'suspended') ].
+	ProcessorScheduler scheduler waitingProcesses
+		do: [ :each | 
+			processes
+				add:
+					(RowanProcessService new
+						oop: each asOop;
+						status: 'waiting') ].
+	RowanCommandResult addResult: self.
+	(self registeredWindowsIncludesOop: initialProcessOop)
+		ifTrue: [ 
+			"the oop should be there but just in case"
+			self releaseProcessOop: initialProcessOop ]
 ]
