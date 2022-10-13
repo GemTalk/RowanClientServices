@@ -103,7 +103,7 @@ RowanPackageGroupService >> projectName: object [
 { #category : 'updating' }
 RowanPackageGroupService >> update [
 	| rwProject |
-	rwProject := Rowan projectNamed: projectName.
+	rwProject := Rowan projectNamed: projectDefinitionService name.
 	self computeLoadedPackageNamesFor: rwProject.
 	self computePackageServices.
 	wasUpdated := true.
