@@ -102,8 +102,11 @@ RowanPackageGroupService >> projectName: object [
 
 { #category : 'updating' }
 RowanPackageGroupService >> update [
-	| rwProject |
-	rwProject := Rowan projectNamed: projectDefinitionService name.
+	| rwProject theProjectName |
+	theProjectName := projectDefinitionService
+		ifNil: [ projectName ]
+		ifNotNil: [ projectDefinitionService name ].
+	rwProject := Rowan projectNamed: theProjectName.
 	self computeLoadedPackageNamesFor: rwProject.
 	self computePackageServices.
 	wasUpdated := true.
