@@ -392,6 +392,14 @@ RowanAnsweringService >> expressionSelector: string [
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> fileContentsOf: filePath [
+	| file |
+	file := File openForReadFileNamed: filePath.
+	answer := file readStream contents.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> flipTranscript [
 	self isTranscriptInstalled ifTrue:[
 		self jadeiteServer uninstallTranscript]
