@@ -508,26 +508,26 @@ RowanClassService >> fastRefresh [
 ]
 
 { #category : 'client commands' }
-RowanClassService >> fileoutCategories: array [
-	| answeringService ws |
-	answeringService := RowanAnsweringService new.
-	ws := WriteStream on: String new. 
+RowanClassService >> fileoutCategories: array on: path [
+	| ws file |
+	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
-	array do:[:category |
-		self behavior fileOutCategory: category on: ws]. 
-	answeringService answer: ws contents. 
-	RowanCommandResult addResult: answeringService.
+	array
+		do: [ :category | ws nextPutAll: (self behavior fileOutCategory: category) ].
+	file := GsFile openAppendOnServer: path.
+	[ file nextPutAll: ws contents ]
+		ensure: [ file close ]
 ]
 
 { #category : 'client commands' }
-RowanClassService >> fileoutClass [
-	| answeringService ws |
-	answeringService := RowanAnsweringService new.
-	ws := WriteStream on: String new. 
+RowanClassService >> fileoutClassOn: path [
+	| ws file |
+	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
-	ws nextPutAll: self behavior fileOutClass. 
-	answeringService answer: ws contents. 
-	RowanCommandResult addResult: answeringService.
+	ws nextPutAll: self behavior fileOutClass.
+	file := GsFile openAppendOnServer: path.
+	[ file nextPutAll: ws contents ]
+		ensure: [ file close ]
 ]
 
 { #category : 'client commands' }

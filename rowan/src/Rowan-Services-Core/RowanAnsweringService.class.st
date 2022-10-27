@@ -491,6 +491,7 @@ RowanAnsweringService >> packageNamed: packageName [
 { #category : 'client commands' }
 RowanAnsweringService >> packageOrDictionaryFor: classService [ 
 	| service |
+	classService update. 
 	service := classService packageName = Rowan unpackagedName
 		ifTrue: [ RowanDictionaryService new name: classService dictionaryName ]
 		ifFalse: [ RowanPackageService forPackageNamed: classService packageName ].

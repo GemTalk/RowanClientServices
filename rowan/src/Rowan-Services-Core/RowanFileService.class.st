@@ -39,6 +39,14 @@ RowanFileService >> fileContents [
 ]
 
 { #category : 'client commands' }
+RowanFileService >> fileIn: filePath [
+	
+	GsFileIn fromServerPath: filePath. 
+	answer := GsFile getContentsOfServerFile: filePath.
+	RowanCommandResult addResult: self.
+]
+
+{ #category : 'client commands' }
 RowanFileService >> isDirectory: directory [
 	answer := GsFile isServerDirectory: directory. 
 	RowanCommandResult addResult: self.
