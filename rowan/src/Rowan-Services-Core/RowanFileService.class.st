@@ -12,6 +12,15 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'private' }
+RowanFileService >> behaviorFromMethodService: methodService [ 
+
+	| behavior |
+	behavior := Rowan globalNamed: methodService className.
+	methodService meta == true ifTrue:[behavior := behavior class].
+	^behavior
+]
+
 { #category : 'client commands' }
 RowanFileService >> directoryContents [
 	answer := ((GsFile isServerDirectory: path) ifNil: [ false ])
@@ -44,6 +53,44 @@ RowanFileService >> fileIn: filePath [
 	GsFileIn fromServerPath: filePath. 
 	answer := GsFile getContentsOfServerFile: filePath.
 	RowanCommandResult addResult: self.
+]
+
+{ #category : 'client commands' }
+RowanFileService >> fileoutDictionaries: dictionaryNames [
+	| ws file |
+	ws := WriteStream on: String new.
+	self writeFileOutHeaderOn: ws.
+	dictionaryNames
+		do: [ :dictionaryName | 
+			organizer
+				fileOutClassesAndMethodsInDictionary: (Rowan globalNamed: dictionaryName)
+				on: ws ].
+	(GsFile existsOnServer: path)
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifFalse: [ ^ self ] ].
+	file := GsFile openAppendOnServer: path.
+	[ file nextPutAll: ws contents ]
+		ensure: [ file close ]
+]
+
+{ #category : 'client commands' }
+RowanFileService >> fileoutMethods: array [
+	| ws file |
+	ws := WriteStream on: String new.
+	self writeFileOutHeaderOn: ws.
+	array
+		do: [ :service | 
+			ws
+				nextPutAll:
+					((self behaviorFromMethodService: service) fileOutMethod: service selector) ].
+	(GsFile existsOnServer: path)
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifFalse: [ ^ self ] ].
+	file := GsFile openAppendOnServer: path.
+	[ file nextPutAll: ws contents ]
+		ensure: [ file close ]
 ]
 
 { #category : 'client commands' }

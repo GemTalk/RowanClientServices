@@ -514,6 +514,10 @@ RowanClassService >> fileoutCategories: array on: path [
 	self writeFileOutHeaderOn: ws.
 	array
 		do: [ :category | ws nextPutAll: (self behavior fileOutCategory: category) ].
+	(GsFile existsOnServer: path)
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifFalse: [ ^ self ] ].
 	file := GsFile openAppendOnServer: path.
 	[ file nextPutAll: ws contents ]
 		ensure: [ file close ]
@@ -525,21 +529,13 @@ RowanClassService >> fileoutClassOn: path [
 	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
 	ws nextPutAll: self behavior fileOutClass.
+	(GsFile existsOnServer: path)
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifFalse: [ ^ self ] ].
 	file := GsFile openAppendOnServer: path.
 	[ file nextPutAll: ws contents ]
 		ensure: [ file close ]
-]
-
-{ #category : 'client commands' }
-RowanClassService >> fileoutMethods: array [
-	| answeringService ws |
-	answeringService := RowanAnsweringService new.
-	ws := WriteStream on: String new. 
-	self writeFileOutHeaderOn: ws.
-	array do:[:methodService |
-		self behavior fileOutMethod: methodService selector on: ws]. 
-	answeringService answer: ws contents. 
-	RowanCommandResult addResult: answeringService.
 ]
 
 { #category : 'Accessing' }
