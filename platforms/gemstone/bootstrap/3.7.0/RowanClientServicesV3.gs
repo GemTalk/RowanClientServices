@@ -2524,7 +2524,7 @@ templateClassName
 category: 'accessing'
 classmethod: RowanService
 version
-	^ '3.0.2'
+	^ '3.0.3'
 %
 
 category: 'accessing'
@@ -3597,6 +3597,15 @@ expressionSelector: string
 
 category: 'client commands'
 method: RowanAnsweringService
+fileContentsOf: filePath
+	| file |
+	file := File openForReadFileNamed: filePath.
+	answer := file readStream contents.
+	RowanCommandResult addResult: self
+%
+
+category: 'client commands'
+method: RowanAnsweringService
 flipTranscript
 	self isTranscriptInstalled ifTrue:[
 		self jadeiteServer uninstallTranscript]
@@ -3700,6 +3709,7 @@ category: 'client commands'
 method: RowanAnsweringService
 packageOrDictionaryFor: classService 
 	| service |
+	classService update. 
 	service := classService packageName = Rowan unpackagedName
 		ifTrue: [ RowanDictionaryService new name: classService dictionaryName ]
 		ifFalse: [ RowanPackageService forPackageNamed: classService packageName ].
@@ -3965,6 +3975,16 @@ updateAutocompleteSymbols
 
 !		Instance methods for 'RowanFileService'
 
+category: 'private'
+method: RowanFileService
+behaviorFromMethodService: methodService 
+
+	| behavior |
+	behavior := Rowan globalNamed: methodService className.
+	methodService meta == true ifTrue:[behavior := behavior class].
+	^behavior
+%
+
 category: 'client commands'
 method: RowanFileService
 directoryContents
@@ -3983,6 +4003,64 @@ method: RowanFileService
 diveInto: directory
 	path := (Path from: path) resolveString: directory.
 	self directoryContents
+%
+
+category: 'client commands'
+method: RowanFileService
+fileContents
+	answer := (GsFile existsOnServer: path)
+		ifTrue: [ GsFile getContentsOfServerFile: path ]
+		ifFalse: [ String new ].
+	RowanCommandResult addResult: self
+%
+
+category: 'client commands'
+method: RowanFileService
+fileIn: filePath
+	
+	GsFileIn fromServerPath: filePath. 
+	answer := GsFile getContentsOfServerFile: filePath.
+	RowanCommandResult addResult: self.
+%
+
+category: 'client commands'
+method: RowanFileService
+fileoutDictionaries: dictionaryNames
+	| ws file |
+	ws := WriteStream on: String new.
+	self writeFileOutHeaderOn: ws.
+	dictionaryNames
+		do: [ :dictionaryName | 
+			organizer
+				fileOutClassesAndMethodsInDictionary: (Rowan globalNamed: dictionaryName)
+				on: ws ].
+	(GsFile existsOnServer: path)
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifFalse: [ ^ self ] ].
+	file := GsFile openAppendOnServer: path.
+	[ file nextPutAll: ws contents ]
+		ensure: [ file close ]
+%
+
+category: 'client commands'
+method: RowanFileService
+fileoutMethods: array
+	| ws file |
+	ws := WriteStream on: String new.
+	self writeFileOutHeaderOn: ws.
+	array
+		do: [ :service | 
+			ws
+				nextPutAll:
+					((self behaviorFromMethodService: service) fileOutMethod: service selector) ].
+	(GsFile existsOnServer: path)
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifFalse: [ ^ self ] ].
+	file := GsFile openAppendOnServer: path.
+	[ file nextPutAll: ws contents ]
+		ensure: [ file close ]
 %
 
 category: 'client commands'
@@ -4017,8 +4095,11 @@ remove
 category: 'client commands'
 method: RowanFileService
 write: contents
-	| file |
-	file := GsFile openWriteOnServer: path.
+	| file thePath |
+	thePath := path last = $/
+		ifTrue: [ path copyFrom: 1 to: path size - 1 ]
+		ifFalse: [ path ].
+	file := GsFile openWriteOnServer: thePath.
 	[ file nextPutAll: contents ]
 		ensure: [ file close ]
 %
@@ -4977,40 +5058,35 @@ fastRefresh
 
 category: 'client commands'
 method: RowanClassService
-fileoutCategories: array
-	| answeringService ws |
-	answeringService := RowanAnsweringService new.
-	ws := WriteStream on: String new. 
+fileoutCategories: array on: path
+	| ws file |
+	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
-	array do:[:category |
-		self behavior fileOutCategory: category on: ws]. 
-	answeringService answer: ws contents. 
-	RowanCommandResult addResult: answeringService.
+	array
+		do: [ :category | ws nextPutAll: (self behavior fileOutCategory: category) ].
+	(GsFile existsOnServer: path)
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifFalse: [ ^ self ] ].
+	file := GsFile openAppendOnServer: path.
+	[ file nextPutAll: ws contents ]
+		ensure: [ file close ]
 %
 
 category: 'client commands'
 method: RowanClassService
-fileoutClass
-	| answeringService ws |
-	answeringService := RowanAnsweringService new.
-	ws := WriteStream on: String new. 
+fileoutClassOn: path
+	| ws file |
+	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
-	ws nextPutAll: self behavior fileOutClass. 
-	answeringService answer: ws contents. 
-	RowanCommandResult addResult: answeringService.
-%
-
-category: 'client commands'
-method: RowanClassService
-fileoutMethods: array
-	| answeringService ws |
-	answeringService := RowanAnsweringService new.
-	ws := WriteStream on: String new. 
-	self writeFileOutHeaderOn: ws.
-	array do:[:methodService |
-		self behavior fileOutMethod: methodService selector on: ws]. 
-	answeringService answer: ws contents. 
-	RowanCommandResult addResult: answeringService.
+	ws nextPutAll: self behavior fileOutClass.
+	(GsFile existsOnServer: path)
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifFalse: [ ^ self ] ].
+	file := GsFile openAppendOnServer: path.
+	[ file nextPutAll: ws contents ]
+		ensure: [ file close ]
 %
 
 category: 'Accessing'
@@ -6315,18 +6391,38 @@ terminateProcess: processOop
 category: 'updating'
 method: RowanDebuggerService
 updateProcesses
-  processes := OrderedCollection
-    with:
-      (RowanProcessService onActiveProcess: (Object _objectForOop: initialProcessOop)).
-  ProcessorScheduler scheduler readyProcesses
-    do: [ :each | processes add: (RowanProcessService new oop: each asOop; status: 'ready')]. 
-  ProcessorScheduler scheduler suspendedProcesses
-    do: [ :each | processes add: (RowanProcessService new oop: each asOop; status: 'suspended')]. 
-  ProcessorScheduler scheduler waitingProcesses
-    do: [ :each | processes add: (RowanProcessService new oop: each asOop; status: 'waiting')]. 
-  RowanCommandResult addResult: self.
-  (self registeredWindowsIncludesOop: initialProcessOop) 
-		ifTrue:[	"the oop should be there but just in case" self releaseProcessOop: initialProcessOop.].
+	| gsProcess |
+	gsProcess := Object _objectForOop: initialProcessOop.
+	(gsProcess isKindOf: GsProcess)
+		ifFalse: [ ^ processes := OrderedCollection new	"might be a dead debugger" ].
+	processes := OrderedCollection
+		with: (RowanProcessService onActiveProcess: gsProcess).
+	ProcessorScheduler scheduler readyProcesses
+		do: [ :each | 
+			processes
+				add:
+					(RowanProcessService new
+						oop: each asOop;
+						status: 'ready') ].
+	ProcessorScheduler scheduler suspendedProcesses
+		do: [ :each | 
+			processes
+				add:
+					(RowanProcessService new
+						oop: each asOop;
+						status: 'suspended') ].
+	ProcessorScheduler scheduler waitingProcesses
+		do: [ :each | 
+			processes
+				add:
+					(RowanProcessService new
+						oop: each asOop;
+						status: 'waiting') ].
+	RowanCommandResult addResult: self.
+	(self registeredWindowsIncludesOop: initialProcessOop)
+		ifTrue: [ 
+			"the oop should be there but just in case"
+			self releaseProcessOop: initialProcessOop ]
 %
 
 ! Class implementation for 'RowanDefinitionService'
@@ -6633,8 +6729,11 @@ projectName: object
 category: 'updating'
 method: RowanPackageGroupService
 update
-	| rwProject |
-	rwProject := Rowan projectNamed: projectName.
+	| rwProject theProjectName |
+	theProjectName := projectDefinitionService
+		ifNil: [ projectName ]
+		ifNotNil: [ projectDefinitionService name ].
+	rwProject := Rowan projectNamed: theProjectName.
 	self computeLoadedPackageNamesFor: rwProject.
 	self computePackageServices.
 	wasUpdated := true.
