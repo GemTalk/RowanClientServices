@@ -26,7 +26,8 @@ Class {
 		'specService',
 		'componentServices',
 		'packageGroups',
-		'defaultSymbolDictionaryName'
+		'defaultSymbolDictionaryName',
+		'packageConvention'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -133,6 +134,7 @@ RowanProjectService >> basicRefresh [
 	isDiskDirty := self isGitDirty.
 	componentServices := self componentServices.
 	specService := RowanLoadSpecService new initialize: self rwProject loadSpecification asOop.
+	packageConvention := self rwProject packageConvention.
 	RowanCommandResult addResult: self
 ]
 
@@ -219,14 +221,14 @@ RowanProjectService >> componentServicesFor: theRwProject [
 	^ componentDictionary
 ]
 
-{ #category : 'client commands' }
-RowanProjectService >> createProjectComponent: componentName symDict: defaultSymbolDictName convention: packageConvention format: packageFormat projectsHome: projectsHome type: repositoryType [
+{ #category : 'other' }
+RowanProjectService >> createProjectComponent: componentName symDict: defaultSymbolDictName convention: thePackageConvention format: packageFormat projectsHome: projectsHome type: repositoryType [
 	| definedProject resolvedProject |
 	Rowan version < '3.0.0' asRwSemanticVersionNumber
 		ifTrue: [ self error: 'This script needs to be run against a Rowan v3 solo extent' ].
 	definedProject := (Rowan newProjectNamed: name)
 		addLoadComponentNamed: componentName;
-		packageConvention: packageConvention;
+		packageConvention: thePackageConvention;
 		gemstoneSetDefaultSymbolDictNameTo: defaultSymbolDictName;
 		repoType: repositoryType asSymbol;
 		packageFormat: packageFormat;
