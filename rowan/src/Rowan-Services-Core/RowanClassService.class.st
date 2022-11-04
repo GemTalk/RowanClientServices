@@ -102,15 +102,7 @@ RowanClassService >> = classService [
 
 { #category : 'client commands' }
 RowanClassService >> addCategory: string [
-	| theClass thePackageName |
-	string first = $*
-		ifTrue: [ 
-			thePackageName := string copyWithout: $*.
-			(self loadedPackageExistsAndIsInSameDictionary: thePackageName)
-				ifFalse: [ 
-					^self
-						inform:
-							'Loaded package named: ' , thePackageName , ' not found or is not in same dictionary' ] ].
+	| theClass |
 	theClass := self theClass.
 	meta
 		ifTrue: [ theClass := theClass class ].
