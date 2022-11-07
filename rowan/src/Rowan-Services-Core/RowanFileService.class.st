@@ -49,10 +49,20 @@ RowanFileService >> fileContents [
 
 { #category : 'client commands' }
 RowanFileService >> fileIn: filePath [
-	
-	GsFileIn fromServerPath: filePath. 
+	"don't halt on compile warnings" 
+	[GsFileIn fromServerPath: filePath] on: CompileWarning do:[:ex | ex resume]. 
 	answer := GsFile getContentsOfServerFile: filePath.
 	RowanCommandResult addResult: self.
+]
+
+{ #category : 'client commands' }
+RowanFileService >> fileInChunk: aString [
+	"don't halt on compile warnings"
+	| fileIn |
+	fileIn := GsFileIn _fromStream: (ReadStream on: aString).
+	[ fileIn doFileIn ]
+		on: CompileWarning
+		do: [ :ex | ex resume ]
 ]
 
 { #category : 'client commands' }
