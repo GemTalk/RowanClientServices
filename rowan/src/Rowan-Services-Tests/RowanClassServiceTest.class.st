@@ -213,19 +213,22 @@ RowanClassServiceTest >> test_compileMethodNoCategory [
 { #category : 'test method compilation' }
 RowanClassServiceTest >> test_dirtyState [
 	| classService methodService selector |
-	self jadeiteIssueTested: #issue356 withTitle: 'Add method compilation tests in server services tests'.
-	selector := #simpleMethod. 
-	self loadRowanSample1. "ensure we're in a clean state"
-	self deny: (RowanProjectService newNamed:  'RowanSample1') isDirty.
+	self
+		jadeiteIssueTested: #'issue356'
+		withTitle: 'Add method compilation tests in server services tests'.
+	selector := #'simpleMethod'.
+	self loadRowanSample1.	"ensure we're in a clean state"
+	[ 
+	self deny: (RowanProjectService newNamed: 'RowanSample1') isDirty.
 	self deny: (RowanPackageService forPackageNamed: 'RowanSample1-Core') isDirty.
 	classService := RowanClassService forClassNamed: 'RowanSample1'.
-	classService saveMethodSource: selector asString,  ' ^123' category: 'abc'.
-	
+	classService saveMethodSource: selector asString , ' ^123' category: 'abc'.
+
 	methodService := classService methodsNamed: selector.
-	[self assert: (RowanProjectService newNamed: 'RowanSample1') isDirty.
-	self assert: (RowanPackageService new name: 'RowanSample1-Core') isDirty.]
-			ensure: [
-				Rowan projectTools delete deleteProjectNamed: 'RowanSample1'.]
+
+	self assert: (RowanProjectService newNamed: 'RowanSample1') isDirty.
+	self assert: (RowanPackageService new name: 'RowanSample1-Core') isDirty ]
+		ensure: [ Rowan projectTools delete deleteProjectNamed: 'RowanSample1' ]
 ]
 
 { #category : 'test method compilation' }
