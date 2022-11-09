@@ -16,11 +16,12 @@ Class {
 
 { #category : 'private' }
 RowanQueryService >> basicBreakpointMethods [
-  | bpMethods bpArray |
-  bpMethods := Array new.
-  bpArray := (GsNMethod _breakReport: true) at: 2.
-  bpArray do: [ :array | bpMethods add: (array at: 5) ].
-  ^ (self methodServicesFrom: bpMethods) asSet asArray
+	| bpMethods bpArray |
+	bpMethods := Array new.
+	bpArray := (GsNMethod _breakReport: true) at: 2.
+	bpArray do: [ :array | bpMethods add: (array at: 5) ].
+	bpMethods := bpMethods select: [ :bpMethod | bpMethod inClass notNil ].	"ignore anonymous method breakpoints"
+	^ (self methodServicesFrom: bpMethods) asSet asArray
 ]
 
 { #category : 'queries' }

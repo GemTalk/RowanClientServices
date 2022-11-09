@@ -97,20 +97,27 @@ RowanAnsweringService >> autocompleteSymbols [
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicExec: aString context: oop [
-	| object symbolList |
+	^ self basicExec: aString context: oop shouldDebug: false
+]
+
+{ #category : 'client command support' }
+RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebug [
+	| object symbolList tempMethod |
 	object := Object _objectForOop: oop.
 	symbolList := Rowan image symbolList.
-	[ aString _compileInContext: object symbolList: symbolList ]
+	[ tempMethod := aString _compileInContext: object symbolList: symbolList ]
 		on: CompileError
 		do: [ :ex | 
 			answer := false -> ex errorDetails.
 			^ answer ].
-	answer := true
-		-> (aString evaluateInContext: object symbolList: symbolList) asOop.
-	answer key
-		ifTrue: [ 
-			RowanService autoCommit == true
-				ifTrue: [ System commitTransaction ] ].
+	shouldDebug
+		ifTrue: [ tempMethod setBreakAtStepPoint: 1 ].
+	[ answer := true -> (tempMethod _executeInContext: object) asOop ]
+		ensure: [ 
+			shouldDebug
+				ifTrue: [ tempMethod clearBreakAtStepPoint: 1 ] ].
+	RowanService autoCommit == true
+		ifTrue: [ System commitTransaction ].
 	^ answer
 ]
 
@@ -227,6 +234,82 @@ RowanAnsweringService >> clearMethodBreaks: methodServices [
       methodService
         organizer: organizer;
         clearMethodBreaks ]
+]
+
+{ #category : 'client commands' }
+RowanAnsweringService >> debug: aString context: oop [
+
+	answer := self basicExec: aString context: oop shouldDebug: true. 
+	RowanCommandResult addResult: self.
+
+	"return answer for testing" 
+	^answer
+]
+
+{ #category : 'client commands' }
+RowanAnsweringService >> debug: aString context: oop inWindow: handle [
+  answer := self debug: aString context: oop.
+  answer key
+    ifTrue: [ RowanBrowserService new saveRootObject: answer value windowHandle: handle ].	"return answer for testing"
+  ^ answer
+]
+
+{ #category : 'client commands' }
+RowanAnsweringService >> debug: aString inFrame: level ofProcess: processOop context: oop [
+	| symbolList frameContents symbolDictionary process tempMethod |
+	symbolList := Rowan image symbolList.
+	process := Object _objectForOop: processOop.
+	process _isTerminated
+		ifTrue: [ 
+			RowanCommandResult addResult: self.
+			^ false
+				-> ('Process with oop ' , process asOop printString , ' was terminated.') ].
+	frameContents := process _frameContentsAt: level.
+	frameContents
+		ifNotNil: [ 
+			symbolDictionary := SymbolDictionary new
+				name: ('DebuggerExecution' , processOop printString) asSymbol.
+			1 to: (frameContents at: 9) size do: [ :index | 
+				((frameContents at: 9) at: index) first = $.
+					ifFalse: [ 
+						symbolDictionary
+							at: ((frameContents at: 9) at: index) asSymbol
+							put: (frameContents at: 11 + index - 1) ] ].
+			symbolList add: symbolDictionary before: symbolList first ].
+	[ 
+	[ tempMethod := aString _compileInContext: (Object _objectForOop: oop) symbolList: symbolList ]
+		on: CompileError
+		do: [ :ex | 
+			answer := false -> ex errorDetails.
+			^ answer ].
+	tempMethod setBreakAtStepPoint: 1.
+	[ answer := true -> (tempMethod _executeInContext: (Object _objectForOop: oop)) asOop ]
+		ensure: [ tempMethod clearBreakAtStepPoint: 1 ].
+
+	answer key
+		ifTrue: [ 
+			RowanService autoCommit == true
+				ifTrue: [ System commitTransaction ] ].
+	RowanCommandResult addResult: self ]
+		ensure: [ 
+			1 to: (frameContents at: 9) size do: [ :index | 
+				| argsAndTemps |
+				argsAndTemps := frameContents at: 9.
+				(argsAndTemps at: index) first = $.
+					ifFalse: [ 
+						| variableService |
+						process
+							_frameAt: level
+							tempAt: index
+							put: (symbolDictionary at: (argsAndTemps at: index)).
+						variableService := RowanVariableService
+							oop: (symbolDictionary at: (argsAndTemps at: index)) asOop
+							key: (argsAndTemps at: index)
+							value: (symbolDictionary at: (argsAndTemps at: index)) printString
+							className: (frameContents at: 8) class name asString.
+						RowanCommandResult addResult: variableService ] ].
+			symbolList remove: symbolDictionary ].	"return answer for testing"
+	^ answer
 ]
 
 { #category : 'client commands' }
