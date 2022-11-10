@@ -66,6 +66,13 @@ RowanFileService >> fileInChunk: aString [
 ]
 
 { #category : 'client commands' }
+RowanFileService >> fileName [
+	answer := (Path from: path) basename. 
+	RowanCommandResult addResult: self.
+	^answer "return for testing"
+]
+
+{ #category : 'client commands' }
 RowanFileService >> fileoutDictionaries: dictionaryNames [
 	| ws file |
 	ws := WriteStream on: String new.
@@ -107,6 +114,23 @@ RowanFileService >> fileoutMethods: array [
 RowanFileService >> isDirectory: directory [
 	answer := GsFile isServerDirectory: directory. 
 	RowanCommandResult addResult: self.
+]
+
+{ #category : 'client commands' }
+RowanFileService >> parentDirectoryPath [
+	answer := (Path from: path) parent pathString. 
+	RowanCommandResult addResult: self.
+	^answer "return for testing"
+]
+
+{ #category : 'accessing' }
+RowanFileService >> path [
+	^path
+]
+
+{ #category : 'accessing' }
+RowanFileService >> path: object [
+	path := object
 ]
 
 { #category : 'client commands' }

@@ -1,5 +1,8 @@
+"
+test services that are file related
+"
 Class {
-	#name : 'RowanFileInTest',
+	#name : 'RowanFileTest',
 	#superclass : 'RowanServicesTest',
 	#instVars : [
 		'filesystem',
@@ -9,7 +12,7 @@ Class {
 }
 
 { #category : 'constants' }
-RowanFileInTest class >> testFileInSource [
+RowanFileTest class >> testFileInSource [
 
 
 ^'fileformat utf8
@@ -98,7 +101,7 @@ foo
 ]
 
 { #category : 'constants' }
-RowanFileInTest class >> testFileInSourceWithWarnings [
+RowanFileTest class >> testFileInSourceWithWarnings [
 
 
 ^'fileformat utf8
@@ -187,24 +190,24 @@ foo
 ]
 
 { #category : 'constants' }
-RowanFileInTest >> filedInClass1 [
+RowanFileTest >> filedInClass1 [
 
 	^Rowan globalNamed: 'RowanSampleTestFileIn'
 ]
 
 { #category : 'constants' }
-RowanFileInTest >> filedInClass2 [
+RowanFileTest >> filedInClass2 [
 
 	^Rowan globalNamed: 'RowanSampleTestFileIn2'
 ]
 
 { #category : 'support' }
-RowanFileInTest >> fileReference [
+RowanFileTest >> fileReference [
 	^ filesystem workingDirectory / filename
 ]
 
 { #category : 'support' }
-RowanFileInTest >> saveTestFile [
+RowanFileTest >> saveTestFile [
 	|  reference writeStream |
 	filename := 'fileInTestFile'.
 	filesystem := FileSystem disk.
@@ -217,7 +220,7 @@ RowanFileInTest >> saveTestFile [
 ]
 
 { #category : 'support' }
-RowanFileInTest >> saveTestFileWithCompileWarnings [
+RowanFileTest >> saveTestFileWithCompileWarnings [
 	|  reference writeStream |
 	filename := 'testFileInSourceWithWarnings'.
 	filesystem := FileSystem disk.
@@ -230,7 +233,7 @@ RowanFileInTest >> saveTestFileWithCompileWarnings [
 ]
 
 { #category : 'running' }
-RowanFileInTest >> test_fileIn [
+RowanFileTest >> test_fileIn [
 	| service |
 	self
 		jadeiteIssueTested: #'issue70'
@@ -269,7 +272,7 @@ RowanFileInTest >> test_fileIn [
 ]
 
 { #category : 'running' }
-RowanFileInTest >> test_fileInDoesNotWarn [
+RowanFileTest >> test_fileInDoesNotWarn [
 	"compile warnings are ignored on filein"
 
 	| service filenameWithWarnings |
@@ -303,4 +306,14 @@ RowanFileInTest >> test_fileInDoesNotWarn [
 				do: [ :ex | ex resume ].
 			self assert: self filedInClass1 isNil.
 			self assert: self filedInClass2 isNil ]
+]
+
+{ #category : 'running' }
+RowanFileTest >> test_fileServiceAttributes [
+	"if path is a full path to a file, be able to retrieve some information about it"
+	| fileService |
+	self jadeiteIssueTested: #issue953 withTitle: 'File Browser for server files'.
+	fileService := RowanFileService new path: '/export/gcm/where/gemstone64/releases/3.6.1/x86_64.Linux/fast/product/version.txt'. 
+	self assert: fileService fileName equals: 'version.txt'. 
+	self assert: fileService parentDirectoryPath equals: '/export/gcm/where/gemstone64/releases/3.6.1/x86_64.Linux/fast/product'.
 ]
