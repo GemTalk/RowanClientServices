@@ -27,7 +27,8 @@ Class {
 		'componentServices',
 		'packageGroups',
 		'defaultSymbolDictionaryName',
-		'packageConvention'
+		'packageConvention',
+		'diskSha'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -128,6 +129,7 @@ RowanProjectService >> basicRefresh [
 	self setExistsOnDisk.
 	isSkew := self isSkew.
 	sha := self rowanSha.
+	diskSha := self rowanDiskSha. 
 	branch := self rowanBranch.
 	projectUrl := self rowanProjectUrl.
 	rowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'.
@@ -632,6 +634,13 @@ RowanProjectService >> rowanDirty [
 
 	^(RwProject newNamed: name) isDirty
 
+]
+
+{ #category : 'rowan' }
+RowanProjectService >> rowanDiskSha [
+
+	name isNil ifTrue:[^0].
+	^self rwProject commitId
 ]
 
 { #category : 'rowan' }
