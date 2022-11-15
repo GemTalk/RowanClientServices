@@ -261,9 +261,9 @@ JadeServer >> gemLogPath [
 { #category : 'jadeite' }
 JadeServer >> gsInteractionInformFailureHandler [
   self interactionHandlerActive
-    ifFalse: [ 
+    unexpected tokenifFalse: [ 
       ^ GsInteractionHandler new
-        defaultBlock: [ :ignored | self assert: false description: 'expected a confirmation' ];
+        defaultBlock: [ :ignored | Error signal: 'expected a confirmation' ];
         confirmBlock: [ :interaction | interaction ok ];
         informBlock: [ :interaction |  ];
         inspectBlock: [ :interaction |  ];
