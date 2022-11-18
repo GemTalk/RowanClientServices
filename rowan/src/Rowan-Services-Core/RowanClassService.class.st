@@ -1207,7 +1207,9 @@ RowanClassService >> runMethodTests: methodServices [
 
 { #category : 'client commands' }
 RowanClassService >> saveMethodSource: source category: category [
-	| behavior compilationResult gsNMethod updatedCategory methodService |
+	| behavior compilationResult gsNMethod updatedCategory methodService unicodeSource |
+	Unicode16 _useUnicodeComparePrimitives: true. 
+	unicodeSource := Unicode16 withAll: source. 
 	meta
 		ifNil: [ 
 			behavior := Object _objectForOop: oop.
@@ -1217,10 +1219,10 @@ RowanClassService >> saveMethodSource: source category: category [
 				ifTrue: [ self theClass class ]
 				ifFalse: [ self theClass ] ].
 	oop := behavior asOop.
-	self initializeMethodHistoryFor: source.
+	self initializeMethodHistoryFor: unicodeSource.
 	updatedCategory := category ifNil: [ 'other' ].
 	compilationResult := self
-		compileMethod: source
+		compileMethod: unicodeSource
 		behavior: behavior
 		symbolList: Rowan image symbolList
 		inCategory: updatedCategory asSymbol.
@@ -1249,6 +1251,7 @@ RowanClassService >> saveMethodSource: source category: category [
 		updateSymbols:
 			gsNMethod _selectorPool asArray , (Array with: methodService selector).
 	methodService addToMethodHistory.
+	Unicode16 _useUnicodeComparePrimitives: false. 
 	RowanCommandResult addResult: self
 ]
 

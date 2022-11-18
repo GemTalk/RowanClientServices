@@ -934,10 +934,9 @@ RowanMethodService >> updatePackageProjectAfterCategoryChange: beforePackageName
 	self projectService update
 ]
 
-{ #category : 'private' }
+{ #category : '(as yet unclassified)' }
 RowanMethodService >> updateSource: string [
-
-	source := self class removeUnicodeFromSource: string
+	source := string
 ]
 
 { #category : 'testing' }
