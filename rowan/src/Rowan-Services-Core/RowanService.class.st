@@ -371,6 +371,18 @@ RowanService >> extendHierarchies: hierarchies forClasses: theClasses [
 	^ hierarchies
 ]
 
+{ #category : 'commands support' }
+RowanService >> fileOut: ws on: path [
+	| file | 
+	file := path asFileReference.
+	file exists
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifTrue: [ file delete ]
+				ifFalse: [ ^ self ] ].
+	file := file writeStreamDo: [ :stream | stream nextPutAll: ws contents ]
+]
+
 { #category : 'perform' }
 RowanService >> handleDeletedService [
   self updateType: #'removed:'.

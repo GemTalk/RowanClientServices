@@ -517,17 +517,11 @@ RowanClassService >> fileoutCategories: array on: path [
 
 { #category : 'client commands' }
 RowanClassService >> fileoutClassOn: path [
-	| ws file |
+	| ws |
 	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
 	ws nextPutAll: self behavior fileOutClass.
-	(GsFile existsOnServer: path)
-		ifTrue: [ 
-			(self confirm: 'File exists. File out anyway?')
-				ifFalse: [ ^ self ] ].
-	file := GsFile openAppendOnServer: path.
-	[ file nextPutAll: ws contents ]
-		ensure: [ file close ]
+	self fileOut: ws on: path
 ]
 
 { #category : 'Accessing' }

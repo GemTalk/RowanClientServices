@@ -53,10 +53,8 @@ JadeServer64bit24 >> oopOf: anObject [
 JadeServer64bit24 >> printStringOf: anObject [
 
 	^(self isClientForwarder: anObject)
-		ifFalse: [anObject printString]
+		ifFalse: [anObject printString asUnicodeString]
 		ifTrue: ['aClientForwarder(' , anObject clientObject printString , ')'].
-
-
 ]
 
 { #category : 'category' }

@@ -50,8 +50,11 @@ RowanFileService >> fileContents [
 { #category : 'client commands' }
 RowanFileService >> fileIn: filePath [
 	"don't halt on compile warnings" 
+	| readStream |
 	[GsFileIn fromServerPath: filePath] on: CompileWarning do:[:ex | ex resume]. 
-	answer := GsFile getContentsOfServerFile: filePath.
+	readStream := path asFileReference. 
+	[answer := readStream contents asUnicodeString]
+		ensure: [readStream close]. 
 	RowanCommandResult addResult: self.
 ]
 
@@ -74,7 +77,7 @@ RowanFileService >> fileName [
 
 { #category : 'client commands' }
 RowanFileService >> fileoutDictionaries: dictionaryNames [
-	| ws file |
+	| ws |
 	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
 	dictionaryNames
@@ -82,18 +85,12 @@ RowanFileService >> fileoutDictionaries: dictionaryNames [
 			organizer
 				fileOutClassesAndMethodsInDictionary: (Rowan globalNamed: dictionaryName)
 				on: ws ].
-	(GsFile existsOnServer: path)
-		ifTrue: [ 
-			(self confirm: 'File exists. File out anyway?')
-				ifFalse: [ ^ self ] ].
-	file := GsFile openAppendOnServer: path.
-	[ file nextPutAll: ws contents ]
-		ensure: [ file close ]
+	self fileOut: ws on: path
 ]
 
 { #category : 'client commands' }
 RowanFileService >> fileoutMethods: array [
-	| ws file |
+	| ws |
 	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
 	array
@@ -101,13 +98,7 @@ RowanFileService >> fileoutMethods: array [
 			ws
 				nextPutAll:
 					((self behaviorFromMethodService: service) fileOutMethod: service selector) ].
-	(GsFile existsOnServer: path)
-		ifTrue: [ 
-			(self confirm: 'File exists. File out anyway?')
-				ifFalse: [ ^ self ] ].
-	file := GsFile openAppendOnServer: path.
-	[ file nextPutAll: ws contents ]
-		ensure: [ file close ]
+	self fileOut: ws on: path
 ]
 
 { #category : 'client commands' }
