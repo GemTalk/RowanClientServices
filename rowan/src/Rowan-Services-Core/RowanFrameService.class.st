@@ -117,11 +117,6 @@ RowanFrameService >> varsFor: anArray [
 						'(' , value class name , ' printString error: ' , ex description , ')' ].
 		value size > 500
 			ifTrue: [ value := (value copyFrom: 1 to: 500) , '...' ].
-		value := value
-			collect: [ :char | 
-				(char asciiValue < 32 or: [ 127 < char asciiValue ])
-					ifTrue: [ $? ]
-					ifFalse: [ char ] ].
 		list
 			add:
 				(RowanVariableService

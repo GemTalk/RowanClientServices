@@ -78,9 +78,8 @@ JadeServer >> _describeMCDefinition: anMCDefinition on: aStream [
 
 { #category : 'category' }
 JadeServer >> _describeMCMethodDefinition: anMCMethodDefinition on: aStream [
-	| unicodeFreeSource |
-	unicodeFreeSource := RowanMethodService
-		removeUnicodeFromSource: anMCMethodDefinition source.
+	| source |
+	source := anMCMethodDefinition source.
 	aStream
 		nextPut: $M;
 		tab;
@@ -94,9 +93,9 @@ JadeServer >> _describeMCMethodDefinition: anMCMethodDefinition on: aStream [
 		tab;
 		nextPutAll: anMCMethodDefinition selector;
 		tab;
-		nextPutAll: unicodeFreeSource size printString;
+		nextPutAll: source size printString;
 		tab;
-		nextPutAll: unicodeFreeSource;
+		nextPutAll: source;
 		lf
 ]
 

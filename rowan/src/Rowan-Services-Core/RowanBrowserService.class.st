@@ -306,18 +306,20 @@ RowanBrowserService >> releaseWindowHandle: integer [
 
 { #category : 'client commands' }
 RowanBrowserService >> reloadProjects: projectServices andUpdateServices: services [
-  | projectNames answeringService |
-  services do: [ :service | service organizer: organizer ].
-  projectServices do: [ :service | service organizer: organizer ].
-  projectServices do: [ :projectService | projectService reloadProject ].
-  projectNames := projectServices
-    collect: [ :projectService | projectService name ].
-  services
-    do: [ :service | 
-      (projectNames includes: service rowanProjectName)
-        ifTrue: [ service updateLatest ] ].
-  answeringService := RowanAnsweringService new organizer: organizer.
-  answeringService updateAutocompleteSymbols
+	| projectNames answeringService |
+	Unicode16 _useUnicodeComparePrimitives: true.
+	services do: [ :service | service organizer: organizer ].
+	projectServices do: [ :service | service organizer: organizer ].
+	projectServices do: [ :projectService | projectService reloadProject ].
+	projectNames := projectServices
+		collect: [ :projectService | projectService name ].
+	services
+		do: [ :service | 
+			(projectNames includes: service rowanProjectName)
+				ifTrue: [ service updateLatest ] ].
+	answeringService := RowanAnsweringService new organizer: organizer.
+	answeringService updateAutocompleteSymbols.
+	Unicode16 _useUnicodeComparePrimitives: false
 ]
 
 { #category : 'client commands' }

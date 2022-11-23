@@ -91,7 +91,7 @@ RowanProjectService >> audit [
 ]
 
 { #category : 'client commands support' }
-RowanProjectService >> basicLoadProject: aBlock [
+RowanProjectService >> basicLoadProject: aBlock [ 
 	| updatedProjects |
 	[ updatedProjects := aBlock value ]
 		on: Warning
