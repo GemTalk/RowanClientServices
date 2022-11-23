@@ -92,15 +92,13 @@ JadeServer64bit3x >> addProcess: aProcess to: aStream withStatus: aString schedu
 { #category : 'category' }
 JadeServer64bit3x >> asString: anObject [
 
-	(anObject isKindOf: String) ifTrue: [^anObject].
+	(anObject isKindOf: String) ifTrue: [^anObject asUnicodeString].
 	(anObject _class name == #'ClientForwarder') ifTrue: [^'aClientForwarder(' , (self asString: anObject clientObject) , ')'].
 	^[
-		anObject printString.
+		anObject printString asUnicodeString.
 	] on: Error , Admonition do: [:ex | 
 		ex return: '<<printString error: ' , ex description , '>>'.
 	].
-
-
 ]
 
 { #category : 'category' }

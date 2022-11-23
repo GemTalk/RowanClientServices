@@ -145,7 +145,7 @@ RowanAnsweringService >> basicPrintStringOfObject: object toMaxSize: integer [
   "avoid the oop conversion when we already have the object"
 
   | printString |
-  printString := self stripOutUnicode: object printString.
+  printString := object printString asUnicodeString.
   printString := printString size > integer
     ifTrue: [ (printString copyFrom: 1 to: integer) , '...' ]
     ifFalse: [ printString ].

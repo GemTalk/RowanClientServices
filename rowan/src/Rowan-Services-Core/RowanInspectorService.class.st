@@ -32,14 +32,14 @@ Class {
 
 { #category : 'command support' }
 RowanInspectorService >> addDynamicInstVars: anObject [
-  | dynamic dynamicSize |
-  dynamic := anObject dynamicInstanceVariables.
-  dynamicSize := dynamic size.
-  1 to: dynamicSize do: [ :i | 
-    objects
-      add:
-        ('--' , (self stripOutUnicode: (dynamic at: i)))
-          -> (Reflection oopOf: (anObject dynamicInstVarAt: (dynamic at: i))) ]
+	| dynamic dynamicSize |
+	dynamic := anObject dynamicInstanceVariables.
+	dynamicSize := dynamic size.
+	1 to: dynamicSize do: [ :i | 
+		objects
+			add:
+				('--' , (dynamic at: i) asUnicodeString)
+					-> (Reflection oopOf: (anObject dynamicInstVarAt: (dynamic at: i))) ]
 ]
 
 { #category : 'command support' }
@@ -59,7 +59,7 @@ RowanInspectorService >> addInstVars: anObject [
 	1 to: namedSize do: [ :i | 
 		objects
 			add:
-				(self instVarPrefix , (self stripOutUnicode: (instVarNames at: i) asString))
+				(self instVarPrefix , (instVarNames at: i) asUnicodeString)
 					-> (Reflection oopOf: (anObject instVarAt: i)) ]
 ]
 
@@ -391,7 +391,7 @@ RowanInspectorService >> saveKey: keyOop value: string [
 
 { #category : 'printing' }
 RowanInspectorService >> selfPrintString: anObject [
-  ^ [ self stripOutUnicode: anObject printString ]
+  ^ [ anObject printString asUnicodeString ]
     on: Error
     do: [ :ex | 
       | printString |
