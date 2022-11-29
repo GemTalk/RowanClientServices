@@ -215,15 +215,19 @@ RowanServicesTest >> setUp [
 					index > 0
 						ifTrue: [ symListT removeAtIndex: index ] ] ].
 	GsPackagePolicy current refreshSessionMethodDictionary.
+	Unicode16 _useUnicodeComparePrimitives: true.
 ]
 
 { #category : 'setup teardown' }
 RowanServicesTest >> tearDown [
-  super tearDown.
-  System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME' put: preserveRowanProjectsHome.
-  Rowan platform _alternateImageClass: nil.
-  RowanCommandResult initializeResults.	"squash the gui updates"
-  RowanAnsweringService new setEnableInteractionHandler: true
+	super tearDown.
+	System
+		gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'
+		put: preserveRowanProjectsHome.
+	Rowan platform _alternateImageClass: nil.
+	RowanCommandResult initializeResults.	"squash the gui updates"
+	RowanAnsweringService new setEnableInteractionHandler: true.
+	Unicode16 _useUnicodeComparePrimitives: false
 ]
 
 { #category : 'tests' }

@@ -212,6 +212,7 @@ RowanFileTest >> saveTestFile [
 	filename := 'fileInTestFile'.
 	filesystem := FileSystem disk.
 	reference := filesystem workingDirectory / filename. 
+	reference isFile ifTrue:[reference delete]. 
 	self deny: reference isFile.
 	writeStream := reference writeStream.
 	[ writeStream nextPutAll: self class testFileInSource ]
