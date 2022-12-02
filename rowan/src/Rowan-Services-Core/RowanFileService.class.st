@@ -50,11 +50,11 @@ RowanFileService >> fileContents [
 { #category : 'client commands' }
 RowanFileService >> fileIn: filePath [
 	"don't halt on compile warnings" 
-	| readStream |
+	| fileReference |
+	fileReference := path asFileReference. 
+	fileReference exists ifFalse:[^self inform: 'File does not exist'].
 	[GsFileIn fromServerPath: filePath] on: CompileWarning do:[:ex | ex resume]. 
-	readStream := path asFileReference. 
-	[answer := readStream contents asUnicodeString]
-		ensure: [readStream close]. 
+	answer := fileReference readStream contents. 
 	RowanCommandResult addResult: self.
 ]
 
