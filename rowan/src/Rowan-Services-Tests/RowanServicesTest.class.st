@@ -225,7 +225,7 @@ RowanServicesTest >> setUp [
 					index > 0
 						ifTrue: [ symListT removeAtIndex: index ] ] ].
 	GsPackagePolicy current refreshSessionMethodDictionary.
-	Unicode16 _useUnicodeComparePrimitives: true.
+	Unicode16 enableUnicodeComparisonMode
 ]
 
 { #category : 'setup teardown' }
@@ -237,7 +237,7 @@ RowanServicesTest >> tearDown [
 	Rowan platform _alternateImageClass: nil.
 	RowanCommandResult initializeResults.	"squash the gui updates"
 	RowanAnsweringService new setEnableInteractionHandler: true.
-	Unicode16 _useUnicodeComparePrimitives: false
+	Unicode16 disableUnicodeComparisonMode
 ]
 
 { #category : 'tests' }

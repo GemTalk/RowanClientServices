@@ -1202,7 +1202,7 @@ RowanClassService >> runMethodTests: methodServices [
 { #category : 'client commands' }
 RowanClassService >> saveMethodSource: source category: category [
 	| behavior compilationResult gsNMethod updatedCategory methodService unicodeSource |
-	Unicode16 _useUnicodeComparePrimitives: true. 
+	Unicode16 enableUnicodeComparisonMode.
 	unicodeSource := Unicode16 withAll: source. 
 	meta
 		ifNil: [ 
@@ -1245,7 +1245,7 @@ RowanClassService >> saveMethodSource: source category: category [
 		updateSymbols:
 			gsNMethod _selectorPool asArray , (Array with: methodService selector).
 	methodService addToMethodHistory.
-	Unicode16 _useUnicodeComparePrimitives: false. 
+	Unicode16 disableUnicodeComparisonMode.
 	RowanCommandResult addResult: self
 ]
 

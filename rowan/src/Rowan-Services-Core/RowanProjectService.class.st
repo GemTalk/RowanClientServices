@@ -192,11 +192,11 @@ RowanProjectService >> checkoutTag: tagName [
 
 { #category : 'client commands' }
 RowanProjectService >> commitWithMessage: message [
-	Unicode16 _useUnicodeComparePrimitives: true.
+	Unicode16 enableUnicodeComparisonMode.
 	[ 
 	Rowan projectTools write writeProjectNamed: name.
 	Rowan projectTools commit commitProjectNamed: name message: message ]
-		ensure: [ Unicode16 _useUnicodeComparePrimitives: false ]
+		ensure: [ Unicode16 disableUnicodeComparisonMode. ]
 ]
 
 { #category : 'accessing' }

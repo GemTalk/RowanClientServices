@@ -226,7 +226,6 @@ RowanFileTest >> saveTestFileWithCompileWarnings [
 	filename := 'testFileInSourceWithWarnings'.
 	filesystem := FileSystem disk.
 	reference := filesystem workingDirectory / filename. 
-	self deny: reference isFile.
 	writeStream := reference writeStream.
 	[ writeStream nextPutAll: self class testFileInSourceWithWarnings ]
 		ensure: [ writeStream close ].
