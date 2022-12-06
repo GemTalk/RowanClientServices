@@ -303,7 +303,6 @@ RowanBrowserService >> releaseWindowHandle: integer [
 { #category : 'client commands' }
 RowanBrowserService >> reloadProjects: projectServices andUpdateServices: services [
 	| projectNames answeringService |
-	Unicode16 enableUnicodeComparisonMode.
 	services do: [ :service | service organizer: organizer ].
 	projectServices do: [ :service | service organizer: organizer ].
 	projectServices do: [ :projectService | projectService reloadProject ].
@@ -315,7 +314,6 @@ RowanBrowserService >> reloadProjects: projectServices andUpdateServices: servic
 				ifTrue: [ service updateLatest ] ].
 	answeringService := RowanAnsweringService new organizer: organizer.
 	answeringService updateAutocompleteSymbols.
-	Unicode16 disableUnicodeComparisonMode
 ]
 
 { #category : 'client commands' }

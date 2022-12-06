@@ -488,6 +488,7 @@ JadeServer >> systemConfigAsDictionary [
 { #category : 'jadeite' }
 JadeServer >> updateFromSton: stonString [
 	| services organizer resultString |
+	Unicode16 enableUnicodeComparisonMode.
 	[ 
 	Rowan commandResultClass initializeResults.
 	services := ((STON reader allowComplexMapKeys: true) on: stonString readStream)
@@ -508,6 +509,7 @@ JadeServer >> updateFromSton: stonString [
 	self autoCommitIfRequired.
 	Rowan loggingServiceClass current logSentServices.
 	resultString := STON toString: Rowan commandResultClass results.
+	Unicode16 disableUnicodeComparisonMode.
 	^ resultString ]
 		on: Error
 		do: [ :ex | 
