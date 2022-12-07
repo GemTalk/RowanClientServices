@@ -690,7 +690,7 @@ removeallclassmethods RowanProcessService
 doit
 (RowanService
 	subclass: 'RowanProjectService'
-	instVarNames: #( rwProject name sha branch isSkew isDirty packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop specService componentServices packageGroups defaultSymbolDictionaryName )
+	instVarNames: #( rwProject name sha branch isSkew isDirty packages changes existsOnDisk isLoaded projectUrl rowanProjectsHome isDiskDirty projectOop specService componentServices packageGroups defaultSymbolDictionaryName packageConvention diskSha )
 	classVars: #()
 	classInstVars: #()
 	poolDictionaries: #()
@@ -929,9 +929,9 @@ category: 'jadeite'
 method: JadeServer
 gsInteractionInformFailureHandler
   self interactionHandlerActive
-    ifFalse: [ 
+   ifFalse: [ 
       ^ GsInteractionHandler new
-        defaultBlock: [ :ignored | self assert: false description: 'expected a confirmation' ];
+        defaultBlock: [ :ignored | Error signal: 'expected a confirmation' ];
         confirmBlock: [ :interaction | interaction ok ];
         informBlock: [ :interaction |  ];
         inspectBlock: [ :interaction |  ];
@@ -1165,35 +1165,35 @@ systemConfigAsDictionary
 	self error: 'End of file not recognized!'
 %
 
-category: 'jadeite'
+category: '(as yet unclassified)'
 method: JadeServer
 updateFromSton: stonString
-	| services organizer resultString |
-	[ 
-	Rowan commandResultClass initializeResults.
-	services := ((STON reader allowComplexMapKeys: true) on: stonString readStream)
-		next.
-	organizer := ClassOrganizer new.
-	[ 
-	services
-		do: [ :service | 
-			service organizer: organizer.
-			service updateType: nil.	"Update type is only for returned commands"
-			service command ifNil: [ service command: #'update' ].
-			service servicePerform: service command withArguments: service commandArgs ] ]
-		on: GsInteractionRequest
-		do: [ :ex | 
-			ex
-				response:
-					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
-	self autoCommitIfRequired.
-	Rowan loggingServiceClass current logSentServices.
-	resultString := STON toString: Rowan commandResultClass results.
-	^ resultString ]
-		on: Error
-		do: [ :ex | 
-			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
-			ex pass ]
+        | services organizer resultString |
+[ 
+        Rowan commandResultClass initializeResults.
+        services := ((STON reader allowComplexMapKeys: true) on: stonString readStream)
+                next.
+        organizer := ClassOrganizer new.
+        [ 
+        services
+                do: [ :service | 
+                        service organizer: organizer.
+                        service updateType: nil.        "Update type is only for returned commands"
+                        service command ifNil: [ service command: #'update' ].
+                        service servicePerform: service command withArguments: service commandArgs ] ]
+                on: GsInteractionRequest
+                do: [ :ex | 
+                        ex
+                                response:
+                                        (ex interaction interactWith: self gsInteractionInformFailureHandler) ].
+        self autoCommitIfRequired.
+        Rowan loggingServiceClass current logSentServices.
+        resultString := STON toString: Rowan commandResultClass results.
+^ resultString ]
+                on: Error
+                do: [ :ex | 
+                        RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
+                        ex pass ]
 %
 
 category: 'category'
@@ -1253,9 +1253,8 @@ _describeMCDefinition: anMCDefinition on: aStream
 category: 'category'
 method: JadeServer
 _describeMCMethodDefinition: anMCMethodDefinition on: aStream
-	| unicodeFreeSource |
-	unicodeFreeSource := RowanMethodService
-		removeUnicodeFromSource: anMCMethodDefinition source.
+	| source |
+	source := anMCMethodDefinition source.
 	aStream
 		nextPut: $M;
 		tab;
@@ -1269,9 +1268,9 @@ _describeMCMethodDefinition: anMCMethodDefinition on: aStream
 		tab;
 		nextPutAll: anMCMethodDefinition selector;
 		tab;
-		nextPutAll: unicodeFreeSource size printString;
+		nextPutAll: source size printString;
 		tab;
-		nextPutAll: unicodeFreeSource;
+		nextPutAll: source;
 		lf
 %
 
@@ -1602,9 +1601,8 @@ method: JadeServer64bit24
 printStringOf: anObject
 
 	^(self isClientForwarder: anObject)
-		ifFalse: [anObject printString]
+		ifFalse: [anObject printString asUnicodeString]
 		ifTrue: ['aClientForwarder(' , anObject clientObject printString , ')'].
-
 %
 
 category: 'category'
@@ -1657,14 +1655,13 @@ category: 'category'
 method: JadeServer64bit3x
 asString: anObject
 
-	(anObject isKindOf: String) ifTrue: [^anObject].
+	(anObject isKindOf: String) ifTrue: [^anObject asUnicodeString].
 	(anObject _class name == #'ClientForwarder') ifTrue: [^'aClientForwarder(' , (self asString: anObject clientObject) , ')'].
 	^[
-		anObject printString.
+		anObject printString asUnicodeString.
 	] on: Error , Admonition do: [:ex | 
 		ex return: '<<printString error: ' , ex description , '>>'.
 	].
-
 %
 
 category: 'category'
@@ -2524,7 +2521,7 @@ templateClassName
 category: 'accessing'
 classmethod: RowanService
 version
-	^ '3.0.3'
+	^ '3.0.4'
 %
 
 category: 'accessing'
@@ -2779,6 +2776,19 @@ extendHierarchies: hierarchies forClasses: theClasses
 			(theClasses includes: theClass)
 				ifTrue: [ self addAllSubclassHierarchiesOf: theClass to: hierarchies ] ].
 	^ hierarchies
+%
+
+category: 'commands support'
+method: RowanService
+fileOut: ws on: path
+	| file | 
+	file := path asFileReference.
+	file exists
+		ifTrue: [ 
+			(self confirm: 'File exists. File out anyway?')
+				ifTrue: [ file delete ]
+				ifFalse: [ ^ self ] ].
+	file := file writeStreamDo: [ :stream | stream nextPutAll: ws contents ]
 %
 
 category: 'perform'
@@ -3281,20 +3291,28 @@ autocompleteSymbols
 category: 'client command support'
 method: RowanAnsweringService
 basicExec: aString context: oop
-	| object symbolList |
+	^ self basicExec: aString context: oop shouldDebug: false
+%
+
+category: 'client command support'
+method: RowanAnsweringService
+basicExec: aString context: oop shouldDebug: shouldDebug
+	| object symbolList tempMethod |
 	object := Object _objectForOop: oop.
 	symbolList := Rowan image symbolList.
-	[ aString _compileInContext: object symbolList: symbolList ]
+	[ tempMethod := aString _compileInContext: object symbolList: symbolList ]
 		on: CompileError
 		do: [ :ex | 
 			answer := false -> ex errorDetails.
 			^ answer ].
-	answer := true
-		-> (aString evaluateInContext: object symbolList: symbolList) asOop.
-	answer key
-		ifTrue: [ 
-			RowanService autoCommit == true
-				ifTrue: [ System commitTransaction ] ].
+	shouldDebug
+		ifTrue: [ tempMethod setBreakAtStepPoint: 1 ].
+	[ answer := true -> (tempMethod _executeInContext: object) asOop ]
+		ensure: [ 
+			shouldDebug
+				ifTrue: [ tempMethod clearBreakAtStepPoint: 1 ] ].
+	RowanService autoCommit == true
+		ifTrue: [ System commitTransaction ].
 	^ answer
 %
 
@@ -3325,7 +3343,7 @@ basicPrintStringOfObject: object toMaxSize: integer
   "avoid the oop conversion when we already have the object"
 
   | printString |
-  printString := self stripOutUnicode: object printString.
+  printString := object printString asUnicodeString.
   printString := printString size > integer
     ifTrue: [ (printString copyFrom: 1 to: integer) , '...' ]
     ifFalse: [ printString ].
@@ -3421,6 +3439,85 @@ clearMethodBreaks: methodServices
       methodService
         organizer: organizer;
         clearMethodBreaks ]
+%
+
+category: 'client commands'
+method: RowanAnsweringService
+debug: aString context: oop
+
+	answer := self basicExec: aString context: oop shouldDebug: true. 
+	RowanCommandResult addResult: self.
+
+	"return answer for testing" 
+	^answer
+%
+
+category: 'client commands'
+method: RowanAnsweringService
+debug: aString context: oop inWindow: handle
+  answer := self debug: aString context: oop.
+  answer key
+    ifTrue: [ RowanBrowserService new saveRootObject: answer value windowHandle: handle ].	"return answer for testing"
+  ^ answer
+%
+
+category: 'client commands'
+method: RowanAnsweringService
+debug: aString inFrame: level ofProcess: processOop context: oop
+	| symbolList frameContents symbolDictionary process tempMethod |
+	symbolList := Rowan image symbolList.
+	process := Object _objectForOop: processOop.
+	process _isTerminated
+		ifTrue: [ 
+			RowanCommandResult addResult: self.
+			^ false
+				-> ('Process with oop ' , process asOop printString , ' was terminated.') ].
+	frameContents := process _frameContentsAt: level.
+	frameContents
+		ifNotNil: [ 
+			symbolDictionary := SymbolDictionary new
+				name: ('DebuggerExecution' , processOop printString) asSymbol.
+			1 to: (frameContents at: 9) size do: [ :index | 
+				((frameContents at: 9) at: index) first = $.
+					ifFalse: [ 
+						symbolDictionary
+							at: ((frameContents at: 9) at: index) asSymbol
+							put: (frameContents at: 11 + index - 1) ] ].
+			symbolList add: symbolDictionary before: symbolList first ].
+	[ 
+	[ tempMethod := aString _compileInContext: (Object _objectForOop: oop) symbolList: symbolList ]
+		on: CompileError
+		do: [ :ex | 
+			answer := false -> ex errorDetails.
+			^ answer ].
+	tempMethod setBreakAtStepPoint: 1.
+	[ answer := true -> (tempMethod _executeInContext: (Object _objectForOop: oop)) asOop ]
+		ensure: [ tempMethod clearBreakAtStepPoint: 1 ].
+
+	answer key
+		ifTrue: [ 
+			RowanService autoCommit == true
+				ifTrue: [ System commitTransaction ] ].
+	RowanCommandResult addResult: self ]
+		ensure: [ 
+			1 to: (frameContents at: 9) size do: [ :index | 
+				| argsAndTemps |
+				argsAndTemps := frameContents at: 9.
+				(argsAndTemps at: index) first = $.
+					ifFalse: [ 
+						| variableService |
+						process
+							_frameAt: level
+							tempAt: index
+							put: (symbolDictionary at: (argsAndTemps at: index)).
+						variableService := RowanVariableService
+							oop: (symbolDictionary at: (argsAndTemps at: index)) asOop
+							key: (argsAndTemps at: index)
+							value: (symbolDictionary at: (argsAndTemps at: index)) printString
+							className: (frameContents at: 8) class name asString.
+						RowanCommandResult addResult: variableService ] ].
+			symbolList remove: symbolDictionary ].	"return answer for testing"
+	^ answer
 %
 
 category: 'client commands'
@@ -4016,17 +4113,45 @@ fileContents
 
 category: 'client commands'
 method: RowanFileService
+fileIn
+	^ self fileIn: path
+%
+
+category: 'client commands'
+method: RowanFileService
 fileIn: filePath
-	
-	GsFileIn fromServerPath: filePath. 
-	answer := GsFile getContentsOfServerFile: filePath.
+	"don't halt on compile warnings" 
+	| fileReference |
+	fileReference := filePath asFileReference. 
+	fileReference exists ifFalse:[^self inform: 'File does not exist'].
+	[GsFileIn fromServerPath: filePath] on: CompileWarning do:[:ex | ex resume]. 
+	answer := fileReference readStream contents. 
 	RowanCommandResult addResult: self.
 %
 
 category: 'client commands'
 method: RowanFileService
+fileInChunk: aString
+	"don't halt on compile warnings"
+	| fileIn |
+	fileIn := GsFileIn _fromStream: (ReadStream on: aString).
+	[ fileIn doFileIn ]
+		on: CompileWarning
+		do: [ :ex | ex resume ]
+%
+
+category: 'client commands'
+method: RowanFileService
+fileName
+	answer := (Path from: path) basename. 
+	RowanCommandResult addResult: self.
+	^answer "return for testing"
+%
+
+category: 'client commands'
+method: RowanFileService
 fileoutDictionaries: dictionaryNames
-	| ws file |
+	| ws |
 	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
 	dictionaryNames
@@ -4034,19 +4159,13 @@ fileoutDictionaries: dictionaryNames
 			organizer
 				fileOutClassesAndMethodsInDictionary: (Rowan globalNamed: dictionaryName)
 				on: ws ].
-	(GsFile existsOnServer: path)
-		ifTrue: [ 
-			(self confirm: 'File exists. File out anyway?')
-				ifFalse: [ ^ self ] ].
-	file := GsFile openAppendOnServer: path.
-	[ file nextPutAll: ws contents ]
-		ensure: [ file close ]
+	self fileOut: ws on: path
 %
 
 category: 'client commands'
 method: RowanFileService
 fileoutMethods: array
-	| ws file |
+	| ws |
 	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
 	array
@@ -4054,13 +4173,7 @@ fileoutMethods: array
 			ws
 				nextPutAll:
 					((self behaviorFromMethodService: service) fileOutMethod: service selector) ].
-	(GsFile existsOnServer: path)
-		ifTrue: [ 
-			(self confirm: 'File exists. File out anyway?')
-				ifFalse: [ ^ self ] ].
-	file := GsFile openAppendOnServer: path.
-	[ file nextPutAll: ws contents ]
-		ensure: [ file close ]
+	self fileOut: ws on: path
 %
 
 category: 'client commands'
@@ -4068,6 +4181,26 @@ method: RowanFileService
 isDirectory: directory
 	answer := GsFile isServerDirectory: directory. 
 	RowanCommandResult addResult: self.
+%
+
+category: 'client commands'
+method: RowanFileService
+parentDirectoryPath
+	answer := (Path from: path) parent pathString. 
+	RowanCommandResult addResult: self.
+	^answer "return for testing"
+%
+
+category: 'accessing'
+method: RowanFileService
+path
+	^path
+%
+
+category: 'accessing'
+method: RowanFileService
+path: object
+	path := object
 %
 
 category: 'client commands'
@@ -4148,16 +4281,12 @@ abortTransaction
 category: 'client commands'
 method: RowanBrowserService
 abortTransactionAndUpdateServices: services
-  self abortTransaction.
-  services
-    do: [ :service | 
-      "we just updated projects, package, & dictionary services"
-      (service isProjectService not
-        and: [ service isDictionaryService not and: [ service isPackageService not ] ])
-        ifTrue: [ 
-          service
-            organizer: organizer;
-            updateLatest ] ]
+	self abortTransaction.
+	services
+		do: [ :service | 
+			service
+				organizer: organizer;
+				updateLatest ]
 %
 
 category: 'client commands'
@@ -4440,18 +4569,18 @@ releaseWindowHandle: integer
 category: 'client commands'
 method: RowanBrowserService
 reloadProjects: projectServices andUpdateServices: services
-  | projectNames answeringService |
-  services do: [ :service | service organizer: organizer ].
-  projectServices do: [ :service | service organizer: organizer ].
-  projectServices do: [ :projectService | projectService reloadProject ].
-  projectNames := projectServices
-    collect: [ :projectService | projectService name ].
-  services
-    do: [ :service | 
-      (projectNames includes: service rowanProjectName)
-        ifTrue: [ service updateLatest ] ].
-  answeringService := RowanAnsweringService new organizer: organizer.
-  answeringService updateAutocompleteSymbols
+	| projectNames answeringService |
+	services do: [ :service | service organizer: organizer ].
+	projectServices do: [ :service | service organizer: organizer ].
+	projectServices do: [ :projectService | projectService reloadProject ].
+	projectNames := projectServices
+		collect: [ :projectService | projectService name ].
+	services
+		do: [ :service | 
+			(projectNames includes: service rowanProjectName)
+				ifTrue: [ service updateLatest ] ].
+	answeringService := RowanAnsweringService new organizer: organizer.
+	answeringService updateAutocompleteSymbols.
 %
 
 category: 'client commands'
@@ -4631,15 +4760,7 @@ method: RowanClassService
 category: 'client commands'
 method: RowanClassService
 addCategory: string
-	| theClass thePackageName |
-	string first = $*
-		ifTrue: [ 
-			thePackageName := string copyWithout: $*.
-			(self loadedPackageExistsAndIsInSameDictionary: thePackageName)
-				ifFalse: [ 
-					^self
-						inform:
-							'Loaded package named: ' , thePackageName , ' not found or is not in same dictionary' ] ].
+	| theClass |
 	theClass := self theClass.
 	meta
 		ifTrue: [ theClass := theClass class ].
@@ -5076,17 +5197,11 @@ fileoutCategories: array on: path
 category: 'client commands'
 method: RowanClassService
 fileoutClassOn: path
-	| ws file |
+	| ws |
 	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
 	ws nextPutAll: self behavior fileOutClass.
-	(GsFile existsOnServer: path)
-		ifTrue: [ 
-			(self confirm: 'File exists. File out anyway?')
-				ifFalse: [ ^ self ] ].
-	file := GsFile openAppendOnServer: path.
-	[ file nextPutAll: ws contents ]
-		ensure: [ file close ]
+	self fileOut: ws on: path
 %
 
 category: 'Accessing'
@@ -5818,7 +5933,8 @@ runMethodTests: methodServices
 category: 'client commands'
 method: RowanClassService
 saveMethodSource: source category: category
-	| behavior compilationResult gsNMethod updatedCategory methodService |
+	| behavior compilationResult gsNMethod updatedCategory methodService unicodeSource |
+	unicodeSource := Unicode16 withAll: source. 
 	meta
 		ifNil: [ 
 			behavior := Object _objectForOop: oop.
@@ -5828,10 +5944,10 @@ saveMethodSource: source category: category
 				ifTrue: [ self theClass class ]
 				ifFalse: [ self theClass ] ].
 	oop := behavior asOop.
-	self initializeMethodHistoryFor: source.
+	self initializeMethodHistoryFor: unicodeSource.
 	updatedCategory := category ifNil: [ 'other' ].
 	compilationResult := self
-		compileMethod: source
+		compileMethod: unicodeSource
 		behavior: behavior
 		symbolList: Rowan image symbolList
 		inCategory: updatedCategory asSymbol.
@@ -7431,11 +7547,6 @@ varsFor: anArray
 						'(' , value class name , ' printString error: ' , ex description , ')' ].
 		value size > 500
 			ifTrue: [ value := (value copyFrom: 1 to: 500) , '...' ].
-		value := value
-			collect: [ :char | 
-				(char asciiValue < 32 or: [ 127 < char asciiValue ])
-					ifTrue: [ $? ]
-					ifFalse: [ char ] ].
 		list
 			add:
 				(RowanVariableService
@@ -7453,14 +7564,14 @@ varsFor: anArray
 category: 'command support'
 method: RowanInspectorService
 addDynamicInstVars: anObject
-  | dynamic dynamicSize |
-  dynamic := anObject dynamicInstanceVariables.
-  dynamicSize := dynamic size.
-  1 to: dynamicSize do: [ :i | 
-    objects
-      add:
-        ('--' , (self stripOutUnicode: (dynamic at: i)))
-          -> (Reflection oopOf: (anObject dynamicInstVarAt: (dynamic at: i))) ]
+	| dynamic dynamicSize |
+	dynamic := anObject dynamicInstanceVariables.
+	dynamicSize := dynamic size.
+	1 to: dynamicSize do: [ :i | 
+		objects
+			add:
+				('--' , (dynamic at: i) asUnicodeString)
+					-> (Reflection oopOf: (anObject dynamicInstVarAt: (dynamic at: i))) ]
 %
 
 category: 'command support'
@@ -7482,7 +7593,7 @@ addInstVars: anObject
 	1 to: namedSize do: [ :i | 
 		objects
 			add:
-				(self instVarPrefix , (self stripOutUnicode: (instVarNames at: i) asString))
+				(self instVarPrefix , (instVarNames at: i) asUnicodeString)
 					-> (Reflection oopOf: (anObject instVarAt: i)) ]
 %
 
@@ -7842,7 +7953,7 @@ saveKey: keyOop value: string
 category: 'printing'
 method: RowanInspectorService
 selfPrintString: anObject
-  ^ [ self stripOutUnicode: anObject printString ]
+  ^ [ anObject printString asUnicodeString ]
     on: Error
     do: [ :ex | 
       | printString |
@@ -9155,11 +9266,10 @@ updatePackageProjectAfterCategoryChange: beforePackageName
 	self projectService update
 %
 
-category: 'private'
+category: '(as yet unclassified)'
 method: RowanMethodService
 updateSource: string
-
-	source := self class removeUnicodeFromSource: string
+	source := string
 %
 
 category: 'testing'
@@ -9774,7 +9884,7 @@ audit
 
 category: 'client commands support'
 method: RowanProjectService
-basicLoadProject: aBlock
+basicLoadProject: aBlock 
 	| updatedProjects |
 	[ updatedProjects := aBlock value ]
 		on: Warning
@@ -9813,12 +9923,14 @@ basicRefresh
 	self setExistsOnDisk.
 	isSkew := self isSkew.
 	sha := self rowanSha.
+	diskSha := self rowanDiskSha. 
 	branch := self rowanBranch.
 	projectUrl := self rowanProjectUrl.
 	rowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'.
 	isDiskDirty := self isGitDirty.
 	componentServices := self componentServices.
 	specService := RowanLoadSpecService new initialize: self rwProject loadSpecification asOop.
+	packageConvention := self rwProject packageConvention.
 	RowanCommandResult addResult: self
 %
 
@@ -9881,9 +9993,7 @@ method: RowanProjectService
 commitWithMessage: message
 	
 	Rowan projectTools write writeProjectNamed: name.
-	Rowan projectTools commit
-		commitProjectNamed: name
-		message: message.
+	Rowan projectTools commit commitProjectNamed: name message: message
 %
 
 category: 'accessing'
@@ -9912,15 +10022,15 @@ componentServicesFor: theRwProject
 	^ componentDictionary
 %
 
-category: 'client commands'
+category: 'other'
 method: RowanProjectService
-createProjectComponent: componentName symDict: defaultSymbolDictName convention: packageConvention format: packageFormat projectsHome: projectsHome type: repositoryType
+createProjectComponent: componentName symDict: defaultSymbolDictName convention: thePackageConvention format: packageFormat projectsHome: projectsHome type: repositoryType
 	| definedProject resolvedProject |
 	Rowan version < '3.0.0' asRwSemanticVersionNumber
 		ifTrue: [ self error: 'This script needs to be run against a Rowan v3 solo extent' ].
 	definedProject := (Rowan newProjectNamed: name)
 		addLoadComponentNamed: componentName;
-		packageConvention: packageConvention;
+		packageConvention: thePackageConvention;
 		gemstoneSetDefaultSymbolDictNameTo: defaultSymbolDictName;
 		repoType: repositoryType asSymbol;
 		packageFormat: packageFormat;
@@ -10364,6 +10474,14 @@ rowanDirty
 
 category: 'rowan'
 method: RowanProjectService
+rowanDiskSha
+
+	name isNil ifTrue:[^0].
+	^self rwProject commitId
+%
+
+category: 'rowan'
+method: RowanProjectService
 rowanProjectName
 
 	^name
@@ -10543,11 +10661,12 @@ resolve
 category: 'private'
 method: RowanQueryService
 basicBreakpointMethods
-  | bpMethods bpArray |
-  bpMethods := Array new.
-  bpArray := (GsNMethod _breakReport: true) at: 2.
-  bpArray do: [ :array | bpMethods add: (array at: 5) ].
-  ^ (self methodServicesFrom: bpMethods) asSet asArray
+	| bpMethods bpArray |
+	bpMethods := Array new.
+	bpArray := (GsNMethod _breakReport: true) at: 2.
+	bpArray do: [ :array | bpMethods add: (array at: 5) ].
+	bpMethods := bpMethods select: [ :bpMethod | bpMethod inClass notNil ].	"ignore anonymous method breakpoints"
+	^ (self methodServicesFrom: bpMethods) asSet asArray
 %
 
 category: 'queries'
