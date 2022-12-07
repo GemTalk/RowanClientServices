@@ -6,12 +6,12 @@
 	"notes" : "",
 	"properties" : { },
 	"resultsSummary" : {
-		"errors" : 2,
+		"errors" : 10,
 		"failures" : 1,
-		"passed" : 126,
-		"summary" : "129 Tests with 1 Failures, 2 Errors and 0 DeprecationWarnings in 10.82s",
-		"tests" : 129,
-		"time" : 10.82
+		"passed" : 122,
+		"summary" : "133 Tests with 1 Failures, 10 Errors and 0 DeprecationWarnings in 11.12s",
+		"tests" : 133,
+		"time" : 11.125
 	},
 	"suiteName" : "RowanClientServices projects Test Suite",
 	"testCases" : [
@@ -113,7 +113,7 @@
 		},
 		{
 			"className" : "RowanAnsweringServiceTest",
-			"status" : "passed",
+			"status" : "errors",
 			"selector" : "test_maxPrint",
 			"time" : "0"
 		},
@@ -251,13 +251,13 @@
 		},
 		{
 			"className" : "RowanClassServiceTest",
-			"status" : "passed",
+			"status" : "errors",
 			"selector" : "test_methodHistoryAdd",
 			"time" : "0"
 		},
 		{
 			"className" : "RowanClassServiceTest",
-			"status" : "passed",
+			"status" : "errors",
 			"selector" : "test_methodHistoryInitialize",
 			"time" : "0"
 		},
@@ -388,6 +388,30 @@
 			"time" : "0"
 		},
 		{
+			"className" : "RowanFileTest",
+			"status" : "errors",
+			"selector" : "test_fileIn",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanFileTest",
+			"status" : "errors",
+			"selector" : "test_fileInDoesNotWarn",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanFileTest",
+			"status" : "passed",
+			"selector" : "test_fileServiceAttributes",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanFileTest",
+			"status" : "passed",
+			"selector" : "test_isAbstract",
+			"time" : "0"
+		},
+		{
 			"className" : "RowanMethodServiceTest",
 			"status" : "passed",
 			"selector" : "test_classNameIsString",
@@ -407,7 +431,7 @@
 		},
 		{
 			"className" : "RowanMethodServiceTest",
-			"status" : "passed",
+			"status" : "errors",
 			"selector" : "test_reformatSource",
 			"time" : "0"
 		},
@@ -671,13 +695,13 @@
 		},
 		{
 			"className" : "RowanTestClassServiceTest",
-			"status" : "passed",
+			"status" : "errors",
 			"selector" : "test_methodHistoryAdd",
 			"time" : "0"
 		},
 		{
 			"className" : "RowanTestClassServiceTest",
-			"status" : "passed",
+			"status" : "errors",
 			"selector" : "test_methodHistoryInitialize",
 			"time" : "0"
 		},
@@ -790,5 +814,5 @@
 			"time" : "0"
 		}
 	],
-	"timeStamp" : "2022-10-31T14:50:04.012610-07:00"
+	"timeStamp" : "2022-12-07T15:33:54.041179-08:00"
 }
