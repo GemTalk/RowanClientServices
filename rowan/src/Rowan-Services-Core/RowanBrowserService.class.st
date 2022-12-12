@@ -264,29 +264,29 @@ RowanBrowserService >> packagesWithTests [
 
 { #category : 'client commands' }
 RowanBrowserService >> recompileMethodsAfterClassCompilation [
-  "compileClass: must be run first"
+	"compileClass: must be run first"
 
-  | theClass classService packageService projectService |
-  theClass := [ 
-  [ (SessionTemps current at: #'jadeiteCompileClassMethod') _executeInContext: nil ]
-    on: CompileWarning
-    do: [ :ex | ex resume ] ]
-    ensure: [ SessionTemps current at: #'jadeiteCompileClassMethod' put: nil ].
-  classService := RowanClassService new name: theClass name.
-  classService update.
-  classService isNewClass: true.	"if nothing else, the dirty state of the package/project services
+	| theClass classService packageService projectService |
+	theClass := [ 
+	[ (SessionTemps current at: #'jadeiteCompileClassMethod') _executeInContext: nil ]
+		on: CompileWarning
+		do: [ :ex | ex resume ] ]
+		ensure: [ SessionTemps current at: #'jadeiteCompileClassMethod' put: nil ].
+	classService := RowanClassService new name: theClass name.
+	classService update.
+	classService updateSubclasses.
+	classService isNewClass: true.	"if nothing else, the dirty state of the package/project services
 	should be updated. Would like a less heavy weight solution than this, though."
-  packageService := RowanPackageService
-    forPackageNamed: classService packageName.
-  packageService update.
-  projectService := RowanProjectService newNamed: packageService projectName.
-  projectService update.
-  packageService selectedClass: classService.
-  RowanCommandResult addResult: classService.
-  selectedClass := classService.
-  updateType := #'none'.
-  self updateSymbols: (Array with: theClass name asString).
-  RowanCommandResult addResult: self
+	packageService := RowanPackageService forPackageNamed: classService packageName.
+	packageService update.
+	projectService := RowanProjectService newNamed: packageService projectName.
+	projectService update.
+	packageService selectedClass: classService.
+	RowanCommandResult addResult: classService.
+	selectedClass := classService.
+	updateType := #'none'.
+	self updateSymbols: (Array with: theClass name asString).
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }

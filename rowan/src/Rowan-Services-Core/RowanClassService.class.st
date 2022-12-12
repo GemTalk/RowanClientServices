@@ -1126,7 +1126,7 @@ RowanClassService >> renameClass: oldClassName to: newClassName [
   self update.
   renamedName := oldClassName.
   self updateMethodsAfterRenameFrom: oldClassName to: newClassName.
-  self updateSubclassesAfterRenameOf: newClass.
+  self updateSubclassesOf: newClass.
   references := organizer update referencesToObject: oldClass.
   references do: [ :method | 
     | newSource compileResult failedCompile methodService oldSource |
@@ -1469,7 +1469,12 @@ RowanClassService >> updatePackageAndProject [
 ]
 
 { #category : 'private' }
-RowanClassService >> updateSubclassesAfterRenameOf: newClass [
+RowanClassService >> updateSubclasses [
+	self updateSubclassesOf: self theClass
+]
+
+{ #category : 'private' }
+RowanClassService >> updateSubclassesOf: newClass [
   organizer := ClassOrganizer new.
   (organizer allSubclassesOf: newClass)
     do: [ :subclass | 
