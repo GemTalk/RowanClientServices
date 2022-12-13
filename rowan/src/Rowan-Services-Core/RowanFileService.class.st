@@ -54,23 +54,38 @@ RowanFileService >> fileIn [
 
 { #category : 'client commands' }
 RowanFileService >> fileIn: filePath [
-	"don't halt on compile warnings" 
+	"don't halt on compile warnings"
+
 	| fileReference |
-	fileReference := filePath asFileReference. 
-	fileReference exists ifFalse:[^self inform: 'File does not exist'].
-	[GsFileIn fromServerPath: filePath] on: CompileWarning do:[:ex | ex resume]. 
-	answer := fileReference readStream contents. 
-	RowanCommandResult addResult: self.
+	fileReference := filePath asFileReference.
+	fileReference exists
+		ifFalse: [ ^ self inform: 'File does not exist' ].
+	[ GsFileIn fromServerPath: filePath ]
+		on: CompileWarning
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: ex description;
+				flush.
+			ex resume ].
+	answer := fileReference readStream contents.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
 RowanFileService >> fileInChunk: aString [
 	"don't halt on compile warnings"
+
 	| fileIn |
 	fileIn := GsFileIn _fromStream: (ReadStream on: aString).
 	[ fileIn doFileIn ]
 		on: CompileWarning
-		do: [ :ex | ex resume ]
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: ex description;
+				flush.
+			ex resume ]
 ]
 
 { #category : 'client commands' }
