@@ -880,11 +880,14 @@ RowanClassService >> moveMethodSelectors: methodSelectors toPackageNamed: thePac
 
 { #category : 'client commands' }
 RowanClassService >> moveToPackageNamed: thePackageName [
-	| packageService |
+	| sourcePackageService targetPackageService |
+	sourcePackageService := RowanPackageService forPackageNamed: packageName. 
 	self theClass rwMoveClassToPackage: thePackageName.
 	self update.
-	(packageService := RowanPackageService forPackageNamed: thePackageName) update.
-	(RowanProjectService new name: packageService projectName) update
+	sourcePackageService update. 
+	(RowanProjectService new name: sourcePackageService projectName) update.
+	(targetPackageService := RowanPackageService forPackageNamed: thePackageName) update.
+	(RowanProjectService new name: targetPackageService projectName) update
 ]
 
 { #category : 'Accessing' }
