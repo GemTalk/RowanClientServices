@@ -316,19 +316,13 @@ RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePa
 		yourself.
 	strict
 		ifTrue: [ spec resolveStrict ].
-	spec resolve load.
-	browserService := RowanBrowserService new updateProjects
-]
-
-{ #category : 'client commands' }
-RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames resolveStrict: strict [
-	| spec browserService |
-	spec := (RwSpecification fromUrl: path)
-		projectsHome: projectsHomePath;
-		yourself.
-	strict
-		ifTrue: [ spec resolveStrict ].
-	spec resolve load.
+	[ spec resolve load ]
+		on: Warning
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: ex description.
+			ex resume ].
 	browserService := RowanBrowserService new updateProjects
 ]
 

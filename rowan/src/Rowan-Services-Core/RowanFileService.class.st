@@ -34,6 +34,19 @@ RowanFileService >> directoryContents [
 ]
 
 { #category : 'client commands' }
+RowanFileService >> directoryPath [
+	| fileReference |
+	fileReference := FileReference 
+		fileSystem: FileSystem disk 
+		path: path asPath.
+	fileReference isDirectory 
+		ifTrue: [ answer := fileReference pathString ]
+		ifFalse: [ answer := fileReference parent pathString ].
+	RowanCommandResult addResult: self.
+	^ answer	"return for testing"
+]
+
+{ #category : 'client commands' }
 RowanFileService >> diveInto: directory [
 	path := (Path from: path) resolveString: directory.
 	self directoryContents
