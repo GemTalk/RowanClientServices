@@ -135,6 +135,14 @@ RowanFileService >> fileoutMethods: array [
 ]
 
 { #category : 'client commands' }
+RowanFileService >> isDirectory [
+	| fileReference |
+	fileReference := FileReference fileSystem: FileSystem disk path: path asPath.
+	answer := fileReference isDirectory.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanFileService >> isDirectory: directory [
 	answer := GsFile isServerDirectory: directory. 
 	RowanCommandResult addResult: self.
