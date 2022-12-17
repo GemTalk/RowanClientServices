@@ -54,9 +54,11 @@ RowanFileService >> diveInto: directory [
 
 { #category : 'client commands' }
 RowanFileService >> fileContents [
-	answer := (GsFile existsOnServer: path)
-		ifTrue: [ GsFile getContentsOfServerFile: path ]
-		ifFalse: [ String new ].
+	| fileReference |
+	fileReference := FileReference fileSystem: FileSystem disk path: path asPath.
+	answer := fileReference exists
+		ifTrue: [ fileReference readStream contents ]
+		ifFalse: [ String new asUnicodeString ].
 	RowanCommandResult addResult: self
 ]
 
