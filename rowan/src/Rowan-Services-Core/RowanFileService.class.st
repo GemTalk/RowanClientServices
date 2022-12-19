@@ -12,6 +12,14 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'command support' }
+RowanFileService >> basicIsDirectory: thePath [
+	| fileReference |
+	fileReference := FileReference fileSystem: FileSystem disk path: thePath asPath.
+	answer := fileReference isDirectory.
+	RowanCommandResult addResult: self
+]
+
 { #category : 'private' }
 RowanFileService >> behaviorFromMethodService: methodService [ 
 
@@ -19,6 +27,17 @@ RowanFileService >> behaviorFromMethodService: methodService [
 	behavior := Rowan globalNamed: methodService className.
 	methodService meta == true ifTrue:[behavior := behavior class].
 	^behavior
+]
+
+{ #category : 'client commands' }
+RowanFileService >> deleteFileWithUnicode [
+	" for tests"
+
+	| fileReference |
+	fileReference := FileReference
+		fileSystem: FileSystem disk
+		path: FileSystem workingDirectory pathString , '/testJadeiteUnicodeFile.txt'.
+	fileReference delete
 ]
 
 { #category : 'client commands' }
@@ -138,16 +157,12 @@ RowanFileService >> fileoutMethods: array [
 
 { #category : 'client commands' }
 RowanFileService >> isDirectory [
-	| fileReference |
-	fileReference := FileReference fileSystem: FileSystem disk path: path asPath.
-	answer := fileReference isDirectory.
-	RowanCommandResult addResult: self
+	self basicIsDirectory: path
 ]
 
 { #category : 'client commands' }
 RowanFileService >> isDirectory: directory [
-	answer := GsFile isServerDirectory: directory. 
-	RowanCommandResult addResult: self.
+	self basicIsDirectory: directory
 ]
 
 { #category : 'client commands' }
@@ -188,11 +203,34 @@ RowanFileService >> remove [
 
 { #category : 'client commands' }
 RowanFileService >> write: contents [
-	| file thePath |
+	| thePath fileReference writeStream |
 	thePath := path last = $/
 		ifTrue: [ path copyFrom: 1 to: path size - 1 ]
 		ifFalse: [ path ].
-	file := GsFile openWriteOnServer: thePath.
-	[ file nextPutAll: contents ]
-		ensure: [ file close ]
+	fileReference := FileReference fileSystem: FileSystem disk path: thePath asPath.
+	writeStream := fileReference writeStream.
+	[ 
+	writeStream
+		nextPutAll: contents asUnicodeString;
+		flush ]
+		ensure: [ writeStream close ]
+]
+
+{ #category : 'client commands' }
+RowanFileService >> writeFileWithUnicode [
+	" for tests" 
+| unicode fileReference writeStream |
+	unicode := 'This is some unicode text
+  
+ý š
+
+Another extended char - Ü  aaa œ'.
+
+	fileReference := FileReference fileSystem: FileSystem disk path:  FileSystem workingDirectory pathString, '/testJadeiteUnicodeFile.txt'.
+	writeStream := fileReference writeStream.
+	[ 
+	writeStream
+		nextPutAll: unicode asUnicodeString;
+		flush ]
+		ensure: [ writeStream close ].
 ]
