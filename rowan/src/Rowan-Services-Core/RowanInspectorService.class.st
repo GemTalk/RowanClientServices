@@ -2,8 +2,7 @@
 No class-specific documentation for RowanInspectorService, hierarchy is:
 Object
   RowanService( definition updates command commandArgs updateType organizer)
-    RowanInspectorService( oop objects myself className indexedSize visibleIndices nextIndices maxIndexedVars compileErrorArray isOop instVarNames instVarsAreRemovable isDictionary isVariable selectionOop isUnordered statusText)
-
+    RowanInspectorService( oop objects myself className indexedSize visibleIndices nextIndices maxIndexedVars compileErrorArray isOop instVarNames instVarsAreRemovable isDictionary isVariable selectionOop isUnordered statusText isStringObject)
 "
 Class {
 	#name : 'RowanInspectorService',
@@ -25,7 +24,8 @@ Class {
 		'isVariable',
 		'selectionOop',
 		'isUnordered',
-		'statusText'
+		'statusText',
+		'isStringObject'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -151,22 +151,36 @@ RowanInspectorService >> inspect: anOop from: indexStart to: indexStop [
 
 { #category : 'client commands' }
 RowanInspectorService >> inspect: oopOrObject inWindow: handle [
-  | anObject |
-  self setOopFrom: oopOrObject.
-  handle
-    ifNotNil: [ RowanBrowserService new saveRootObject: oop windowHandle: handle ].
-  anObject := Object _objectForOop: oop.
-  isVariable := anObject class isVariable.
-  (self isClientForwarder: anObject)
-    ifTrue: [ ^ self inspectClientForwarder: anObject ].
-  className := anObject class name.
-  myself := 'self' -> (self selfPrintString: anObject).
-  (anObject isKindOf: Dictionary superclass)
-    ifTrue: [ ^ objects addAll: (self inspectDictionary: anObject from: 1 to: maxIndexedVars) ].
-  self addInstVars: anObject.
-  self addDynamicInstVars: anObject.
-  self addFirstIndexedVars: anObject.
-  RowanCommandResult addResult: self
+	| anObject |
+	self setOopFrom: oopOrObject.
+	handle
+		ifNotNil: [ RowanBrowserService new saveRootObject: oop windowHandle: handle ].
+	anObject := Object _objectForOop: oop.
+	isVariable := anObject class isVariable.
+	(self isClientForwarder: anObject)
+		ifTrue: [ ^ self inspectClientForwarder: anObject ].
+	className := anObject class name.
+	myself := 'self' -> (self selfPrintString: anObject).
+	(anObject isKindOf: Dictionary superclass)
+		ifTrue: [ ^ objects addAll: (self inspectDictionary: anObject from: 1 to: maxIndexedVars) ].
+	self addInstVars: anObject.
+	self addDynamicInstVars: anObject.
+	self addFirstIndexedVars: anObject.
+	isStringObject := anObject class canUnderstand: #asByteArray.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
+RowanInspectorService >> inspectBytes: oopOrObject [
+
+  ^ self inspect: oopOrObject asByteArray inWindow: nil
+]
+
+{ #category : 'client commands' }
+RowanInspectorService >> inspectBytes: oopOrObject inWindow: handle [
+	^ self
+		inspect: (Object _objectForOop: oopOrObject) asByteArray asOop
+		inWindow: handle
 ]
 
 { #category : 'command support' }
