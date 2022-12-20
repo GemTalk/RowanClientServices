@@ -174,6 +174,22 @@ JadeServer >> addProcess: aProcess to: aStream withStatus: aString scheduler: aS
 ]
 
 { #category : 'category' }
+JadeServer >> addUser: aUserProfile toStream: aStream [ 
+
+	(self oopOf: aUserProfile) printOn: aStream.
+	aStream tab; nextPutAll: aUserProfile userId.
+	aStream tab; nextPutAll: (aUserProfile lastLoginTime asStringUsingFormat: #(1 2 3 $  2 1 $: true true true false)).
+	aStream tab. aUserProfile loginsAllowedBeforeExpiration printOn: aStream.
+	aStream tab. aUserProfile isDisabled printOn: aStream.
+	aStream tab. aUserProfile activeUserIdLimit printOn: aStream.
+	aStream tab.	"; nextPutAll: aUserProfile nativeLanguage asString."
+	aStream tab. aUserProfile reasonForDisabledAccount printOn: aStream.
+	aStream tab; nextPutAll: (aUserProfile lastPasswordChange asStringUsingFormat: #(1 2 3 $  2 1 $: true true true false)).
+	aStream tab. aUserProfile passwordNeverExpires printOn: aStream.
+	aStream lf.
+]
+
+{ #category : 'category' }
 JadeServer >> allSessions [
 	| list stream |
 	stream := WriteStream on: String new.
@@ -185,6 +201,26 @@ JadeServer >> allSessions [
 	^ stream
 		nextPutAll: '</sessions>';
 		contents
+]
+
+{ #category : 'category' }
+JadeServer >> allUsersPasswordLimits [
+
+	| stream |
+	stream := WriteStream on: String new.
+	AllUsers disallowUsedPasswords printOn: stream. stream tab.
+	AllUsers minPasswordSize printOn: stream. stream tab.
+	AllUsers maxPasswordSize printOn: stream. stream tab.
+	AllUsers maxRepeatingChars printOn: stream. stream tab.
+	AllUsers maxConsecutiveChars printOn: stream. stream tab.
+	AllUsers maxCharsOfSameType printOn: stream. stream tab.
+	AllUsers staleAccountAgeLimit printOn: stream. stream tab.
+	AllUsers passwordAgeLimit printOn: stream. stream lf.
+	AllUsers disallowedPasswords do: [:each | 
+		stream nextPutAll: each; tab.
+	].
+	stream lf. AllUsers passwordAgeWarning printOn: stream. stream lf.
+	^stream contents.
 ]
 
 { #category : 'jadeite' }
@@ -236,6 +272,40 @@ JadeServer >> descriptionOfConfigOption: aString [
 ]
 
 { #category : 'category' }
+JadeServer >> dictionaryListFor: aUserProfile [
+
+	| symbolList list stream |
+	symbolList := aUserProfile symbolList.
+	list := symbolList namesReport subStrings: Character lf.
+	list := list reject: [:each | each isEmpty].
+	list := list collect: [:each | each subStrings].
+	stream := WriteStream on: String new.
+	list do: [:each | 
+		(self oopOf: (symbolList at: (each at: 1) asNumber)) printOn: stream.
+		stream tab; nextPutAll: (each at: 2); lf.
+	].
+	^stream contents.
+]
+
+{ #category : 'jadeite' }
+JadeServer >> dontDeleteMethods [
+
+	"sent from the Jadeite client" 
+
+	true ifTrue:[^self]. 
+	self addUser: nil toStream: nil. 
+	self allUsersPasswordLimits. 
+	self dictionaryListFor: nil.
+	self groupListFor: nil.
+	self privilegeListFor: nil.
+	self userList. 
+	self updateFromSton: nil. 
+	self autoCommitIfRequired. 
+	self gsInteractionInformFailureHandler. 
+	self interactionHandlerActive.
+]
+
+{ #category : 'category' }
 JadeServer >> errorListFor: aCollection [ 
 
 	| stream |
@@ -255,6 +325,21 @@ JadeServer >> errorListFor: aCollection [
 JadeServer >> gemLogPath [ 
 
 	^''
+]
+
+{ #category : 'category' }
+JadeServer >> groupListFor: aUserProfile [ 
+
+	| allGroups myGroups stream |
+	allGroups := AllGroups keys asSortedCollection.
+	myGroups := aUserProfile groups.
+	stream := WriteStream on: String new.
+	allGroups do: [:each | 
+		stream nextPutAll: each; tab.
+		(myGroups includes: each) printOn: stream.
+		stream lf.
+	].
+	^stream contents.
 ]
 
 { #category : 'jadeite' }
@@ -384,6 +469,21 @@ JadeServer >> oopOf: anObject [
 ]
 
 { #category : 'category' }
+JadeServer >> privilegeListFor: aUserProfile [ 
+
+	| allPrivileges myPrivileges stream |
+	allPrivileges := (aUserProfile class instVarAt: 6) at: #'PrivilegeNames'.
+	myPrivileges := aUserProfile privileges.
+	stream := WriteStream on: String new.
+	allPrivileges do: [:each | 
+		stream nextPutAll: each; tab.
+		(myPrivileges includes: each) printOn: stream.
+		stream lf.
+	].
+	^stream contents.
+]
+
+{ #category : 'category' }
 JadeServer >> processes [ 
 
 	| scheduler stream |
@@ -485,7 +585,7 @@ JadeServer >> systemConfigAsDictionary [
 	self error: 'End of file not recognized!'
 ]
 
-{ #category : '(as yet unclassified)' }
+{ #category : 'jadeite' }
 JadeServer >> updateFromSton: stonString [
         | services organizer resultString |
 [ 
@@ -514,6 +614,25 @@ JadeServer >> updateFromSton: stonString [
                         RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
                         ex pass ]
 
+]
+
+{ #category : 'category' }
+JadeServer >> userList [ 
+
+	| list me stream |
+	list := (AllUsers asSortedCollection: [:a :b | a userId <= b userId]) asOrderedCollection.
+	me := System myUserProfile.
+	list
+		remove: me;
+		addFirst: me;
+		yourself.
+	stream := WriteStream on: String new.
+	list do: [:each | 
+		self
+			addUser: each 
+			toStream: stream.
+	].
+	^stream contents.
 ]
 
 { #category : 'category' }
