@@ -520,7 +520,7 @@ RowanClassService >> fileoutClassOn: path [
 	| ws |
 	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
-	ws nextPutAll: self behavior fileOutClass.
+	ws nextPutAll: self theClass fileOutClass.
 	self fileOut: ws on: path
 ]
 

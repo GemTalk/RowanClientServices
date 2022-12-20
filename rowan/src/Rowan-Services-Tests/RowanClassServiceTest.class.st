@@ -267,6 +267,33 @@ RowanClassServiceTest >> test_equality [
 ]
 
 { #category : 'tests' }
+RowanClassServiceTest >> test_fileOutClass [
+	| classService path fileReference |
+	path := FileSystem workingDirectory pathString , '/testFileOutClass.txt'.
+	classService := RowanClassService forClassNamed: 'RowanClassService'.
+	fileReference := FileReference fileSystem: FileSystem disk path: path.
+	fileReference exists
+		ifTrue: [ fileReference delete ].
+	self deny: classService meta.
+	classService
+		fileoutClassOn:
+			FileSystem workingDirectory pathString , '/testFileOutClass.txt'.
+	[ self assert: fileReference exists ]
+		ensure: [ 
+			fileReference exists
+				ifTrue: [ fileReference delete ] ].
+	classService meta: true.
+
+	classService
+		fileoutClassOn:
+			FileSystem workingDirectory pathString , '/testFileOutClass.txt'.
+	[ self assert: fileReference exists ]
+		ensure: [ 
+			fileReference exists
+				ifTrue: [ fileReference delete ] ]
+]
+
+{ #category : 'tests' }
 RowanClassServiceTest >> test_instVarNamesIsArray [
 	"instVarNames was getting set to a collection which
 	was not handled well by STON"
