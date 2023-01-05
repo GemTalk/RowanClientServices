@@ -732,26 +732,27 @@ RowanService >> writeFileOutHeaderOn: stream [
 	"This method will write a fileout header onto the given file.
 	Adapted from GBS - GbxBrowser>>writeFileOutHeaderOn:"
 
-	| rawVer beVer cr |
-	stream nextPutAll: 'fileformat utf8';
-			cr. 
+	| rawVer beVer lf |
+	stream
+		nextPutAll: 'fileformat utf8';
+		lf.
 	rawVer := System _version.
 	beVer := ''.
-	cr := String with: Character cr.
-	"Comment each newline"
-	(rawVer subStrings: (Array with: Character lf)) do: [:line | beVer := beVer , '! ' , line , cr].
+	lf := String with: Character lf.	"Comment each newline"
+	(rawVer subStrings: (Array with: Character lf))
+		do: [ :line | beVer := beVer , '! ' , line , lf ].
 	stream
 		nextPutAll: '!';
-		cr;
+		lf;
 		nextPutAll: '! From ';
 		nextPutAll: beVer;
-		cr;
+		lf;
 		nextPutAll: '! On ';
 		nextPutAll: Date today printString;
 		nextPutAll: ', ';
 		nextPutAll: Time now printString;
-		cr;
+		lf;
 		nextPutAll: '!';
-		cr;
+		lf;
 		flush
 ]
