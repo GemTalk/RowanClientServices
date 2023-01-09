@@ -326,6 +326,20 @@ RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePa
 	browserService := RowanBrowserService new updateProjects
 ]
 
+{ #category : 'client commands' }
+RowanProjectService >> installProjectFromURL: url [
+	| spec browserService |
+	spec := RwSpecification fromUrl: url.
+	[ spec resolve load ]
+		on: Warning
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: ex description.
+			ex resume ].
+	browserService := RowanBrowserService new updateProjects
+]
+
 { #category : 'rowan' }
 RowanProjectService >> isDirty [
 	name isNil
