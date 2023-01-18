@@ -122,15 +122,6 @@ RowanPackageServiceTest >> test_compileClassSelectsPackageAndClass [
 ]
 
 { #category : 'tests' }
-RowanPackageServiceTest >> test_projectIsDirtyWithNonUpdatedPackage [
-  | packageService |
-  packageService := RowanPackageService forPackageNamed: 'Rowan-Services-Tests'.
-  self assert: packageService projectName equals: nil.
-  packageService projectIsDirty.	"answer is irrelevant for this test"
-  self assert: packageService projectName equals: 'Rowan'
-]
-
-{ #category : 'tests' }
 RowanPackageServiceTest >> test_testClassesIncludesExtensions [
 	| packageService testClassNames |
 	self

@@ -125,6 +125,7 @@ RowanPackageService >> hierarchyServices [
 
 { #category : 'Accessing' }
 RowanPackageService >> isDirty [
+	isDirty ifNil: [self updateIsDirty]. 
 	^isDirty
 ]
 
