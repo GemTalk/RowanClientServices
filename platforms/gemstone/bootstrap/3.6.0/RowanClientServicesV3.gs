@@ -557,7 +557,7 @@ removeallclassmethods RowanFrameService
 doit
 (RowanService
 	subclass: 'RowanInspectorService'
-	instVarNames: #( oop objects myself className indexedSize visibleIndices nextIndices maxIndexedVars compileErrorArray isOop instVarNames instVarsAreRemovable isDictionary isVariable selectionOop isUnordered statusText )
+	instVarNames: #( oop objects myself className indexedSize visibleIndices nextIndices maxIndexedVars compileErrorArray isOop instVarNames instVarsAreRemovable isDictionary isVariable selectionOop isUnordered statusText isStringObject )
 	classVars: #()
 	classInstVars: #()
 	poolDictionaries: #()
@@ -568,8 +568,7 @@ doit
 		comment: 'No class-specific documentation for RowanInspectorService, hierarchy is:
 Object
   RowanService( definition updates command commandArgs updateType organizer)
-    RowanInspectorService( oop objects myself className indexedSize visibleIndices nextIndices maxIndexedVars compileErrorArray isOop instVarNames instVarsAreRemovable isDictionary isVariable selectionOop isUnordered statusText)
-';
+    RowanInspectorService( oop objects myself className indexedSize visibleIndices nextIndices maxIndexedVars compileErrorArray isOop instVarNames instVarsAreRemovable isDictionary isVariable selectionOop isUnordered statusText isStringObject)';
 		immediateInvariant.
 true.
 %
@@ -835,6 +834,23 @@ addProcess: aProcess to: aStream withStatus: aString scheduler: aScheduler
 
 category: 'category'
 method: JadeServer
+addUser: aUserProfile toStream: aStream 
+
+	(self oopOf: aUserProfile) printOn: aStream.
+	aStream tab; nextPutAll: aUserProfile userId.
+	aStream tab; nextPutAll: (aUserProfile lastLoginTime asStringUsingFormat: #(1 2 3 $  2 1 $: true true true false)).
+	aStream tab. aUserProfile loginsAllowedBeforeExpiration printOn: aStream.
+	aStream tab. aUserProfile isDisabled printOn: aStream.
+	aStream tab. aUserProfile activeUserIdLimit printOn: aStream.
+	aStream tab.	"; nextPutAll: aUserProfile nativeLanguage asString."
+	aStream tab. aUserProfile reasonForDisabledAccount printOn: aStream.
+	aStream tab; nextPutAll: (aUserProfile lastPasswordChange asStringUsingFormat: #(1 2 3 $  2 1 $: true true true false)).
+	aStream tab. aUserProfile passwordNeverExpires printOn: aStream.
+	aStream lf.
+%
+
+category: 'category'
+method: JadeServer
 allSessions
 	| list stream |
 	stream := WriteStream on: String new.
@@ -846,6 +862,27 @@ allSessions
 	^ stream
 		nextPutAll: '</sessions>';
 		contents
+%
+
+category: 'category'
+method: JadeServer
+allUsersPasswordLimits
+
+	| stream |
+	stream := WriteStream on: String new.
+	AllUsers disallowUsedPasswords printOn: stream. stream tab.
+	AllUsers minPasswordSize printOn: stream. stream tab.
+	AllUsers maxPasswordSize printOn: stream. stream tab.
+	AllUsers maxRepeatingChars printOn: stream. stream tab.
+	AllUsers maxConsecutiveChars printOn: stream. stream tab.
+	AllUsers maxCharsOfSameType printOn: stream. stream tab.
+	AllUsers staleAccountAgeLimit printOn: stream. stream tab.
+	AllUsers passwordAgeLimit printOn: stream. stream lf.
+	AllUsers disallowedPasswords do: [:each | 
+		stream nextPutAll: each; tab.
+	].
+	stream lf. AllUsers passwordAgeWarning printOn: stream. stream lf.
+	^stream contents.
 %
 
 category: 'jadeite'
@@ -903,6 +940,42 @@ descriptionOfConfigOption: aString
 
 category: 'category'
 method: JadeServer
+dictionaryListFor: aUserProfile
+
+	| symbolList list stream |
+	symbolList := aUserProfile symbolList.
+	list := symbolList namesReport subStrings: Character lf.
+	list := list reject: [:each | each isEmpty].
+	list := list collect: [:each | each subStrings].
+	stream := WriteStream on: String new.
+	list do: [:each | 
+		(self oopOf: (symbolList at: (each at: 1) asNumber)) printOn: stream.
+		stream tab; nextPutAll: (each at: 2); lf.
+	].
+	^stream contents.
+%
+
+category: 'jadeite'
+method: JadeServer
+dontDeleteMethods
+
+	"sent from the Jadeite client" 
+
+	true ifTrue:[^self]. 
+	self addUser: nil toStream: nil. 
+	self allUsersPasswordLimits. 
+	self dictionaryListFor: nil.
+	self groupListFor: nil.
+	self privilegeListFor: nil.
+	self userList. 
+	self updateFromSton: nil. 
+	self autoCommitIfRequired. 
+	self gsInteractionInformFailureHandler. 
+	self interactionHandlerActive.
+%
+
+category: 'category'
+method: JadeServer
 errorListFor: aCollection 
 
 	| stream |
@@ -923,6 +996,22 @@ method: JadeServer
 gemLogPath 
 
 	^''
+%
+
+category: 'category'
+method: JadeServer
+groupListFor: aUserProfile 
+
+	| allGroups myGroups stream |
+	allGroups := AllGroups keys asSortedCollection.
+	myGroups := aUserProfile groups.
+	stream := WriteStream on: String new.
+	allGroups do: [:each | 
+		stream nextPutAll: each; tab.
+		(myGroups includes: each) printOn: stream.
+		stream lf.
+	].
+	^stream contents.
 %
 
 category: 'jadeite'
@@ -1059,6 +1148,22 @@ oopOf: anObject
 
 category: 'category'
 method: JadeServer
+privilegeListFor: aUserProfile 
+
+	| allPrivileges myPrivileges stream |
+	allPrivileges := (aUserProfile class instVarAt: 6) at: #'PrivilegeNames'.
+	myPrivileges := aUserProfile privileges.
+	stream := WriteStream on: String new.
+	allPrivileges do: [:each | 
+		stream nextPutAll: each; tab.
+		(myPrivileges includes: each) printOn: stream.
+		stream lf.
+	].
+	^stream contents.
+%
+
+category: 'category'
+method: JadeServer
 processes 
 
 	| scheduler stream |
@@ -1165,7 +1270,7 @@ systemConfigAsDictionary
 	self error: 'End of file not recognized!'
 %
 
-category: '(as yet unclassified)'
+category: 'jadeite'
 method: JadeServer
 updateFromSton: stonString
         | services organizer resultString |
@@ -1194,6 +1299,26 @@ updateFromSton: stonString
                 do: [ :ex | 
                         RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
                         ex pass ]
+%
+
+category: 'category'
+method: JadeServer
+userList 
+
+	| list me stream |
+	list := (AllUsers asSortedCollection: [:a :b | a userId <= b userId]) asOrderedCollection.
+	me := System myUserProfile.
+	list
+		remove: me;
+		addFirst: me;
+		yourself.
+	stream := WriteStream on: String new.
+	list do: [:each | 
+		self
+			addUser: each 
+			toStream: stream.
+	].
+	^stream contents.
 %
 
 category: 'category'
@@ -2295,7 +2420,7 @@ stepThrough: aGsProcess inFrame: anInteger
 category: 'other'
 method: JadeServer64bit35
 stepThrough: aGsProcess inFrame: anInteger
-  aGsProcess stepThroughFromLevel: anInteger
+	aGsProcess setStepThroughBreaksAtLevel: anInteger breakpointLevel: nil
 %
 
 ! Class implementation for 'RowanCommandResult'
@@ -2521,7 +2646,7 @@ templateClassName
 category: 'accessing'
 classmethod: RowanService
 version
-	^ '3.0.4'
+	^ '3.0.5'
 %
 
 category: 'accessing'
@@ -3171,27 +3296,28 @@ writeFileOutHeaderOn: stream
 	"This method will write a fileout header onto the given file.
 	Adapted from GBS - GbxBrowser>>writeFileOutHeaderOn:"
 
-	| rawVer beVer cr |
-	stream nextPutAll: 'fileformat utf8';
-			cr. 
+	| rawVer beVer lf |
+	stream
+		nextPutAll: 'fileformat utf8';
+		lf.
 	rawVer := System _version.
 	beVer := ''.
-	cr := String with: Character cr.
-	"Comment each newline"
-	(rawVer subStrings: (Array with: Character lf)) do: [:line | beVer := beVer , '! ' , line , cr].
+	lf := String with: Character lf.	"Comment each newline"
+	(rawVer subStrings: (Array with: Character lf))
+		do: [ :line | beVer := beVer , '! ' , line , lf ].
 	stream
 		nextPutAll: '!';
-		cr;
+		lf;
 		nextPutAll: '! From ';
 		nextPutAll: beVer;
-		cr;
+		lf;
 		nextPutAll: '! On ';
 		nextPutAll: Date today printString;
 		nextPutAll: ', ';
 		nextPutAll: Time now printString;
-		cr;
+		lf;
 		nextPutAll: '!';
-		cr;
+		lf;
 		flush
 %
 
@@ -4072,6 +4198,15 @@ updateAutocompleteSymbols
 
 !		Instance methods for 'RowanFileService'
 
+category: 'command support'
+method: RowanFileService
+basicIsDirectory: thePath
+	| fileReference |
+	fileReference := FileReference fileSystem: FileSystem disk path: thePath asPath.
+	answer := fileReference isDirectory.
+	RowanCommandResult addResult: self
+%
+
 category: 'private'
 method: RowanFileService
 behaviorFromMethodService: methodService 
@@ -4080,6 +4215,18 @@ behaviorFromMethodService: methodService
 	behavior := Rowan globalNamed: methodService className.
 	methodService meta == true ifTrue:[behavior := behavior class].
 	^behavior
+%
+
+category: 'client commands'
+method: RowanFileService
+deleteFileWithUnicode
+	" for tests"
+
+	| fileReference |
+	fileReference := FileReference
+		fileSystem: FileSystem disk
+		path: FileSystem workingDirectory pathString , '/testJadeiteUnicodeFile.txt'.
+	fileReference delete
 %
 
 category: 'client commands'
@@ -4097,6 +4244,18 @@ directoryContents
 
 category: 'client commands'
 method: RowanFileService
+directoryPath
+	| fileReference |
+	fileReference := FileReference fileSystem: FileSystem disk path: path asPath.
+	answer := fileReference isDirectory
+		ifTrue: [ fileReference pathString ]
+		ifFalse: [ fileReference parent pathString ].
+	RowanCommandResult addResult: self.
+	^ answer	"return for testing"
+%
+
+category: 'client commands'
+method: RowanFileService
 diveInto: directory
 	path := (Path from: path) resolveString: directory.
 	self directoryContents
@@ -4104,10 +4263,20 @@ diveInto: directory
 
 category: 'client commands'
 method: RowanFileService
+expandPath
+	answer := path asPath fullName.
+	RowanCommandResult addResult: self.
+	^ answer	"return for testing"
+%
+
+category: 'client commands'
+method: RowanFileService
 fileContents
-	answer := (GsFile existsOnServer: path)
-		ifTrue: [ GsFile getContentsOfServerFile: path ]
-		ifFalse: [ String new ].
+	| fileReference |
+	fileReference := FileReference fileSystem: FileSystem disk path: path asPath.
+	answer := fileReference exists
+		ifTrue: [ fileReference readStream contents ]
+		ifFalse: [ String new asUnicodeString ].
 	RowanCommandResult addResult: self
 %
 
@@ -4120,24 +4289,39 @@ fileIn
 category: 'client commands'
 method: RowanFileService
 fileIn: filePath
-	"don't halt on compile warnings" 
+	"don't halt on compile warnings"
+
 	| fileReference |
-	fileReference := filePath asFileReference. 
-	fileReference exists ifFalse:[^self inform: 'File does not exist'].
-	[GsFileIn fromServerPath: filePath] on: CompileWarning do:[:ex | ex resume]. 
-	answer := fileReference readStream contents. 
-	RowanCommandResult addResult: self.
+	fileReference := filePath asFileReference.
+	fileReference exists
+		ifFalse: [ ^ self inform: 'File does not exist' ].
+	[ GsFileIn fromServerPath: filePath ]
+		on: CompileWarning
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: ex description;
+				flush.
+			ex resume ].
+	answer := fileReference readStream contents.
+	RowanCommandResult addResult: self
 %
 
 category: 'client commands'
 method: RowanFileService
 fileInChunk: aString
 	"don't halt on compile warnings"
+
 	| fileIn |
 	fileIn := GsFileIn _fromStream: (ReadStream on: aString).
 	[ fileIn doFileIn ]
 		on: CompileWarning
-		do: [ :ex | ex resume ]
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: ex description;
+				flush.
+			ex resume ]
 %
 
 category: 'client commands'
@@ -4178,9 +4362,14 @@ fileoutMethods: array
 
 category: 'client commands'
 method: RowanFileService
+isDirectory
+	self basicIsDirectory: path
+%
+
+category: 'client commands'
+method: RowanFileService
 isDirectory: directory
-	answer := GsFile isServerDirectory: directory. 
-	RowanCommandResult addResult: self.
+	self basicIsDirectory: directory
 %
 
 category: 'client commands'
@@ -4228,13 +4417,37 @@ remove
 category: 'client commands'
 method: RowanFileService
 write: contents
-	| file thePath |
+	| thePath fileReference writeStream |
 	thePath := path last = $/
 		ifTrue: [ path copyFrom: 1 to: path size - 1 ]
 		ifFalse: [ path ].
-	file := GsFile openWriteOnServer: thePath.
-	[ file nextPutAll: contents ]
-		ensure: [ file close ]
+	fileReference := FileReference fileSystem: FileSystem disk path: thePath asPath.
+	writeStream := fileReference writeStream.
+	[ 
+	writeStream
+		nextPutAll: contents asUnicodeString;
+		flush ]
+		ensure: [ writeStream close ]
+%
+
+category: 'client commands'
+method: RowanFileService
+writeFileWithUnicode
+	" for tests" 
+| unicode fileReference writeStream |
+	unicode := 'This is some unicode text
+  
+ý š
+
+Another extended char - Ü  aaa œ'.
+
+	fileReference := FileReference fileSystem: FileSystem disk path:  FileSystem workingDirectory pathString, '/testJadeiteUnicodeFile.txt'.
+	writeStream := fileReference writeStream.
+	[ 
+	writeStream
+		nextPutAll: unicode asUnicodeString;
+		flush ]
+		ensure: [ writeStream close ].
 %
 
 ! Class implementation for 'RowanAutoCommitService'
@@ -4529,29 +4742,29 @@ packagesWithTests
 category: 'client commands'
 method: RowanBrowserService
 recompileMethodsAfterClassCompilation
-  "compileClass: must be run first"
+	"compileClass: must be run first"
 
-  | theClass classService packageService projectService |
-  theClass := [ 
-  [ (SessionTemps current at: #'jadeiteCompileClassMethod') _executeInContext: nil ]
-    on: CompileWarning
-    do: [ :ex | ex resume ] ]
-    ensure: [ SessionTemps current at: #'jadeiteCompileClassMethod' put: nil ].
-  classService := RowanClassService new name: theClass name.
-  classService update.
-  classService isNewClass: true.	"if nothing else, the dirty state of the package/project services
+	| theClass classService packageService projectService |
+	theClass := [ 
+	[ (SessionTemps current at: #'jadeiteCompileClassMethod') _executeInContext: nil ]
+		on: CompileWarning
+		do: [ :ex | ex resume ] ]
+		ensure: [ SessionTemps current at: #'jadeiteCompileClassMethod' put: nil ].
+	classService := RowanClassService new name: theClass name.
+	classService update.
+	classService updateSubclasses.
+	classService isNewClass: true.	"if nothing else, the dirty state of the package/project services
 	should be updated. Would like a less heavy weight solution than this, though."
-  packageService := RowanPackageService
-    forPackageNamed: classService packageName.
-  packageService update.
-  projectService := RowanProjectService newNamed: packageService projectName.
-  projectService update.
-  packageService selectedClass: classService.
-  RowanCommandResult addResult: classService.
-  selectedClass := classService.
-  updateType := #'none'.
-  self updateSymbols: (Array with: theClass name asString).
-  RowanCommandResult addResult: self
+	packageService := RowanPackageService forPackageNamed: classService packageName.
+	packageService update.
+	projectService := RowanProjectService newNamed: packageService projectName.
+	projectService update.
+	packageService selectedClass: classService.
+	RowanCommandResult addResult: classService.
+	selectedClass := classService.
+	updateType := #'none'.
+	self updateSymbols: (Array with: theClass name asString).
+	RowanCommandResult addResult: self
 %
 
 category: 'client commands'
@@ -5200,7 +5413,7 @@ fileoutClassOn: path
 	| ws |
 	ws := WriteStream on: String new.
 	self writeFileOutHeaderOn: ws.
-	ws nextPutAll: self behavior fileOutClass.
+	ws nextPutAll: self theClass fileOutClass.
 	self fileOut: ws on: path
 %
 
@@ -5591,11 +5804,14 @@ moveMethodSelectors: methodSelectors toPackageNamed: thePackageName
 category: 'client commands'
 method: RowanClassService
 moveToPackageNamed: thePackageName
-	| packageService |
+	| sourcePackageService targetPackageService |
+	sourcePackageService := RowanPackageService forPackageNamed: packageName. 
 	self theClass rwMoveClassToPackage: thePackageName.
 	self update.
-	(packageService := RowanPackageService forPackageNamed: thePackageName) update.
-	(RowanProjectService new name: packageService projectName) update
+	sourcePackageService update. 
+	(RowanProjectService new name: sourcePackageService projectName) update.
+	(targetPackageService := RowanPackageService forPackageNamed: thePackageName) update.
+	(RowanProjectService new name: targetPackageService projectName) update
 %
 
 category: 'Accessing'
@@ -5853,7 +6069,7 @@ renameClass: oldClassName to: newClassName
   self update.
   renamedName := oldClassName.
   self updateMethodsAfterRenameFrom: oldClassName to: newClassName.
-  self updateSubclassesAfterRenameOf: newClass.
+  self updateSubclassesOf: newClass.
   references := organizer update referencesToObject: oldClass.
   references do: [ :method | 
     | newSource compileResult failedCompile methodService oldSource |
@@ -6223,7 +6439,13 @@ updatePackageAndProject
 
 category: 'private'
 method: RowanClassService
-updateSubclassesAfterRenameOf: newClass
+updateSubclasses
+	self updateSubclassesOf: self theClass
+%
+
+category: 'private'
+method: RowanClassService
+updateSubclassesOf: newClass
   organizer := ClassOrganizer new.
   (organizer allSubclassesOf: newClass)
     do: [ :subclass | 
@@ -7693,22 +7915,38 @@ inspect: anOop from: indexStart to: indexStop
 category: 'client commands'
 method: RowanInspectorService
 inspect: oopOrObject inWindow: handle
-  | anObject |
-  self setOopFrom: oopOrObject.
-  handle
-    ifNotNil: [ RowanBrowserService new saveRootObject: oop windowHandle: handle ].
-  anObject := Object _objectForOop: oop.
-  isVariable := anObject class isVariable.
-  (self isClientForwarder: anObject)
-    ifTrue: [ ^ self inspectClientForwarder: anObject ].
-  className := anObject class name.
-  myself := 'self' -> (self selfPrintString: anObject).
-  (anObject isKindOf: Dictionary superclass)
-    ifTrue: [ ^ objects addAll: (self inspectDictionary: anObject from: 1 to: maxIndexedVars) ].
-  self addInstVars: anObject.
-  self addDynamicInstVars: anObject.
-  self addFirstIndexedVars: anObject.
-  RowanCommandResult addResult: self
+	| anObject |
+	self setOopFrom: oopOrObject.
+	handle
+		ifNotNil: [ RowanBrowserService new saveRootObject: oop windowHandle: handle ].
+	anObject := Object _objectForOop: oop.
+	isVariable := anObject class isVariable.
+	(self isClientForwarder: anObject)
+		ifTrue: [ ^ self inspectClientForwarder: anObject ].
+	className := anObject class name.
+	myself := 'self' -> (self selfPrintString: anObject).
+	(anObject isKindOf: Dictionary superclass)
+		ifTrue: [ ^ objects addAll: (self inspectDictionary: anObject from: 1 to: maxIndexedVars) ].
+	self addInstVars: anObject.
+	self addDynamicInstVars: anObject.
+	self addFirstIndexedVars: anObject.
+	isStringObject := anObject class canUnderstand: #asByteArray.
+	RowanCommandResult addResult: self
+%
+
+category: 'client commands'
+method: RowanInspectorService
+inspectBytes: oopOrObject
+
+  ^ self inspect: oopOrObject asByteArray inWindow: nil
+%
+
+category: 'client commands'
+method: RowanInspectorService
+inspectBytes: oopOrObject inWindow: handle
+	^ self
+		inspect: (Object _objectForOop: oopOrObject) asByteArray asOop
+		inWindow: handle
 %
 
 category: 'command support'
@@ -9404,6 +9642,7 @@ hierarchyServices
 category: 'Accessing'
 method: RowanPackageService
 isDirty
+	isDirty ifNil: [self updateIsDirty]. 
 	^isDirty
 %
 
@@ -10124,20 +10363,28 @@ installProjectFromFile: path projectsHome: projectsHomePath componentNames: comp
 		yourself.
 	strict
 		ifTrue: [ spec resolveStrict ].
-	spec resolve load.
+	[ spec resolve load ]
+		on: Warning
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: ex description.
+			ex resume ].
 	browserService := RowanBrowserService new updateProjects
 %
 
 category: 'client commands'
 method: RowanProjectService
-installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames resolveStrict: strict
+installProjectFromURL: url
 	| spec browserService |
-	spec := (RwSpecification fromUrl: path)
-		projectsHome: projectsHomePath;
-		yourself.
-	strict
-		ifTrue: [ spec resolveStrict ].
-	spec resolve load.
+	spec := RwSpecification fromUrl: url.
+	[ spec resolve load ]
+		on: Warning
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: ex description.
+			ex resume ].
 	browserService := RowanBrowserService new updateProjects
 %
 
