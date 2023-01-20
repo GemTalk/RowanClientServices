@@ -6,12 +6,12 @@
 	"notes" : "",
 	"properties" : { },
 	"resultsSummary" : {
-		"errors" : 10,
-		"failures" : 1,
-		"passed" : 122,
-		"summary" : "133 Tests with 1 Failures, 10 Errors and 0 DeprecationWarnings in 11.12s",
-		"tests" : 133,
-		"time" : 11.125
+		"errors" : 8,
+		"failures" : 0,
+		"passed" : 126,
+		"summary" : "134 Tests with 0 Failures, 8 Errors and 0 DeprecationWarnings in 11.65s",
+		"tests" : 134,
+		"time" : 11.646
 	},
 	"suiteName" : "RowanClientServices projects Test Suite",
 	"testCases" : [
@@ -221,7 +221,7 @@
 		},
 		{
 			"className" : "RowanClassServiceTest",
-			"status" : "errors",
+			"status" : "passed",
 			"selector" : "test_dirtyState",
 			"time" : "0"
 		},
@@ -235,6 +235,12 @@
 			"className" : "RowanClassServiceTest",
 			"status" : "passed",
 			"selector" : "test_equality",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanClassServiceTest",
+			"status" : "passed",
+			"selector" : "test_fileOutClass",
 			"time" : "0"
 		},
 		{
@@ -485,12 +491,6 @@
 		},
 		{
 			"className" : "RowanPackageServiceTest",
-			"status" : "failures",
-			"selector" : "test_projectIsDirtyWithNonUpdatedPackage",
-			"time" : "0"
-		},
-		{
-			"className" : "RowanPackageServiceTest",
 			"status" : "passed",
 			"selector" : "test_testClassesIncludesExtensions",
 			"time" : "0"
@@ -659,7 +659,7 @@
 		},
 		{
 			"className" : "RowanTestClassServiceTest",
-			"status" : "errors",
+			"status" : "passed",
 			"selector" : "test_dirtyState",
 			"time" : "0"
 		},
@@ -673,6 +673,12 @@
 			"className" : "RowanTestClassServiceTest",
 			"status" : "passed",
 			"selector" : "test_equality",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanTestClassServiceTest",
+			"status" : "passed",
+			"selector" : "test_fileOutClass",
 			"time" : "0"
 		},
 		{
@@ -814,5 +820,5 @@
 			"time" : "0"
 		}
 	],
-	"timeStamp" : "2022-12-07T15:33:54.041179-08:00"
+	"timeStamp" : "2023-01-20T11:07:41.975852-08:00"
 }
