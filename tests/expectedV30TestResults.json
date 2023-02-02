@@ -9,9 +9,9 @@
 		"errors" : 8,
 		"failures" : 0,
 		"passed" : 126,
-		"summary" : "134 Tests with 0 Failures, 8 Errors and 0 DeprecationWarnings in 11.65s",
+		"summary" : "134 Tests with 0 Failures, 8 Errors and 0 DeprecationWarnings in 10.56s",
 		"tests" : 134,
-		"time" : 11.646
+		"time" : 10.563
 	},
 	"suiteName" : "RowanClientServices projects Test Suite",
 	"testCases" : [
@@ -820,5 +820,5 @@
 			"time" : "0"
 		}
 	],
-	"timeStamp" : "2023-01-20T11:07:41.975852-08:00"
+	"timeStamp" : "2023-02-02T12:29:00.650294-08:00"
 }
