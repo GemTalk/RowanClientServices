@@ -2646,7 +2646,7 @@ templateClassName
 category: 'accessing'
 classmethod: RowanService
 version
-	^ '3.0.5'
+	^ '3.0.6'
 %
 
 category: 'accessing'
