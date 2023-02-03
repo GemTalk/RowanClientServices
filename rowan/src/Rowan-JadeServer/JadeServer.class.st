@@ -33,18 +33,18 @@ JadeServer class >> theJadeiteServer [
 ]
 
 { #category : 'category' }
-JadeServer >> _describeMCAddition: anMCAddition on: aStream [
+JadeServer >> _describeMCAddition: anMCAddition on: aStream packageName: packageName [
 	aStream
 		nextPut: $A;
 		tab;
 		nextPutAll: (self oopOf: anMCAddition) printString;
 		tab;
 		yourself.
-	self _describeMCDefinition: anMCAddition definition on: aStream
+	self _describeMCDefinition: anMCAddition definition on: aStream packageName: packageName
 ]
 
 { #category : 'category' }
-JadeServer >> _describeMCClassDefinition: anMCClassDefinition on: aStream [
+JadeServer >> _describeMCClassDefinition: anMCClassDefinition on: aStream packageName: packageName [
 	| string |
 	string := anMCClassDefinition definitionString
 		collect: [ :char | 
@@ -54,36 +54,40 @@ JadeServer >> _describeMCClassDefinition: anMCClassDefinition on: aStream [
 	aStream
 		nextPut: $C;
 		tab;
+		nextPutAll: packageName;
+		tab;
 		nextPutAll: string;
 		lf;
 		yourself
 ]
 
 { #category : 'category' }
-JadeServer >> _describeMCDefinition: anMCDefinition on: aStream [
+JadeServer >> _describeMCDefinition: anMCDefinition on: aStream packageName: packageName [
 	anMCDefinition isMethodDefinition
 		ifTrue: [ 
-			self _describeMCMethodDefinition: anMCDefinition on: aStream.
+			self _describeMCMethodDefinition: anMCDefinition on: aStream packageName: packageName.
 			^ self ].
 	anMCDefinition isOrganizationDefinition
 		ifTrue: [ 
-			self _describeMCOrganizationDefinition: anMCDefinition on: aStream.
+			self _describeMCOrganizationDefinition: anMCDefinition on: aStream packageName: packageName.
 			^ self ].
 	anMCDefinition isClassDefinition
 		ifTrue: [ 
-			self _describeMCClassDefinition: anMCDefinition on: aStream.
+			self _describeMCClassDefinition: anMCDefinition on: aStream packageName: packageName.
 			^ self ].
 	self halt
 ]
 
 { #category : 'category' }
-JadeServer >> _describeMCMethodDefinition: anMCMethodDefinition on: aStream [
+JadeServer >> _describeMCMethodDefinition: anMCMethodDefinition on: aStream packageName: packageName [
 	| source |
 	source := anMCMethodDefinition source.
 	aStream
 		nextPut: $M;
 		tab;
 		nextPutAll: anMCMethodDefinition timeStamp;
+		tab;
+		nextPutAll: packageName;
 		tab;
 		nextPutAll: anMCMethodDefinition className;
 		tab;
@@ -100,15 +104,15 @@ JadeServer >> _describeMCMethodDefinition: anMCMethodDefinition on: aStream [
 ]
 
 { #category : 'category' }
-JadeServer >> _describeMCModification: anMCModification on: aStream [
+JadeServer >> _describeMCModification: anMCModification on: aStream packageName: packageName [
 	aStream
 		nextPut: $M;
 		tab;
 		nextPutAll: (self oopOf: anMCModification) printString;
 		tab;
 		yourself.
-	self _describeMCDefinition: anMCModification obsoletion on: aStream.
-	self _describeMCDefinition: anMCModification modification on: aStream
+	self _describeMCDefinition: anMCModification obsoletion on: aStream packageName: packageName.
+	self _describeMCDefinition: anMCModification modification on: aStream packageName: packageName
 ]
 
 { #category : 'category' }
@@ -126,33 +130,42 @@ JadeServer >> _describeMCOrganizationDefinition: anMCOrganizationDefinition on: 
 ]
 
 { #category : 'category' }
-JadeServer >> _describeMCRemoval: anMCRemoval on: aStream [
+JadeServer >> _describeMCRemoval: anMCRemoval on: aStream packageName: packageName [
 	aStream
 		nextPut: $R;
 		tab;
 		nextPutAll: (self oopOf: anMCRemoval) printString;
 		tab;
 		yourself.
-	self _describeMCDefinition: anMCRemoval definition on: aStream
+	self _describeMCDefinition: anMCRemoval definition on: aStream packageName: packageName
 ]
 
 { #category : 'category' }
-JadeServer >> _mcDescriptionOfPatch: aPatch baseName: aString1 alternateName: aString2 [ 
-
+JadeServer >> _mcDescriptionOfPatch: aPatch baseName: aString1 alternateName: aString2 packageName: packageName [
 	| stream |
 	stream := WriteStream on: String new.
 	(self oopOf: aPatch) printOn: stream.
-	stream 
-		tab; nextPutAll: (aString1 isNil ifTrue: ['loaded'] ifFalse: [aString1]);
+	stream
+		tab;
+		nextPutAll:
+				(aString1 isNil
+						ifTrue: [ 'loaded' ]
+						ifFalse: [ aString1 ]);
 		nextPutAll: ' vs. ';
-		nextPutAll: (aString2 isNil ifTrue: ['loaded'] ifFalse: [aString2]);
+		nextPutAll:
+				(aString2 isNil
+						ifTrue: [ 'loaded' ]
+						ifFalse: [ aString2 ]);
 		lf.
-	aPatch operations do: [:each | 
-		each isAddition 		ifTrue: [self _describeMCAddition: 		each on: stream].
-		each isModification 	ifTrue: [self _describeMCModification: 	each on: stream].
-		each isRemoval 		ifTrue: [self _describeMCRemoval: 		each on: stream].
-	].
-	^stream contents.
+	aPatch operations
+		do: [ :each | 
+			each isAddition
+				ifTrue: [ self _describeMCAddition: each on: stream packageName: packageName ].
+			each isModification
+				ifTrue: [ self _describeMCModification: each on: stream packageName: packageName ].
+			each isRemoval
+				ifTrue: [ self _describeMCRemoval: each on: stream packageName: packageName ] ].
+	^ stream contents
 ]
 
 { #category : 'category' }

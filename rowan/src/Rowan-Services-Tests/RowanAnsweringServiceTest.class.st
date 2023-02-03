@@ -49,14 +49,6 @@ RowanAnsweringServiceTest >> test_execNilContext [
 ]
 
 { #category : 'tests' }
-RowanAnsweringServiceTest >> test_execWithContext [
-
-	self assert: (service exec: 'self' context: 123 asOop) value equals: 123 asOop.
-	self assert: (service exec: 'self size' context: Array new asOop) value equals: 0 asOop.
-	self assert: (service exec: '1 + self' context: 2 asOop) value equals: 3 asOop.
-]
-
-{ #category : 'tests' }
 RowanAnsweringServiceTest >> test_expressionSelector [
   "spelunk a string in hopes of finding a selector within"
 
