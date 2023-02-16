@@ -129,7 +129,7 @@ RowanService class >> templateClassName [
 
 { #category : 'accessing' }
 RowanService class >> version [
-	^ '3.0.6'
+	^ '3.0.7'
 ]
 
 { #category : 'accessing' }
