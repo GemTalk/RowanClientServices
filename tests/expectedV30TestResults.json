@@ -9,9 +9,9 @@
 		"errors" : 8,
 		"failures" : 0,
 		"passed" : 126,
-		"summary" : "134 Tests with 0 Failures, 8 Errors and 0 DeprecationWarnings in 10.56s",
+		"summary" : "134 Tests with 0 Failures, 8 Errors and 0 DeprecationWarnings in 10.23s",
 		"tests" : 134,
-		"time" : 10.563
+		"time" : 10.234
 	},
 	"suiteName" : "RowanClientServices projects Test Suite",
 	"testCases" : [
@@ -67,12 +67,6 @@
 			"className" : "RowanAnsweringServiceTest",
 			"status" : "passed",
 			"selector" : "test_execNilContext",
-			"time" : "0"
-		},
-		{
-			"className" : "RowanAnsweringServiceTest",
-			"status" : "passed",
-			"selector" : "test_execWithContext",
 			"time" : "0"
 		},
 		{
@@ -157,6 +151,12 @@
 			"className" : "RowanBrowserServiceTest",
 			"status" : "passed",
 			"selector" : "test_windowsRegistry",
+			"time" : "0"
+		},
+		{
+			"className" : "RowanBrowserServiceTest2",
+			"status" : "passed",
+			"selector" : "test_isAbstract",
 			"time" : "0"
 		},
 		{
@@ -820,5 +820,5 @@
 			"time" : "0"
 		}
 	],
-	"timeStamp" : "2023-02-02T12:29:00.650294-08:00"
+	"timeStamp" : "2023-02-16T13:19:47.879892-08:00"
 }
