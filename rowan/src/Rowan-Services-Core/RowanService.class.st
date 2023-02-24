@@ -476,6 +476,34 @@ RowanService >> jadeiteServer [
 	^(Rowan jadeServerClassNamed: #JadeServer) theJadeiteServer
 ]
 
+{ #category : 'printing' }
+RowanService >> logOn: aStream [
+	| instVarNames |
+	super printOn: aStream.
+	aStream lf.
+	instVarNames := self class allInstVarNames.
+	1 to: instVarNames size do: [ :index | 
+		| instVarValue |
+		instVarValue := self instVarAt: index.
+		instVarValue
+			ifNotNil: [ 
+				aStream
+					nextPutAll: (instVarNames at: index);
+					nextPut: $=;
+					nextPutAll: instVarValue printString;
+					tab ] ].
+	aStream
+		lf
+]
+
+{ #category : 'printing' }
+RowanService >> logString [
+	| ws |
+	ws := WriteStream on: String new.
+	self logOn: ws.
+	^ ws contents
+]
+
 { #category : 'accessing' }
 RowanService >> organizer: anOrganizer [
 

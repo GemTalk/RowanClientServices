@@ -101,16 +101,28 @@ RowanLoggingService >> logSentServices [
 
 { #category : 'client commands' }
 RowanLoggingService >> logServices [
-
-	| stonString ws |
-	isLogging ifFalse:[^self].
-	id := id + 1. 
+	| ws |
+	isLogging
+		ifFalse: [ ^ self ].
+	id := id + 1.
 	date := Date today.
 	time := Time now.
-	location := #server.
-	stonString := STON toString: self.
-	ws := FileStreamPortable 
-				write: fileName
-				mode: #append.
-	[ws nextPutAll: stonString] ensure: [ws close]
+	location := #'server'.
+	ws := FileStreamPortable write: fileName mode: #'append'.
+	ws
+		nextPutAll: date printString;
+		space;
+		nextPutAll: time printString;
+		space;
+		nextPutAll: mode printString;
+		space;
+		nextPutAll: location printString;
+		lf.
+	[ 
+	services
+		do: [ :service | 
+			ws
+				nextPutAll: service logString;
+				lf ] ]
+		ensure: [ ws close ]
 ]
