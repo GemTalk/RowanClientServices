@@ -291,13 +291,18 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 
 { #category : 'client commands' }
 RowanBrowserService >> releaseWindowHandle: integer [
-  | registry |
-  Rowan loggingServiceClass current
-    logComment: 'Release window with handle: ' , integer printString.
-  registry := SessionTemps current
-    at: #'rowanServicesWindowRegistry'
-    ifAbsent: [ ^ self ].
-  registry removeKey: integer ifAbsent: [  ]
+	| registry array |
+	Rowan loggingServiceClass current
+		logComment: 'Release window with handle: ' , integer printString.
+	registry := SessionTemps current
+		at: #'rowanServicesWindowRegistry'
+		ifAbsent: [ ^ self ].
+	array := registry at: integer ifAbsent: [^self].
+	array
+		do: [ :object | 
+			(object isKindOf: GsProcess)
+				ifTrue: [ RowanDebuggerService new releaseProcessOop: object asOop ] ].
+	registry removeKey: integer ifAbsent: [  ]
 ]
 
 { #category : 'client commands' }

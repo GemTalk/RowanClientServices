@@ -110,13 +110,5 @@ RowanDebuggerService >> updateProcesses [
 					(RowanProcessService new
 						oop: each asOop;
 						status: 'waiting') ].
-	RowanCommandResult addResult: self.
-	(self registeredWindowsIncludesOop: initialProcessOop)
-		ifTrue: [ 
-			"the oop should be there but just in case"
-			Rowan loggingServiceClass current
-				logComment:
-					'RowanDebuggerService>>updateProcesses releaseProcessOop: '
-						, initialProcessOop printString.
-			self releaseProcessOop: initialProcessOop ]
+	RowanCommandResult addResult: self
 ]
