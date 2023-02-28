@@ -111,7 +111,9 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 			answer := false -> ex errorDetails.
 			^ answer ].
 	shouldDebug
-		ifTrue: [ tempMethod setBreakAtStepPoint: 1 ].
+		ifTrue: [ 
+			tempMethod setBreakAtStepPoint: 1.
+			RowanDebuggerService new saveProcessOop: GsProcess _current asOop ].
 	[ answer := true -> (tempMethod _executeInContext: object) asOop ]
 		ensure: [ 
 			shouldDebug

@@ -247,6 +247,18 @@ JadeServer >> autoCommitIfRequired [
 				ifFalse:[#failed])].
 ]
 
+{ #category : 'jadeite' }
+JadeServer >> checkForDeadProcesses [
+	"Rowan Client Services holds onto processes while Jadeite is debugging them. 
+	Sometimes Jadeite won't know when a process is terminated so we check on
+	every round trip for extinguished processes"
+
+	(SessionTemps current at: #'jadeiteProcesses' ifAbsent: [ ^ self ])
+		do: [ :process | 
+			process _isTerminated
+				ifTrue: [ (SessionTemps current at: #'jadeiteProcesses') remove: process ifAbsent:[] ] ]
+]
+
 { #category : 'category' }
 JadeServer >> commit [
 	classOrganizers := Array new: 4.
@@ -600,33 +612,33 @@ JadeServer >> systemConfigAsDictionary [
 
 { #category : 'jadeite' }
 JadeServer >> updateFromSton: stonString [
-        | services organizer resultString |
-[ 
-        Rowan commandResultClass initializeResults.
-        services := ((STON reader allowComplexMapKeys: true) on: stonString readStream)
-                next.
-        organizer := ClassOrganizer new.
-        [ 
-        services
-                do: [ :service | 
-                        service organizer: organizer.
-                        service updateType: nil.        "Update type is only for returned commands"
-                        service command ifNil: [ service command: #'update' ].
-                        service servicePerform: service command withArguments: service commandArgs ] ]
-                on: GsInteractionRequest
-                do: [ :ex | 
-                        ex
-                                response:
-                                        (ex interaction interactWith: self gsInteractionInformFailureHandler) ].
-        self autoCommitIfRequired.
-        Rowan loggingServiceClass current logSentServices.
-        resultString := STON toString: Rowan commandResultClass results.
-^ resultString ]
-                on: Error
-                do: [ :ex | 
-                        RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
-                        ex pass ]
-
+	| services organizer resultString |
+	self checkForDeadProcesses. 
+	[ 
+	Rowan commandResultClass initializeResults.
+	services := ((STON reader allowComplexMapKeys: true) on: stonString readStream)
+		next.
+	organizer := ClassOrganizer new.
+	[ 
+	services
+		do: [ :service | 
+			service organizer: organizer.
+			service updateType: nil.	"Update type is only for returned commands"
+			service command ifNil: [ service command: #'update' ].
+			service servicePerform: service command withArguments: service commandArgs ] ]
+		on: GsInteractionRequest
+		do: [ :ex | 
+			ex
+				response:
+					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
+	self autoCommitIfRequired.
+	Rowan loggingServiceClass current logSentServices.
+	resultString := STON toString: Rowan commandResultClass results.
+	^ resultString ]
+		on: Exception
+		do: [ :ex | 
+			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
+			ex pass ]
 ]
 
 { #category : 'category' }
