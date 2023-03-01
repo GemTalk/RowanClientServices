@@ -363,6 +363,8 @@ RowanBrowserService >> saveRootObject: oop windowHandle: integer [
 		ifAbsentPut: [ Dictionary new ].
 	dictionary at: integer ifAbsentPut: [ Array new ].
 	object := Object _objectForOop: oop.
+	(object isKindOf: GsProcess) ifTrue:[
+		RowanDebuggerService new saveProcessOop: object asOop "make sure the process oop gets saved beyond the life of a debugger or notifier"]. 
 	((dictionary at: integer) includes: object)
 		ifFalse: [ (dictionary at: integer) add: (Object _objectForOop: oop) ]
 ]
