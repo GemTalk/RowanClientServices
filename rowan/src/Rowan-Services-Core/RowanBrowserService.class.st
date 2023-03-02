@@ -291,13 +291,16 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 
 { #category : 'client commands' }
 RowanBrowserService >> releaseWindowHandle: integer [
-  | registry |
-  Rowan loggingServiceClass current
-    logComment: 'Release window with handle: ' , integer printString.
-  registry := SessionTemps current
-    at: #'rowanServicesWindowRegistry'
-    ifAbsent: [ ^ self ].
-  registry removeKey: integer ifAbsent: [  ]
+	| registry object |
+	registry := SessionTemps current
+		at: #'rowanServicesWindowRegistry'
+		ifAbsent: [ ^ self ].
+	object := registry at: integer ifAbsent: [ ^ self ].
+	Rowan loggingServiceClass current
+		logComment:
+			'Release object with oop: ' , object asOop printString , ' window handle: '
+				, integer printString.
+	registry removeKey: integer ifAbsent: [  ]
 ]
 
 { #category : 'client commands' }
@@ -357,16 +360,22 @@ RowanBrowserService >> saveRootObject: oop windowHandle: integer [
 	" a window has been opened on the client. Save the 
 	root object of the window so it won't be recycled"
 
-	| dictionary object |
-	dictionary := SessionTemps current
-		at: #'rowanServicesWindowRegistry'
+	| registry object |
+	registry := SessionTemps current
+		at: #'rowanServicesWindowRegistry' 
 		ifAbsentPut: [ Dictionary new ].
-	dictionary at: integer ifAbsentPut: [ Array new ].
+	registry at: integer ifAbsentPut: [ Array new ].
 	object := Object _objectForOop: oop.
-	(object isKindOf: GsProcess) ifTrue:[
-		RowanDebuggerService new saveProcessOop: object asOop "make sure the process oop gets saved beyond the life of a debugger or notifier"]. 
-	((dictionary at: integer) includes: object)
-		ifFalse: [ (dictionary at: integer) add: (Object _objectForOop: oop) ]
+	(object isKindOf: GsProcess)
+		ifTrue: [ RowanDebuggerService new saveProcessOop: object asOop	"make sure the process oop gets saved beyond the life of a debugger or notifier" ].
+	((registry at: integer) includes: object)
+		ifFalse: [ 
+			object := registry at: integer ifAbsent: [ ^ self ].
+			Rowan loggingServiceClass current
+				logComment:
+					'Saving object with oop: ' , object asOop printString , ' window handle: '
+						, integer printString.
+			(registry at: integer) add: (Object _objectForOop: oop) ]
 ]
 
 { #category : 'accessing' }

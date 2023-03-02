@@ -253,7 +253,7 @@ JadeServer >> checkForDeadProcesses [
 	Sometimes Jadeite won't know when a process is terminated so we check on
 	every round trip for extinguished processes"
 
-	(SessionTemps current at: #'jadeiteProcesses' ifAbsent: [ ^ self ])
+	(SessionTemps current at: #'jadeiteProcesses' ifAbsent: [ ^ self ]) copy
 		do: [ :process | 
 			process _isTerminated
 				ifTrue: [ (SessionTemps current at: #'jadeiteProcesses') remove: process ifAbsent:[] ] ]
