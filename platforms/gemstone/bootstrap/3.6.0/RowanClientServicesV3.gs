@@ -897,6 +897,19 @@ autoCommitIfRequired
 				ifFalse:[#failed])].
 %
 
+category: 'jadeite'
+method: JadeServer
+checkForDeadProcesses
+	"Rowan Client Services holds onto processes while Jadeite is debugging them. 
+	Sometimes Jadeite won't know when a process is terminated so we check on
+	every round trip for extinguished processes"
+
+	(SessionTemps current at: #'jadeiteProcesses' ifAbsent: [ ^ self ]) copy
+		do: [ :process | 
+			process _isTerminated
+				ifTrue: [ (SessionTemps current at: #'jadeiteProcesses') remove: process ifAbsent:[] ] ]
+%
+
 category: 'category'
 method: JadeServer
 commit
@@ -1273,32 +1286,33 @@ systemConfigAsDictionary
 category: 'jadeite'
 method: JadeServer
 updateFromSton: stonString
-        | services organizer resultString |
-[ 
-        Rowan commandResultClass initializeResults.
-        services := ((STON reader allowComplexMapKeys: true) on: stonString readStream)
-                next.
-        organizer := ClassOrganizer new.
-        [ 
-        services
-                do: [ :service | 
-                        service organizer: organizer.
-                        service updateType: nil.        "Update type is only for returned commands"
-                        service command ifNil: [ service command: #'update' ].
-                        service servicePerform: service command withArguments: service commandArgs ] ]
-                on: GsInteractionRequest
-                do: [ :ex | 
-                        ex
-                                response:
-                                        (ex interaction interactWith: self gsInteractionInformFailureHandler) ].
-        self autoCommitIfRequired.
-        Rowan loggingServiceClass current logSentServices.
-        resultString := STON toString: Rowan commandResultClass results.
-^ resultString ]
-                on: Error
-                do: [ :ex | 
-                        RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
-                        ex pass ]
+	| services organizer resultString |
+	self checkForDeadProcesses. 
+	[ 
+	Rowan commandResultClass initializeResults.
+	services := ((STON reader allowComplexMapKeys: true) on: stonString readStream)
+		next.
+	organizer := ClassOrganizer new.
+	[ 
+	services
+		do: [ :service | 
+			service organizer: organizer.
+			service updateType: nil.	"Update type is only for returned commands"
+			service command ifNil: [ service command: #'update' ].
+			service servicePerform: service command withArguments: service commandArgs ] ]
+		on: GsInteractionRequest
+		do: [ :ex | 
+			ex
+				response:
+					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
+	self autoCommitIfRequired.
+	Rowan loggingServiceClass current logSentServices.
+	resultString := STON toString: Rowan commandResultClass results.
+	^ resultString ]
+		on: Exception
+		do: [ :ex | 
+			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
+			ex pass ]
 %
 
 category: 'category'
@@ -2659,7 +2673,7 @@ templateClassName
 category: 'accessing'
 classmethod: RowanService
 version
-	^ '3.0.7'
+	^ '3.0.8'
 %
 
 category: 'accessing'
@@ -3032,6 +3046,36 @@ method: RowanService
 jadeiteServer
 
 	^(Rowan jadeServerClassNamed: #JadeServer) theJadeiteServer
+%
+
+category: 'printing'
+method: RowanService
+logOn: aStream
+	| instVarNames |
+	super printOn: aStream.
+	aStream lf.
+	instVarNames := self class allInstVarNames.
+	1 to: instVarNames size do: [ :index | 
+		| instVarValue |
+		instVarValue := self instVarAt: index.
+		instVarValue
+			ifNotNil: [ 
+				aStream
+					nextPutAll: (instVarNames at: index);
+					nextPut: $=;
+					nextPutAll: instVarValue printString;
+					tab ] ].
+	aStream
+		lf
+%
+
+category: 'printing'
+method: RowanService
+logString
+	| ws |
+	ws := WriteStream on: String new.
+	self logOn: ws.
+	^ ws contents
 %
 
 category: 'accessing'
@@ -3445,7 +3489,9 @@ basicExec: aString context: oop shouldDebug: shouldDebug
 			answer := false -> ex errorDetails.
 			^ answer ].
 	shouldDebug
-		ifTrue: [ tempMethod setBreakAtStepPoint: 1 ].
+		ifTrue: [ 
+			tempMethod setBreakAtStepPoint: 1.
+			RowanDebuggerService new saveProcessOop: GsProcess _current asOop ].
 	[ answer := true -> (tempMethod _executeInContext: object) asOop ]
 		ensure: [ 
 			shouldDebug
@@ -4783,13 +4829,16 @@ recompileMethodsAfterClassCompilation
 category: 'client commands'
 method: RowanBrowserService
 releaseWindowHandle: integer
-  | registry |
-  Rowan loggingServiceClass current
-    logComment: 'Release window with handle: ' , integer printString.
-  registry := SessionTemps current
-    at: #'rowanServicesWindowRegistry'
-    ifAbsent: [ ^ self ].
-  registry removeKey: integer ifAbsent: [  ]
+	| registry object |
+	registry := SessionTemps current
+		at: #'rowanServicesWindowRegistry'
+		ifAbsent: [ ^ self ].
+	object := registry at: integer ifAbsent: [ ^ self ].
+	Rowan loggingServiceClass current
+		logComment:
+			'Release object with oop: ' , object asOop printString , ' window handle: '
+				, integer printString.
+	registry removeKey: integer ifAbsent: [  ]
 %
 
 category: 'client commands'
@@ -4853,14 +4902,22 @@ saveRootObject: oop windowHandle: integer
 	" a window has been opened on the client. Save the 
 	root object of the window so it won't be recycled"
 
-	| dictionary object |
-	dictionary := SessionTemps current
-		at: #'rowanServicesWindowRegistry'
+	| registry object |
+	registry := SessionTemps current
+		at: #'rowanServicesWindowRegistry' 
 		ifAbsentPut: [ Dictionary new ].
-	dictionary at: integer ifAbsentPut: [ Array new ].
+	registry at: integer ifAbsentPut: [ Array new ].
 	object := Object _objectForOop: oop.
-	((dictionary at: integer) includes: object)
-		ifFalse: [ (dictionary at: integer) add: (Object _objectForOop: oop) ]
+	(object isKindOf: GsProcess)
+		ifTrue: [ RowanDebuggerService new saveProcessOop: object asOop	"make sure the process oop gets saved beyond the life of a debugger or notifier" ].
+	((registry at: integer) includes: object)
+		ifFalse: [ 
+			object := registry at: integer ifAbsent: [ ^ self ].
+			Rowan loggingServiceClass current
+				logComment:
+					'Saving object with oop: ' , object asOop printString , ' window handle: '
+						, integer printString.
+			(registry at: integer) add: (Object _objectForOop: oop) ]
 %
 
 category: 'accessing'
@@ -6769,11 +6826,7 @@ updateProcesses
 					(RowanProcessService new
 						oop: each asOop;
 						status: 'waiting') ].
-	RowanCommandResult addResult: self.
-	(self registeredWindowsIncludesOop: initialProcessOop)
-		ifTrue: [ 
-			"the oop should be there but just in case"
-			self releaseProcessOop: initialProcessOop ]
+	RowanCommandResult addResult: self
 %
 
 ! Class implementation for 'RowanDefinitionService'
@@ -8486,20 +8539,22 @@ initialize
 category: 'client commands'
 method: RowanLoggingService
 logComment: string
-
 	| stonString ws |
-	isLogging ifFalse:[^self].
+	isLogging
+		ifFalse: [ ^ self ].
 	comment := string.
-	id := id + 1. 
+	id := id + 1.
 	date := Date today.
 	time := Time now.
-	location := #server.
+	location := #'server'.
 	stonString := STON toString: self.
-	ws := FileStreamPortable 
-				write: fileName
-				mode: #append.
-	[ws nextPutAll: stonString] ensure: [ws close].
-	comment := nil "service may be reused. Clear comment"
+	ws := FileStreamPortable write: fileName mode: #'append'.
+	[ 
+	ws
+		nextPutAll: stonString;
+		lf ]
+		ensure: [ ws close ].
+	comment := nil	"service may be reused. Clear comment"
 %
 
 category: 'accessing'
@@ -8533,18 +8588,30 @@ logSentServices
 category: 'client commands'
 method: RowanLoggingService
 logServices
-
-	| stonString ws |
-	isLogging ifFalse:[^self].
-	id := id + 1. 
+	| ws |
+	isLogging
+		ifFalse: [ ^ self ].
+	id := id + 1.
 	date := Date today.
 	time := Time now.
-	location := #server.
-	stonString := STON toString: self.
-	ws := FileStreamPortable 
-				write: fileName
-				mode: #append.
-	[ws nextPutAll: stonString] ensure: [ws close]
+	location := #'server'.
+	ws := FileStreamPortable write: fileName mode: #'append'.
+	ws
+		nextPutAll: date printString;
+		space;
+		nextPutAll: time printString;
+		space;
+		nextPutAll: mode printString;
+		space;
+		nextPutAll: location printString;
+		lf.
+	[ 
+	services
+		do: [ :service | 
+			ws
+				nextPutAll: service logString;
+				lf ] ]
+		ensure: [ ws close ]
 %
 
 ! Class implementation for 'RowanMethodService'
