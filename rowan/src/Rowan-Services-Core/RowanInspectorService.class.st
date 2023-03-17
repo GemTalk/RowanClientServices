@@ -30,6 +30,12 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'rsr' }
+RowanInspectorService class >> templateClassName [
+
+	^#RowanInspectorService
+]
+
 { #category : 'command support' }
 RowanInspectorService >> addDynamicInstVars: anObject [
 	| dynamic dynamicSize |

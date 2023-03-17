@@ -15,7 +15,7 @@ RowanCommandResult addResult: <self>
 "
 Class {
 	#name : 'RowanService',
-	#superclass : 'Object',
+	#superclass : 'RsrService',
 	#instVars : [
 		'command',
 		'commandArgs',
@@ -40,23 +40,11 @@ RowanService class >> breakPointsAreEnabled [
 	^SessionTemps current at: #'Jadeite_BreakPointsAreEnabled' ifAbsentPut: [true]
 ]
 
-{ #category : 'rsr' }
-RowanService class >> clientClassName [
-
-	^self name
-]
-
 { #category : 'autocommit' }
 RowanService class >> flipAutoCommit [
 	| newValue |
 	newValue := self autoCommit == #failed ifTrue:[false] ifFalse:[self autoCommit not].
 	^self setAutoCommit: newValue
-]
-
-{ #category : 'rsr' }
-RowanService class >> isClientClass [
-	
-	^true
 ]
 
 { #category : 'testing' }
@@ -75,12 +63,6 @@ RowanService class >> isRowanClientServicesVersionSupported: versionString lower
 	high := low copy incrementMinorVersion.
 	version := RwSemanticVersionNumber fromString: versionString.
 	^ low <= version and: [ version < high ]
-]
-
-{ #category : 'rsr' }
-RowanService class >> isServerClass [
-	
-	^true
 ]
 
 { #category : 'instance creation' }
@@ -104,12 +86,6 @@ RowanService class >> sampleService [
 
 ]
 
-{ #category : 'rsr' }
-RowanService class >> serverClassName [
-
-	^self name
-]
-
 { #category : 'autocommit' }
 RowanService class >> setAutoCommit: object [
 
@@ -122,9 +98,9 @@ RowanService class >> setBreakPointsAreEnabled: boolean [
 ]
 
 { #category : 'rsr' }
-RowanService class >> templateClassName [ 
+RowanService class >> templateClassName [
 
-	^self name
+	^#RowanService
 ]
 
 { #category : 'accessing' }
@@ -202,7 +178,7 @@ RowanService >> classHierarchy: theClasses [
 { #category : 'rsr' }
 RowanService >> clearOrganizers [
 	organizer := nil.
-	updates do: [ :update | update organizer: nil ]
+	updates do: [ :update | update clearOrganizers ]
 ]
 
 { #category : 'accessing' }
@@ -337,23 +313,19 @@ RowanService >> executeCommand [
 	organizer := ClassOrganizer new.
 	[ 
 	updateType := nil.	"Update type is only for returned commands"
-	command ifNil: [ command := #'update' ].
-	GsFile gciLogClient: '========== about to execute command ============='.
 	self servicePerform: command withArguments: commandArgs ]
 		on: GsInteractionRequest
 		do: [ :ex | 
 			ex
 				response:
 					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
-	GsFile gciLogClient: '========== about to execute post command ============='.
-	Rowan loggingServiceClass current logSentServices.
+	"Rowan loggingServiceClass current logSentServices.  Not working and causing problems"
 	updates := Rowan commandResultClass results.
 	self postCommandExecution ]
 		on: Error
 		do: [ :ex | 
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
 			ex pass ].
-
 	^ self
 ]
 

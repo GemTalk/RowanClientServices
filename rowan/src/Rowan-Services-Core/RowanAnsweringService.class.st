@@ -15,6 +15,12 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'rsr' }
+RowanAnsweringService class >> templateClassName [
+
+	^#RowanAnsweringService
+]
+
 { #category : 'private' }
 RowanAnsweringService >> addLowerCaseSymbolsIn: theClass To: array [
   array addAll: theClass selectors.
