@@ -178,7 +178,7 @@ RowanService >> classHierarchy: theClasses [
 { #category : 'rsr' }
 RowanService >> clearOrganizers [
 	organizer := nil.
-	updates do: [ :update | update clearOrganizers ]
+	updates do: [ :update | update organizer: nil ]
 ]
 
 { #category : 'accessing' }
@@ -318,14 +318,15 @@ RowanService >> executeCommand [
 		do: [ :ex | 
 			ex
 				response:
-					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
-	"Rowan loggingServiceClass current logSentServices.  Not working and causing problems"
+					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].	"Rowan loggingServiceClass current logSentServices.  Not working and causing problems"
 	updates := Rowan commandResultClass results.
+
 	self postCommandExecution ]
 		on: Error
 		do: [ :ex | 
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
 			ex pass ].
+
 	^ self
 ]
 
@@ -476,6 +477,95 @@ RowanService >> logString [
 	^ ws contents
 ]
 
+{ #category : 'rsr' }
+RowanService >> massage: theValue inNonIndexableCollection: collection visitLog: visitLog [
+	theValue isSpecial
+		ifTrue: [ ^ self ].
+	(theValue isKindOf: ClassOrganizer)
+		ifTrue: [ ^ collection remove: theValue ].
+	(theValue isKindOf: Association)
+		ifTrue: [ 
+			| replacement |
+			replacement := Array with: theValue key with: theValue value.
+			collection remove: theValue.
+			collection add: replacement ].
+	(theValue isKindOf: RowanService)
+		ifTrue: [ ^ theValue massageServiceForRsrTransportWithVisitLog: visitLog ].
+	theValue class isVariable
+		ifTrue: [ ^ self massageCollection: theValue visitLog: visitLog ]
+]
+
+{ #category : 'rsr' }
+RowanService >> massageCollection: collection visitLog: visitLog [
+	(visitLog includes: collection asOop)
+		ifTrue: [ ^ self ].
+	visitLog add: collection asOop.
+	collection class isIndexable
+		ifTrue: [ self massageIndexableCollection: collection visitLog: visitLog ]
+		ifFalse: [ self massageNonIndexableCollection: collection visitLog: visitLog ]
+]
+
+{ #category : 'rsr' }
+RowanService >> massageIndexableCollection: collection visitLog: visitLog [
+	1 to: collection size do: [ :index | self massageObject: collection atIndex: index visitLog: visitLog ]
+]
+
+{ #category : 'rsr' }
+RowanService >> massageNonIndexableCollection: collection visitLog: visitLog [
+	collection
+		do: [ :theValue | self massage: theValue inNonIndexableCollection: collection visitLog: visitLog ]
+]
+
+{ #category : 'rsr' }
+RowanService >> massageObject: object atIndex: index visitLog: visitLog [
+	| theValue |
+	theValue := object at: index.
+	theValue isSpecial
+		ifTrue: [ ^ self ].
+	(theValue isKindOf: ClassOrganizer)
+		ifTrue: [ ^ object at: index put: nil ].
+	(theValue isKindOf: Association)
+		ifTrue: [ ^ object at: index put: (Array with: theValue key with: theValue value) ].
+	(theValue isKindOf: RowanService)
+		ifTrue: [ ^ object massageServiceForRsrTransportWithVisitLog: visitLog ].
+	theValue class isVariable
+		ifTrue: [ ^object massageCollection: theValue visitLog: visitLog ]
+]
+
+{ #category : 'rsr' }
+RowanService >> massageObjectAtInstVarIndex: index visitLog: visitLog [
+	| instVarValue |
+	instVarValue := self instVarAt: index.
+	instVarValue isSpecial
+		ifTrue: [ ^ self ].
+	(instVarValue isKindOf: ClassOrganizer)
+		ifTrue: [ ^ self instVarAt: index put: nil ].
+	(instVarValue isKindOf: Association)
+		ifTrue: [ 
+			^ self
+				instVarAt: index
+				put: (Array with: instVarValue key with: instVarValue value) ].
+	(instVarValue isKindOf: RowanService)
+		ifTrue: [ ^ instVarValue massageServiceForRsrTransportWithVisitLog: visitLog ].
+	instVarValue class isVariable
+		ifTrue: [ self massageCollection: instVarValue visitLog: visitLog ]
+]
+
+{ #category : 'rsr' }
+RowanService >> massageServiceForRsrTransportWithVisitLog: visitLog [
+	"rsr won't handle associations"
+
+	self isSpecial
+		ifTrue: [ ^ self ].
+	(visitLog includes: self asOop)
+		ifTrue: [ ^ self ].
+	visitLog add: self asOop.
+	1 to: self class allInstVarNames size do: [ :index |
+		self
+			massageObjectAtInstVarIndex: index
+			visitLog: visitLog ].
+]
+
 { #category : 'accessing' }
 RowanService >> organizer: anOrganizer [
 
@@ -508,10 +598,11 @@ RowanService >> peerHierarchies: theClasses [
 
 { #category : 'rsr' }
 RowanService >> postCommandExecution [
-	
-	self clearOrganizers. 
-	updates remove: self ifAbsent: [  ].
-	self autoCommitIfRequired
+	| visitLog |
+	self autoCommitIfRequired.
+	self removeDuplicateServices.
+	visitLog := Set new.
+	self massageServiceForRsrTransportWithVisitLog: visitLog.
 ]
 
 { #category : 'rowan' }
@@ -534,6 +625,16 @@ RowanService >> releaseProcessOop: oop [
         at: #'jadeiteProcesses'
         ifAbsentPut: [ Array new ].
       jadeiteProcesses remove: process ifAbsent: [  ] ]
+]
+
+{ #category : 'rsr' }
+RowanService >> removeDuplicateServices [
+	updates copy
+		do: [ :update | 
+			update = self
+				ifTrue: [ 
+					self updateInternalService: update.
+					updates remove: update ] ]
 ]
 
 { #category : 'samples' }

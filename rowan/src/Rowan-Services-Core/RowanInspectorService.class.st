@@ -236,6 +236,26 @@ RowanInspectorService >> isClientForwarder: anObject [
 	^(Reflection classOf: anObject) name == #'ClientForwarder'
 ]
 
+{ #category : 'accessing' }
+RowanInspectorService >> isOop [
+	^isOop
+]
+
+{ #category : 'accessing' }
+RowanInspectorService >> isOop: object [
+	isOop := object
+]
+
+{ #category : 'accessing' }
+RowanInspectorService >> maxIndexedVars [
+	^maxIndexedVars
+]
+
+{ #category : 'accessing' }
+RowanInspectorService >> maxIndexedVars: object [
+	maxIndexedVars := object
+]
+
 { #category : 'constants' }
 RowanInspectorService >> maxPrintStringSize [
   "currently matches Jadeite client"
