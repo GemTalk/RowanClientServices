@@ -130,6 +130,31 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 ]
 
 { #category : 'client command support' }
+RowanAnsweringService >> basicExecReturningPringString: aString context: oop shouldDebug: shouldDebug [
+	| object symbolList tempMethod result |
+	object := Object _objectForOop: oop.
+	symbolList := Rowan image symbolList.
+	[ tempMethod := aString _compileInContext: object symbolList: symbolList ]
+		on: CompileError
+		do: [ :ex | 
+			answer := Array with: false with: ex errorDetails.
+			^ answer ].
+	shouldDebug
+		ifTrue: [ 
+			tempMethod setBreakAtStepPoint: 1.
+			RowanDebuggerService new saveProcessOop: GsProcess _current asOop ].
+	[ 
+	result := tempMethod _executeInContext: object.
+	answer := Array with: true with: result asOop with: result printString ]
+		ensure: [ 
+			shouldDebug
+				ifTrue: [ tempMethod clearBreakAtStepPoint: 1 ] ].
+	RowanService autoCommit == true
+		ifTrue: [ System commitTransaction ].
+	^ answer
+]
+
+{ #category : 'client command support' }
 RowanAnsweringService >> basicMethodHistoryFor: methodService [
   | rowanMethodHistory |
   rowanMethodHistory := self userGlobals
@@ -447,6 +472,16 @@ RowanAnsweringService >> execReturningObject: aString [
 	"don't return complex objects - ston will likely break" 
 	answer := aString evaluate. 
 	RowanCommandResult addResult: self.
+]
+
+{ #category : 'client commands' }
+RowanAnsweringService >> execReturningPrintString: aString context: oop [
+
+	answer := self basicExecReturningPringString: aString context: oop shouldDebug: false.
+	RowanCommandResult addResult: self.
+
+	"return answer for testing" 
+	^answer
 ]
 
 { #category : 'client commands' }
