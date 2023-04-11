@@ -529,7 +529,7 @@ RowanService >> massageObject: object atIndex: index visitLog: visitLog [
 	(theValue isKindOf: RowanService)
 		ifTrue: [ ^ object massageServiceForRsrTransportWithVisitLog: visitLog ].
 	theValue class isVariable
-		ifTrue: [ ^object massageCollection: theValue visitLog: visitLog ]
+		ifTrue: [ ^self massageCollection: theValue visitLog: visitLog ]
 ]
 
 { #category : 'rsr' }
