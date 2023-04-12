@@ -603,6 +603,7 @@ RowanService >> postCommandExecution [
 	self removeDuplicateServices.
 	visitLog := Set new.
 	self massageServiceForRsrTransportWithVisitLog: visitLog.
+	self clearOrganizers.
 ]
 
 { #category : 'rowan' }
