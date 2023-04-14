@@ -43,6 +43,12 @@ RowanProjectService class >> newNamed: aString [
 	^inst
 ]
 
+{ #category : 'rsr' }
+RowanProjectService class >> templateClassName [
+
+	^#RowanProjectService
+]
+
 { #category : 'accessing' }
 RowanProjectService >> _isSkew [
 
@@ -413,6 +419,13 @@ RowanProjectService >> log [
 		commitLogProjectNamed: name
 		limit: 25
 
+]
+
+{ #category : 'rsr' }
+RowanProjectService >> massageServiceForRsrTransportWithVisitLog: visitLog [
+
+	rwProject := nil. 
+	^super massageServiceForRsrTransportWithVisitLog: visitLog
 ]
 
 { #category : 'accessing' }

@@ -13,6 +13,12 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'rsr' }
+RowanLoadSpecService class >> templateClassName [
+
+	^#RowanLoadSpecService
+]
+
 { #category : 'command support' }
 RowanLoadSpecService >> addInstVars: anObject [
 	"coerce the oops into strings for display in the browsers"

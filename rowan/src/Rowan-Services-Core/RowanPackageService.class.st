@@ -36,6 +36,12 @@ RowanPackageService class >> forPackageNamed: aName [
 	^ inst
 ]
 
+{ #category : 'rsr' }
+RowanPackageService class >> templateClassName [
+
+	^#RowanPackageService
+]
+
 { #category : 'comparing' }
 RowanPackageService >> = packageService [
 	(packageService isKindOf: RowanPackageService) ifFalse:[^false].

@@ -21,6 +21,12 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'rsr' }
+RowanBrowserService class >> templateClassName [
+
+	^#RowanBrowserService
+]
+
 { #category : 'client commands' }
 RowanBrowserService >> abortTransaction [
   | autoCommitService autoCommitState |

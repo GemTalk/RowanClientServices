@@ -24,6 +24,12 @@ RowanComponentService class >> forComponentNamed: componentName projectService: 
 	^ inst
 ]
 
+{ #category : 'rsr' }
+RowanComponentService class >> templateClassName [
+
+	^#RowanComponentService
+]
+
 { #category : 'operations' }
 RowanComponentService >> addFlattenedHierarchyTo: dictionary [
 	| sortedComponents |

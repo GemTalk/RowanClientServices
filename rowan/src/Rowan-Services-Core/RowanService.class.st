@@ -519,6 +519,7 @@ RowanService >> massageNonIndexableCollection: collection visitLog: visitLog [
 { #category : 'rsr' }
 RowanService >> massageObject: object atIndex: index visitLog: visitLog [
 	| theValue |
+	(object isKindOf: Dictionary) ifTrue:[^self "for now"].
 	theValue := object at: index.
 	theValue isSpecial
 		ifTrue: [ ^ self ].
@@ -527,7 +528,7 @@ RowanService >> massageObject: object atIndex: index visitLog: visitLog [
 	(theValue isKindOf: Association)
 		ifTrue: [ ^ object at: index put: (Array with: theValue key with: theValue value) ].
 	(theValue isKindOf: RowanService)
-		ifTrue: [ ^ object massageServiceForRsrTransportWithVisitLog: visitLog ].
+		ifTrue: [ ^ theValue massageServiceForRsrTransportWithVisitLog: visitLog ].
 	theValue class isVariable
 		ifTrue: [ ^self massageCollection: theValue visitLog: visitLog ]
 ]
