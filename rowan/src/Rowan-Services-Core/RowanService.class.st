@@ -307,7 +307,6 @@ RowanService >> excludedInstVars [
 { #category : 'rsr' }
 RowanService >> executeCommand [
 	"RSR -> RowanServices primary api."
-
 	[ 
 	Rowan commandResultClass initializeResults.
 	organizer := ClassOrganizer new.
@@ -318,7 +317,8 @@ RowanService >> executeCommand [
 		do: [ :ex | 
 			ex
 				response:
-					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].	"Rowan loggingServiceClass current logSentServices.  Not working and causing problems"
+					(ex interaction interactWith: self gsInteractionInformFailureHandler).
+			 ].	
 	updates := Rowan commandResultClass results.
 
 	self postCommandExecution ]
@@ -354,6 +354,46 @@ RowanService >> fileOut: ws on: path [
 				ifTrue: [ file delete ]
 				ifFalse: [ ^ self ] ].
 	file := file writeStreamDo: [ :stream | stream nextPutAll: ws contents ]
+]
+
+{ #category : 'rsr' }
+RowanService >> gsInteractionInformFailureHandler [
+  self interactionHandlerActive
+   ifFalse: [ 
+      ^ GsInteractionHandler new
+        defaultBlock: [ :ignored | Error signal: 'expected a confirmation' ];
+        confirmBlock: [ :interaction | interaction ok ];
+        informBlock: [ :interaction |  ];
+        inspectBlock: [ :interaction |  ];
+        yourself ].
+  ^ GsInteractionHandler new
+    confirmBlock: [ :interaction | 
+          | exception answer |
+          exception := ClientForwarderSend new
+            receiver: self
+            clientObj: 1
+            selector: #'confirmMessageBox:'
+            args: (Array with: interaction prompt).
+          answer := exception defaultAction.	"expect printString of answer back. Jadeite has limited ability to convert client objects to oops"
+          answer evaluate ];
+    informBlock: [ :interaction | 
+          | exception |
+          exception := ClientForwarderSend new
+            receiver: self
+            clientObj: 1
+            selector: #'informMessageBox:'
+            args: (Array with: interaction message).
+          exception defaultAction.
+          nil ];
+    inspectBlock: [ :interaction | 
+          | exception |
+          exception := ClientForwarderSend new
+            receiver: self
+            clientObj: 1
+            selector: #'inspectServerObject:'
+            args: (Array with: interaction theObject asOop).
+          exception defaultAction.
+          interaction theObject ]
 ]
 
 { #category : 'perform' }
@@ -394,6 +434,11 @@ RowanService >> hierarchiesByLevel: hierarchies [
 RowanService >> initialize [
 	updates := Array new.
 	wasUpdated := false
+]
+
+{ #category : 'rsr' }
+RowanService >> interactionHandlerActive [
+  ^ SessionTemps current at: #'rowanServiceInteractionActive' ifAbsent: [ true ]
 ]
 
 { #category : 'testing' }

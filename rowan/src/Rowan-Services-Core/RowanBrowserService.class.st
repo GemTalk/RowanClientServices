@@ -141,6 +141,13 @@ RowanBrowserService >> classHierarchyForPackagesNamed: packageNames [
 ]
 
 { #category : 'client commands' }
+RowanBrowserService >> commitTransaction [
+	| answeringService |
+	answeringService := RowanAnsweringService new answer: System commitTransaction.
+	RowanCommandResult addResult: answeringService.
+]
+
+{ #category : 'client commands' }
 RowanBrowserService >> compileClass: definitionString [
   | anonymousMethod |
   self confirmDuplicateName: definitionString.

@@ -18,6 +18,12 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'rsr' }
+RowanDictionaryService class >> templateClassName [
+
+	^#RowanDictionaryService
+]
+
 { #category : 'accessing' }
 RowanDictionaryService >> classes [
 	^classes

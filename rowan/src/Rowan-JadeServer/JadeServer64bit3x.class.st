@@ -378,13 +378,12 @@ JadeServer64bit3x >> nameOfFirstDictionaryReferencing: aGlobal [
 JadeServer64bit3x >> nextPutAll: anObject [
 
 	| exception |
-	exception := ClientForwarderSend new 
+	exception := RowanClientForwarderSend new 
 		receiver: self 
 		clientObj: 2
 		selector:#'nextPutAll:'
 		args: (Array with: (self asString: anObject)).
 	exception defaultAction.  "return error direct to GCI"
-
 ]
 
 { #category : 'category' }

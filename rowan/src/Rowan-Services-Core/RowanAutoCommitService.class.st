@@ -10,6 +10,12 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'rsr' }
+RowanAutoCommitService class >> templateClassName [
+
+	^#RowanAutoCommitService
+]
+
 { #category : 'client commands' }
 RowanAutoCommitService >> autoCommit: boolean [
 
