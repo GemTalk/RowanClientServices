@@ -307,6 +307,7 @@ RowanService >> excludedInstVars [
 { #category : 'rsr' }
 RowanService >> executeCommand [
 	"RSR -> RowanServices primary api."
+
 	[ 
 	Rowan commandResultClass initializeResults.
 	organizer := ClassOrganizer new.
@@ -317,8 +318,7 @@ RowanService >> executeCommand [
 		do: [ :ex | 
 			ex
 				response:
-					(ex interaction interactWith: self gsInteractionInformFailureHandler).
-			 ].	
+					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
 	updates := Rowan commandResultClass results.
 
 	self postCommandExecution ]

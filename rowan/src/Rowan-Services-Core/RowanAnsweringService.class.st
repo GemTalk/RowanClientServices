@@ -130,7 +130,7 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 ]
 
 { #category : 'client command support' }
-RowanAnsweringService >> basicExecReturningPringString: aString context: oop shouldDebug: shouldDebug [
+RowanAnsweringService >> basicExecReturningPrintString: aString context: oop shouldDebug: shouldDebug [
 	| object symbolList tempMethod result |
 	object := Object _objectForOop: oop.
 	symbolList := Rowan image symbolList.
@@ -477,7 +477,7 @@ RowanAnsweringService >> execReturningObject: aString [
 { #category : 'client commands' }
 RowanAnsweringService >> execReturningPrintString: aString context: oop [
 
-	answer := self basicExecReturningPringString: aString context: oop shouldDebug: false.
+	answer := self basicExecReturningPrintString: aString context: oop shouldDebug: false.
 	RowanCommandResult addResult: self.
 
 	"return answer for testing" 
