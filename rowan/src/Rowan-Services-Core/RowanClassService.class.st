@@ -92,6 +92,12 @@ RowanClassService class >> minimalForClassNamed: className packageNames: package
 	^self new minimalForClassNamed: className packageNames: packageNames
 ]
 
+{ #category : 'rsr' }
+RowanClassService class >> templateClassName [
+
+	^#RowanClassService
+]
+
 { #category : 'comparing' }
 RowanClassService >> = classService [
 	(classService class canUnderstand: #isClassService) ifFalse:[^false].

@@ -19,6 +19,12 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'rsr' }
+RowanProjectDefinitionService class >> templateClassName [
+
+	^#RowanProjectDefinitionService
+]
+
 { #category : 'client commands' }
 RowanProjectDefinitionService >> addComponent: componentName [
 	self definition addLoadComponentNamed: componentName.
