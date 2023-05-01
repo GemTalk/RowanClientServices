@@ -326,7 +326,6 @@ RowanService >> executeCommand [
 		do: [ :ex | 
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
 			ex pass ].
-
 	^ self
 ]
 

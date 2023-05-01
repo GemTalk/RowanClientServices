@@ -132,6 +132,12 @@ RowanMethodService class >> source: source selector: selector category: category
 	^service
 ]
 
+{ #category : 'rsr' }
+RowanMethodService class >> templateClassName [
+
+	^#RowanMethodService
+]
+
 { #category : 'comparing' }
 RowanMethodService >> = methodService [
 	(methodService class canUnderstand: #isMethodService) ifFalse:[^false].

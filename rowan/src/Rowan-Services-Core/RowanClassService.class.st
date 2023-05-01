@@ -986,21 +986,7 @@ RowanClassService >> poolDictionaryNames: newValue [
 
 { #category : 'rsr' }
 RowanClassService >> postCommandExecution [
-	updates := Array new.
 	super postCommandExecution.
-
-	GsFile gciLogClient: '---------RowanMethodService----------'.
-	self reflectedVariableNames
-		do: [ :ivName | 
-			| index |
-			index := self class allInstVarNames indexOf: ivName asSymbol.
-
-			GsFile gciLogClient: ivName , ': '.
-			GsFile
-				gciLogClient:
-					([ (self instVarAt: index) printString ]
-						on: Error
-						do: [ :ex | ex printString ]) ].
 	methods do: [:methodService | methodService clearOrganizers].
 ]
 
@@ -1059,7 +1045,7 @@ RowanClassService >> refreshMethodsFor: classOrMeta [
 						ifNone: [  ].
 					service ifNotNil: [ service accessedInstVars add: instVar asString ] ] ].
 	self initializeTestMethodsFor: classOrMeta thisClass.
-	self setVisibleTests	"methods must be available"
+	self setVisibleTests.	"methods must be available"
 ]
 
 { #category : 'client commands' }
