@@ -1197,7 +1197,7 @@ RowanClassService >> runMethodTests: methodServices [
 { #category : 'client commands' }
 RowanClassService >> saveMethodSource: source category: category [
 	| behavior compilationResult gsNMethod updatedCategory methodService unicodeSource |
-	unicodeSource := Unicode16 withAll: source. 
+	unicodeSource := source. 
 	meta
 		ifNil: [ 
 			behavior := Object _objectForOop: oop.

@@ -54,7 +54,7 @@ RowanLoadSpecService >> editInWindow: handle [
 	RowanCommandResult addResult: self
 ]
 
-{ #category : 'replicatoin' }
+{ #category : 'replication' }
 RowanLoadSpecService >> excludedInstVars [
 	^ super excludedInstVars , #(#'loadSpec')
 ]

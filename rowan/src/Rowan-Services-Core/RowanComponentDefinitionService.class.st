@@ -53,6 +53,12 @@ RowanComponentDefinitionService class >> forComponentNamed: componentName projec
 	^ inst
 ]
 
+{ #category : 'rsr' }
+RowanComponentDefinitionService class >> templateClassName [
+
+	^#RowanComponentDefinitionService
+]
+
 { #category : 'other' }
 RowanComponentDefinitionService >> addFlattenedHierarchyTo: dictionary [
 	| sortedSubcomponents |

@@ -14,6 +14,12 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'rsr' }
+RowanQueryService class >> templateClassName [
+
+	^#RowanQueryService
+]
+
 { #category : 'private' }
 RowanQueryService >> basicBreakpointMethods [
 	| bpMethods bpArray |
