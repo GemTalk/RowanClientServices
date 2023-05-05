@@ -201,6 +201,7 @@ RowanBrowserService >> initialize [
 
 { #category : 'accessing' }
 RowanBrowserService >> newCachedClasses [
+	newCachedClasses ifNil: [newCachedClasses := Array new]. 
 	^newCachedClasses
 ]
 
@@ -438,6 +439,6 @@ RowanBrowserService >> updateProjects [
 
 { #category : 'update' }
 RowanBrowserService >> updateSymbols: classNames [
-  newCachedClasses addAll: classNames.
+  self newCachedClasses addAll: classNames.
   updateType := #'addCachedSymbols:'
 ]
