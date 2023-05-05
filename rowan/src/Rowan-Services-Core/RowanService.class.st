@@ -313,7 +313,9 @@ RowanService >> executeCommand [
 	organizer := ClassOrganizer new.
 	[ 
 	updateType := nil.	"Update type is only for returned commands"
-	self servicePerform: command withArguments: commandArgs ]
+	[ self servicePerform: command withArguments: commandArgs ]
+		on: Error
+		do: [ :ex | self postCommandExecution. ex pass ] ]
 		on: GsInteractionRequest
 		do: [ :ex | 
 			ex
