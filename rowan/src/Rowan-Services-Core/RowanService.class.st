@@ -323,7 +323,8 @@ RowanService >> executeCommand [
 					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
 	updates := Rowan commandResultClass results.
 
-	self postCommandExecution ]
+	self postCommandExecution.
+	self autoCommitIfRequired. ]
 		on: Error
 		do: [ :ex | 
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.

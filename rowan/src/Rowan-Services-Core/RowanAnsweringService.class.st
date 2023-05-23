@@ -137,7 +137,7 @@ RowanAnsweringService >> basicExecReturningPrintString: aString context: oop sho
 	[ tempMethod := aString _compileInContext: object symbolList: symbolList ]
 		on: CompileError
 		do: [ :ex | 
-			answer := Array with: false with: ex errorDetails first last.
+			answer := Array with: false with: ex errorDetails.
 			^ answer ].
 	shouldDebug
 		ifTrue: [ 
