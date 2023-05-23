@@ -323,8 +323,7 @@ RowanService >> executeCommand [
 					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
 	updates := Rowan commandResultClass results.
 
-	self postCommandExecution.
-	self autoCommitIfRequired. ]
+	self postCommandExecution. ]
 		on: Error
 		do: [ :ex | 
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
@@ -647,11 +646,11 @@ RowanService >> peerHierarchies: theClasses [
 { #category : 'rsr' }
 RowanService >> postCommandExecution [
 	| visitLog |
-	self autoCommitIfRequired.
 	self removeDuplicateServices.
 	visitLog := Set new.
 	self massageServiceForRsrTransportWithVisitLog: visitLog.
 	self clearOrganizers.
+	self autoCommitIfRequired.
 ]
 
 { #category : 'rowan' }
