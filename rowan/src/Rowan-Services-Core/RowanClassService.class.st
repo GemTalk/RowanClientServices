@@ -640,7 +640,7 @@ RowanClassService >> initializeMethodHistoryFor: source [
         meta: meta
         organizer: organizer.
       methodHistory := rowanMethodHistory
-        at: methodService
+        at: methodService unregisteredCopy
         ifAbsentPut: [ Array new ] ]
 ]
 

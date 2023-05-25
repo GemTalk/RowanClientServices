@@ -160,7 +160,7 @@ RowanAnsweringService >> basicMethodHistoryFor: methodService [
   rowanMethodHistory := self userGlobals
     at: #'RowanMethodHistory'
     ifAbsentPut: [ Dictionary new ].
-  answer := (rowanMethodHistory at: methodService ifAbsentPut: [ Array new ])
+  answer := (rowanMethodHistory at: methodService unregisteredCopy ifAbsentPut: [ Array new ])
     asOrderedCollection.
   answer
     addFirst: (rowanMethodHistory keys detect: [ :svc | svc = methodService ])

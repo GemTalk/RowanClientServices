@@ -141,6 +141,11 @@ RowanBrowserService >> classHierarchyForPackagesNamed: packageNames [
 ]
 
 { #category : 'client commands' }
+RowanBrowserService >> clearWindowRegistry [
+	SessionTemps current at: #'rowanServicesWindowRegistry' put: Dictionary new
+]
+
+{ #category : 'client commands' }
 RowanBrowserService >> commitTransaction [
 	| answeringService |
 	answeringService := RowanAnsweringService new answer: System commitTransaction.

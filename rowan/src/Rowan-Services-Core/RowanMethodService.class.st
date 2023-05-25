@@ -163,7 +163,7 @@ RowanMethodService >> addToMethodHistory [
     at: #'RowanMethodHistory'
     ifAbsentPut: [ Dictionary new ].
   methodHistory := rowanMethodHistory at: self ifAbsentPut: [ Array new ].
-  methodHistory add: self
+  methodHistory add: self unregisteredCopy
 ]
 
 { #category : 'client commands' }

@@ -613,6 +613,14 @@ RowanService >> massageServiceForRsrTransportWithVisitLog: visitLog [
 			visitLog: visitLog ].
 ]
 
+{ #category : 'rsr' }
+RowanService >> nilRsrVariables [
+
+	_id := nil. 
+	_connection := nil. 
+	remoteSelf := nil
+]
+
 { #category : 'accessing' }
 RowanService >> organizer: anOrganizer [
 
@@ -835,6 +843,16 @@ RowanService >> symbolDictionaryNamed: aName [
 
 ]
 
+{ #category : 'rsr' }
+RowanService >> unregisteredCopy [
+	"copy of service without any reference to the rsr connection"
+
+	| copy |
+	copy := self copy.
+	copy nilRsrVariables.
+	^copy
+]
+
 { #category : 'update' }
 RowanService >> update [
 	wasUpdated := true
@@ -862,7 +880,7 @@ RowanService >> updateType: aSymbol [
 
 { #category : 'accessing' }
 RowanService >> userGlobals [
-  ^ Rowan image symbolList objectNamed: #'UserGlobals'
+	^ Rowan image symbolList objectNamed: #'UserGlobals'
 ]
 
 { #category : 'private' }
