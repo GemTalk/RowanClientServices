@@ -534,6 +534,12 @@ RowanAnsweringService >> flipTranscript [
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> formatSource: aString [
+	answer := (RBParser parseMethod: aString) formattedCode.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> initializeAutoCommit [
 
 	RowanService setAutoCommit: false
