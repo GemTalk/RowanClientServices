@@ -12,6 +12,12 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
+{ #category : 'rsr' }
+RowanFileService class >> templateClassName [
+
+	^RowanFileService
+]
+
 { #category : 'command support' }
 RowanFileService >> basicIsDirectory: thePath [
 	| fileReference |
