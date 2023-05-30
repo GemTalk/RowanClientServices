@@ -12,10 +12,10 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
-{ #category : 'rsr' }
+{ #category : 'as yet unclassified' }
 RowanFileService class >> templateClassName [
 
-	^RowanFileService
+	^#RowanFileService
 ]
 
 { #category : 'command support' }
