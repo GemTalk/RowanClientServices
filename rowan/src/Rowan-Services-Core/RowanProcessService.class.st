@@ -60,6 +60,12 @@ RowanProcessService class >> onWaitingProcess: aGsProcess [
 
 ]
 
+{ #category : 'rsr' }
+RowanProcessService class >> templateClassName [
+
+	^#RowanProcessService
+]
+
 { #category : 'initialize' }
 RowanProcessService >> initialize [
 

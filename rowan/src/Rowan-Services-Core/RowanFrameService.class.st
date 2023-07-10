@@ -30,6 +30,12 @@ RowanFrameService class >> process: aGsProcess level: anInteger organizer: aClas
 
 ]
 
+{ #category : 'rsr' }
+RowanFrameService class >> templateClassName [
+
+	^#RowanFrameService
+]
+
 { #category : 'other' }
 RowanFrameService >> initializeProcess: aGsProcess level: anInteger organizer: aClassOrganizer [
   "In 3.2.15 the server does some whacky things with IP, stepPoint, and nested methods.

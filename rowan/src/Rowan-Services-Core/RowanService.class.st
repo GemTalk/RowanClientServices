@@ -269,6 +269,14 @@ RowanService >> createSymbolDictionaryNamed: aName [
 	^ dictionary
 ]
 
+{ #category : 'rsr' }
+RowanService >> debug: anException
+raisedDuring: aMessageSend
+answerUsing: aResolver [
+
+	aResolver break: (RsrRemoteException from: anException)
+]
+
 { #category : 'symbol dictionaries' }
 RowanService >> defaultSymbolDictionary [
 	"used?"
@@ -308,14 +316,17 @@ RowanService >> excludedInstVars [
 RowanService >> executeCommand [
 	"RSR -> RowanServices primary api."
 
+	self setDebugActionBlock.
 	[ 
 	Rowan commandResultClass initializeResults.
 	organizer := ClassOrganizer new.
 	[ 
 	updateType := nil.	"Update type is only for returned commands"
 	[ self servicePerform: command withArguments: commandArgs ]
-		on: Error
-		do: [ :ex | self postCommandExecution. ex pass ] ]
+		on: Exception
+		do: [ :ex | 
+			self postCommandExecution.
+			ex pass ] ]
 		on: GsInteractionRequest
 		do: [ :ex | 
 			ex
@@ -323,8 +334,8 @@ RowanService >> executeCommand [
 					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
 	updates := Rowan commandResultClass results.
 
-	self postCommandExecution. ]
-		on: Error
+	self postCommandExecution ]
+		on: Exception
 		do: [ :ex | 
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
 			ex pass ].
@@ -781,6 +792,32 @@ them in the newServices temporary for look up"
 								unlessExistingIn: newServices
 								expand: toExpand
 								packageNames: allPackageNames ]) ]
+]
+
+{ #category : 'rsr' }
+RowanService >> setDebugActionBlock [
+	Processor activeProcess
+		breakpointLevel: 1;
+		debugActionBlock: [ :ex | 
+					ex class = Halt
+						ifTrue: [ 
+							| activeProcess |
+							activeProcess := GsProcess _current.
+							RowanDebuggerService new saveProcessOop: activeProcess asOop.
+							[ 
+							| processService promise |
+							processService := RowanProcessService new
+								oop: activeProcess asOop;
+								status: 'suspended'.
+							processService registerWith: _connection.
+							promise := processService remoteSelf openDebugger.
+							promise wait ] fork.
+							Processor activeProcess suspend ].
+					({RsrUnhandledException} includes: ex class)
+						ifTrue: [ 
+							"should never get here unless something really bad happens"
+							ex _signalGciError ]
+						ifFalse: [ RsrUnhandledException signal: ex ] ]
 ]
 
 { #category : 'replication' }
