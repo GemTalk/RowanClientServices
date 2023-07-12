@@ -12,7 +12,8 @@ Class {
 		'oop',
 		'key',
 		'value',
-		'className'
+		'className',
+		'name'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -24,6 +25,12 @@ RowanVariableService class >> oop: anInteger key: nameString value: valueString 
 		oop: anInteger key: nameString value: valueString className: classNameString;
 		yourself
 
+]
+
+{ #category : 'other' }
+RowanVariableService class >> templateClassName [ 
+
+	^#RowanVariableService
 ]
 
 { #category : 'other' }

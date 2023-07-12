@@ -11,7 +11,8 @@ Class {
 	#instVars : [
 		'frames',
 		'oop',
-		'status'
+		'status',
+		'name'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -79,7 +80,7 @@ RowanProcessService >> initialize: aGsProcess status: aString [
 	theOrganizer := ClassOrganizer new. 
 	frames := Array new: aGsProcess stackDepth.
 	1 to: aGsProcess stackDepth do: [:i | 
-		frames at: i put: (RowanFrameService process: aGsProcess level: i organizer: theOrganizer).
+		frames at: i put: (RowanFrameServiceServer process: aGsProcess level: i organizer: theOrganizer).
 	].
 	oop := aGsProcess asOop.  
 	status := aString.

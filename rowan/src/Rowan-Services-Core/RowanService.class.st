@@ -805,19 +805,18 @@ RowanService >> setDebugActionBlock [
 							activeProcess := GsProcess _current.
 							RowanDebuggerService new saveProcessOop: activeProcess asOop.
 							[ 
-							| processService promise |
-							processService := RowanProcessService new
-								oop: activeProcess asOop;
-								status: 'suspended'.
+							| processService |
+							processService := RowanProcessServiceServer
+								onSuspendedProcess: activeProcess.
 							processService registerWith: _connection.
-							promise := processService remoteSelf openDebugger.
-							promise wait ] fork.
-							Processor activeProcess suspend ].
-					({RsrUnhandledException} includes: ex class)
-						ifTrue: [ 
-							"should never get here unless something really bad happens"
-							ex _signalGciError ]
-						ifFalse: [ RsrUnhandledException signal: ex ] ]
+							processService openDebugger.
+							activeProcess resume ] fork.
+							activeProcess suspend.
+							RsrUnhandledException = ex class
+								ifTrue: [ 
+									"should never get here unless something really bad happens"
+									ex _signalGciError ]
+								ifFalse: [ RsrUnhandledException signal: ex ] ] ]
 ]
 
 { #category : 'replication' }

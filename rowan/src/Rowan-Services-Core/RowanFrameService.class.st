@@ -16,7 +16,8 @@ Class {
 		'oop',
 		'homeMethodSelector',
 		'homeMethodClassName',
-		'classIsResolvable'
+		'classIsResolvable',
+		'name'
 	],
 	#category : 'Rowan-Services-Core'
 }
