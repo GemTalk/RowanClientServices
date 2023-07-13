@@ -126,7 +126,7 @@ RowanFrameService >> varsFor: anArray [
 			ifTrue: [ value := (value copyFrom: 1 to: 500) , '...' ].
 		list
 			add:
-				(RowanVariableService
+				(RowanVariableServiceServer
 					oop: theOop
 					key: key
 					value: value

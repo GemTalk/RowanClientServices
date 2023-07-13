@@ -801,16 +801,14 @@ RowanService >> setDebugActionBlock [
 		debugActionBlock: [ :ex | 
 					ex class = Halt
 						ifTrue: [ 
-							| activeProcess |
-							activeProcess := GsProcess _current.
+							| activeProcess processService |
+							[activeProcess := GsProcess _current.
 							RowanDebuggerService new saveProcessOop: activeProcess asOop.
-							[ 
-							| processService |
 							processService := RowanProcessServiceServer
-								onSuspendedProcess: activeProcess.
+								onActiveProcess: activeProcess.
 							processService registerWith: _connection.
 							processService openDebugger.
-							activeProcess resume ] fork.
+							activeProcess resume] fork.
 							activeProcess suspend.
 							RsrUnhandledException = ex class
 								ifTrue: [ 
