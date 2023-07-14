@@ -29,9 +29,9 @@ RowanProcessService class >> new [
 RowanProcessService class >> onActiveProcess: aGsProcess [
 
 	^self basicNew
+		initialize;
 		initialize: aGsProcess status: 'active';
 		yourself
-
 ]
 
 { #category : 'instance creation' }
@@ -65,6 +65,26 @@ RowanProcessService class >> onWaitingProcess: aGsProcess [
 RowanProcessService class >> templateClassName [
 
 	^#RowanProcessService
+]
+
+{ #category : 'initialize' }
+RowanProcessService >> clearOrganizers [
+	organizer := nil.
+	updates := nil.
+	frames
+		ifNotNil: [ 
+			frames
+				do: [ :frameService | 
+					frameService organizer: nil.
+					frameService method organizer: nil.
+					frameService vars
+						ifNotNil: [ :vars | vars do: [ :variableService | variableService organizer: nil ] ] ] ]
+]
+
+{ #category : 'initialize' }
+RowanProcessService >> frames [
+
+	^frames
 ]
 
 { #category : 'initialize' }

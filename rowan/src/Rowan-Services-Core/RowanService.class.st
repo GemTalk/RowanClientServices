@@ -538,6 +538,8 @@ RowanService >> logString [
 RowanService >> massage: theValue inNonIndexableCollection: collection visitLog: visitLog [
 	theValue isSpecial
 		ifTrue: [ ^ self ].
+	theValue class = LargeInteger 
+		ifTrue:[^self]. 
 	(theValue isKindOf: ClassOrganizer)
 		ifTrue: [ ^ collection remove: theValue ].
 	(theValue isKindOf: Association)
@@ -570,7 +572,9 @@ RowanService >> massageIndexableCollection: collection visitLog: visitLog [
 { #category : 'rsr' }
 RowanService >> massageNonIndexableCollection: collection visitLog: visitLog [
 	collection
-		do: [ :theValue | self massage: theValue inNonIndexableCollection: collection visitLog: visitLog ]
+		ifNotNil: [  
+			collection
+				do: [ :theValue | self massage: theValue inNonIndexableCollection: collection visitLog: visitLog ] ]
 ]
 
 { #category : 'rsr' }
@@ -596,6 +600,8 @@ RowanService >> massageObjectAtInstVarIndex: index visitLog: visitLog [
 	instVarValue := self instVarAt: index.
 	instVarValue isSpecial
 		ifTrue: [ ^ self ].
+	instVarValue class = LargeInteger 
+		ifTrue:[^self]. 
 	(instVarValue isKindOf: ClassOrganizer)
 		ifTrue: [ ^ self instVarAt: index put: nil ].
 	(instVarValue isKindOf: Association)
@@ -665,10 +671,10 @@ RowanService >> peerHierarchies: theClasses [
 { #category : 'rsr' }
 RowanService >> postCommandExecution [
 	| visitLog |
+	self clearOrganizers.
 	self removeDuplicateServices.
 	visitLog := Set new.
 	self massageServiceForRsrTransportWithVisitLog: visitLog.
-	self clearOrganizers.
 	self autoCommitIfRequired.
 ]
 
@@ -696,12 +702,12 @@ RowanService >> releaseProcessOop: oop [
 
 { #category : 'rsr' }
 RowanService >> removeDuplicateServices [
-	updates copy
-		do: [ :update | 
+	updates copy ifNotNil: [:copy |
+		copy do: [ :update | 
 			update = self
 				ifTrue: [ 
 					self updateInternalService: update.
-					updates remove: update ] ]
+					updates remove: update ] ]]
 ]
 
 { #category : 'samples' }
@@ -799,17 +805,24 @@ RowanService >> setDebugActionBlock [
 	Processor activeProcess
 		breakpointLevel: 1;
 		debugActionBlock: [ :ex | 
+					| debuggerResult suspendedProcess |
 					ex class = Halt
 						ifTrue: [ 
-							| activeProcess processService |
-							[activeProcess := GsProcess _current.
-							RowanDebuggerService new saveProcessOop: activeProcess asOop.
-							processService := RowanProcessServiceServer
-								onActiveProcess: activeProcess.
-							processService registerWith: _connection.
-							processService openDebugger.
-							activeProcess resume] fork.
-							activeProcess suspend.
+							| processService |
+							suspendedProcess := GsProcess _current.
+							[ 
+								"ProcessorScheduler yield. -- needed?"
+								RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
+								processService := RowanProcessServiceServer
+									onSuspendedProcess: suspendedProcess.
+								processService registerWith: _connection.
+								processService updates: Array new.
+								processService postCommandExecution.
+								debuggerResult := processService openDebugger.
+								suspendedProcess perform: debuggerResult
+						] fork.
+							suspendedProcess suspend ]
+						ifFalse: [ 
 							RsrUnhandledException = ex class
 								ifTrue: [ 
 									"should never get here unless something really bad happens"
@@ -904,6 +917,12 @@ RowanService >> updateLatest [
 	to their loaded version"
 
   self update
+]
+
+{ #category : 'other' }
+RowanService >> updates: aCollection [
+
+	updates := aCollection
 ]
 
 { #category : 'accessing' }

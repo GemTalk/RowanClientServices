@@ -71,6 +71,18 @@ RowanFrameService >> initializeProcess: aGsProcess level: anInteger organizer: a
 ]
 
 { #category : 'other' }
+RowanFrameService >> method [
+
+	^method
+]
+
+{ #category : 'other' }
+RowanFrameService >> vars [
+
+	^vars
+]
+
+{ #category : 'other' }
 RowanFrameService >> varsFor: anArray [
 	| keys list receiver values |
 	receiver := anArray at: 10.
