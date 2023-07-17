@@ -811,7 +811,7 @@ RowanService >> setDebugActionBlock [
 							| processService |
 							suspendedProcess := GsProcess _current.
 							[ 
-								"ProcessorScheduler yield. -- needed?"
+								suspendedProcess suspend. 
 								RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
 								processService := RowanProcessServiceServer
 									onSuspendedProcess: suspendedProcess.
@@ -821,7 +821,7 @@ RowanService >> setDebugActionBlock [
 								debuggerResult := processService openDebugger.
 								suspendedProcess perform: debuggerResult
 						] fork.
-							suspendedProcess suspend ]
+							Processor yield ]
 						ifFalse: [ 
 							RsrUnhandledException = ex class
 								ifTrue: [ 
