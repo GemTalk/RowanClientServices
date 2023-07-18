@@ -816,11 +816,13 @@ RowanService >> setDebugActionBlock [
 							processService postCommandExecution.
 							debuggerResult := processService openDebugger.
 							debuggerResult = #'terminate'
-								ifTrue:[suspendedProcess resume]
+								ifTrue: [ suspendedProcess resume ]
 								ifFalse: [ suspendedProcess perform: debuggerResult ] ] fork.
 							Processor yield.
 							debuggerResult = #'terminate'
-								ifTrue: [ self postCommandExecution. 	"stop processing the exception but let rsr return" ] ]
+								ifTrue: [ 
+									self postCommandExecution.
+									ex return: nil	"stop processing the exception but let rsr return" ] ]
 						ifFalse: [ 
 							RsrUnhandledException = ex class
 								ifTrue: [ 
