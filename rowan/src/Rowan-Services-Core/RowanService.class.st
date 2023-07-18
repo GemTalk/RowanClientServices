@@ -322,11 +322,7 @@ RowanService >> executeCommand [
 	organizer := ClassOrganizer new.
 	[ 
 	updateType := nil.	"Update type is only for returned commands"
-	[ self servicePerform: command withArguments: commandArgs ]
-		on: Exception
-		do: [ :ex | 
-			self postCommandExecution.
-			ex pass ] ]
+	self servicePerform: command withArguments: commandArgs ]
 		on: GsInteractionRequest
 		do: [ :ex | 
 			ex
@@ -811,17 +807,20 @@ RowanService >> setDebugActionBlock [
 							| processService |
 							suspendedProcess := GsProcess _current.
 							[ 
-								suspendedProcess suspend. 
-								RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
-								processService := RowanProcessServiceServer
-									onSuspendedProcess: suspendedProcess.
-								processService registerWith: _connection.
-								processService updates: Array new.
-								processService postCommandExecution.
-								debuggerResult := processService openDebugger.
-								suspendedProcess perform: debuggerResult
-						] fork.
-							Processor yield ]
+							suspendedProcess suspend.
+							RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
+							processService := RowanProcessServiceServer
+								onSuspendedProcess: suspendedProcess.
+							processService registerWith: _connection.
+							processService updates: Array new.
+							processService postCommandExecution.
+							debuggerResult := processService openDebugger.
+							debuggerResult = #'terminate'
+								ifTrue:[suspendedProcess resume]
+								ifFalse: [ suspendedProcess perform: debuggerResult ] ] fork.
+							Processor yield.
+							debuggerResult = #'terminate'
+								ifTrue: [ self postCommandExecution. 	"stop processing the exception but let rsr return" ] ]
 						ifFalse: [ 
 							RsrUnhandledException = ex class
 								ifTrue: [ 
