@@ -12,7 +12,8 @@ Class {
 		'frames',
 		'oop',
 		'status',
-		'name'
+		'name',
+		'errorMessage'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -79,6 +80,16 @@ RowanProcessService >> clearOrganizers [
 					frameService method organizer: nil.
 					frameService vars
 						ifNotNil: [ :vars | vars do: [ :variableService | variableService organizer: nil ] ] ] ]
+]
+
+{ #category : 'accessing' }
+RowanProcessService >> errorMessage [
+	^errorMessage
+]
+
+{ #category : 'accessing' }
+RowanProcessService >> errorMessage: object [
+	errorMessage := object
 ]
 
 { #category : 'initialize' }

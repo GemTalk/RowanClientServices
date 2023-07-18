@@ -811,6 +811,7 @@ RowanService >> setDebugActionBlock [
 							RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
 							processService := RowanProcessServiceServer
 								onSuspendedProcess: suspendedProcess.
+							processService errorMessage: ex messageText.
 							processService registerWith: _connection.
 							processService updates: Array new.
 							processService postCommandExecution.
