@@ -801,35 +801,38 @@ RowanService >> setDebugActionBlock [
 	Processor activeProcess
 		breakpointLevel: 1;
 		debugActionBlock: [ :ex | 
-					| debuggerResult suspendedProcess |
-					ex class = Halt
-						ifTrue: [ 
-							| processService |
-							suspendedProcess := GsProcess _current.
-							[ 
-							suspendedProcess suspend.
-							RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
-							processService := RowanProcessServiceServer
-								onSuspendedProcess: suspendedProcess.
-							processService errorMessage: ex messageText.
-							processService registerWith: _connection.
-							processService updates: Array new.
-							processService postCommandExecution.
-							debuggerResult := processService openDebugger.
-							debuggerResult = #'terminate'
-								ifTrue: [ suspendedProcess resume ]
-								ifFalse: [ suspendedProcess perform: debuggerResult ] ] fork.
-							Processor yield.
-							debuggerResult = #'terminate'
-								ifTrue: [ 
-									self postCommandExecution.
-									ex return: nil	"stop processing the exception but let rsr return" ] ]
+					| debuggerResult suspendedProcess processService |
+					suspendedProcess := GsProcess _current.
+					[ 
+					suspendedProcess suspend.
+					RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
+					processService := RowanProcessServiceServer
+						onSuspendedProcess: suspendedProcess.
+					processService
+						errorMessage: ex messageText;
+						registerWith: _connection;
+						updates: Array new;
+						postCommandExecution.
+					debuggerResult := processService openDebugger.
+					ex isResumable
+						ifFalse: [ debuggerResult := #'terminate' ].
+					debuggerResult = #'terminate'
+						ifTrue: [ suspendedProcess resume ]
 						ifFalse: [ 
-							RsrUnhandledException = ex class
+							(debuggerResult isKindOf: Array)
 								ifTrue: [ 
-									"should never get here unless something really bad happens"
-									ex _signalGciError ]
-								ifFalse: [ RsrUnhandledException signal: ex ] ] ]
+									suspendedProcess
+										perform: debuggerResult first
+										withArguments: (debuggerResult copyFrom: 2 to: debuggerResult size).
+									(Delay forMilliseconds: 100) wait.
+									suspendedProcess resume ]
+								ifFalse: [ suspendedProcess perform: debuggerResult ] ] ] fork.
+					Processor yield.
+					debuggerResult = #'terminate'
+						ifTrue: [ 
+							self postCommandExecution.
+							ex return: nil	"stop processing the exception but let rsr return" ].
+					ex resume ]
 ]
 
 { #category : 'replication' }
