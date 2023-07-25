@@ -154,6 +154,18 @@ RowanService >> browserTool [
 ]
 
 { #category : 'commands support' }
+RowanService >> checkForDeadProcesses [
+	"Rowan Client Services holds onto processes while Jadeite is debugging them. 
+	Sometimes Jadeite won't know when a process is terminated so we check on
+	every round trip for extinguished processes"
+
+	(SessionTemps current at: #'jadeiteProcesses' ifAbsent: [ ^ self ]) copy
+		do: [ :processArray | 
+			processArray _isTerminated
+				ifTrue: [ (SessionTemps current at: #'jadeiteProcesses') remove: processArray ifAbsent:[] ] ]
+]
+
+{ #category : 'commands support' }
 RowanService >> classHierarchy: theClasses [
 	| superclassChains levels services hierarchies toExpand hierarchyServices |
 	superclassChains := self superclassChainsFor: theClasses.
@@ -664,7 +676,7 @@ RowanService >> peerHierarchies: theClasses [
 	^ peerHierarchies
 ]
 
-{ #category : 'rsr' }
+{ #category : 'other' }
 RowanService >> postCommandExecution [
 	| visitLog |
 	self clearOrganizers.
@@ -720,6 +732,20 @@ RowanService >> removeSymbolDictionaryNamed: aName [
 	index := Rowan image symbolList names indexOf: aName asSymbol.
 	index ~= 0 ifTrue:[
 		System myUserProfile removeDictionaryAt: index]
+]
+
+{ #category : 'rsr' }
+RowanService >> resume: suspendedProcess orStep: debuggerResult [
+	debuggerResult = #'resume'
+		ifTrue: [ 
+			"open a new debugger if necessary"
+			RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
+			^ suspendedProcess resume ].
+	suspendedProcess
+		perform: debuggerResult first
+		withArguments: (debuggerResult copyFrom: 2 to: debuggerResult size).
+	(Delay forMilliseconds: 100) wait.
+	suspendedProcess resume
 ]
 
 { #category : 'other' }
@@ -801,32 +827,27 @@ RowanService >> setDebugActionBlock [
 	Processor activeProcess
 		breakpointLevel: 1;
 		debugActionBlock: [ :ex | 
-					| debuggerResult suspendedProcess processService |
+					| debuggerResult suspendedProcess |
 					suspendedProcess := GsProcess _current.
 					[ 
 					suspendedProcess suspend.
 					RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
-					processService := RowanProcessServiceServer
-						onSuspendedProcess: suspendedProcess.
-					processService
-						errorMessage: ex messageText;
-						registerWith: _connection;
-						updates: Array new;
-						postCommandExecution.
-					debuggerResult := processService openDebugger.
+
+					debuggerResult := (RowanProcessServiceServer
+						existingProcessServiceFor: suspendedProcess)
+						ifNil: [ 
+							RowanProcessServiceServer
+								openDebuggerOn: suspendedProcess
+								exception: ex
+								connection: _connection ]
+						ifNotNil: [ :processService | processService updateClient ].
 					ex isResumable
 						ifFalse: [ debuggerResult := #'terminate' ].
 					debuggerResult = #'terminate'
-						ifTrue: [ suspendedProcess resume ]
-						ifFalse: [ 
-							(debuggerResult isKindOf: Array)
-								ifTrue: [ 
-									suspendedProcess
-										perform: debuggerResult first
-										withArguments: (debuggerResult copyFrom: 2 to: debuggerResult size).
-									(Delay forMilliseconds: 100) wait.
-									suspendedProcess resume ]
-								ifFalse: [ suspendedProcess perform: debuggerResult ] ] ] fork.
+						ifTrue: [ 
+							RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
+							suspendedProcess resume	"let the exception handler block return nil" ]
+						ifFalse: [ self resume: suspendedProcess orStep: debuggerResult ] ] fork.
 					Processor yield.
 					debuggerResult = #'terminate'
 						ifTrue: [ 
