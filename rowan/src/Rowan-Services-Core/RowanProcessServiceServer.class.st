@@ -33,6 +33,9 @@ RowanProcessServiceServer class >> processServices [
 RowanProcessServiceServer class >> removeProcessServiceFor: suspendedProcess [
 	" for use with rsr only"
 
+	| processService |
+	processService := self processServices at: suspendedProcess ifAbsent: [  ].
+	processService ifNotNil: [ processService cleanUpClient ].
 	self processServices removeKey: suspendedProcess ifAbsent: [  ]
 ]
 
@@ -41,7 +44,6 @@ RowanProcessServiceServer class >> saveOnSuspendedProcess: suspendedProcess exce
 	" for use with rsr only"
 
 	| processService |
-	processService := self processServices at: suspendedProcess ifAbsent: [  ].
 	processService := RowanProcessServiceServer
 		onSuspendedProcess: suspendedProcess.
 	processService
@@ -51,6 +53,14 @@ RowanProcessServiceServer class >> saveOnSuspendedProcess: suspendedProcess exce
 		postCommandExecution.
 	self processServices at: suspendedProcess put: processService.
 	^ processService
+]
+
+{ #category : 'debugger' }
+RowanProcessServiceServer >> cleanUpClient [
+	| promise |
+	self postCommandExecution. 
+	promise := remoteSelf cleanUpClient.
+	^ promise wait
 ]
 
 { #category : 'debugger' }

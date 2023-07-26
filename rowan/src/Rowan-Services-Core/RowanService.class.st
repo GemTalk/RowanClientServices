@@ -153,16 +153,16 @@ RowanService >> browserTool [
 
 ]
 
-{ #category : 'commands support' }
+{ #category : 'rsr' }
 RowanService >> checkForDeadProcesses [
 	"Rowan Client Services holds onto processes while Jadeite is debugging them. 
 	Sometimes Jadeite won't know when a process is terminated so we check on
 	every round trip for extinguished processes"
 
-	(SessionTemps current at: #'jadeiteProcesses' ifAbsent: [ ^ self ]) copy
-		do: [ :processArray | 
-			processArray _isTerminated
-				ifTrue: [ (SessionTemps current at: #'jadeiteProcesses') remove: processArray ifAbsent:[] ] ]
+	RowanProcessServiceServer processServices copy
+		keysAndValuesDo: [ :process :processService | 
+			process _isTerminated
+				ifTrue: [ RowanProcessServiceServer removeProcessServiceFor: process ] ]
 ]
 
 { #category : 'commands support' }
@@ -328,6 +328,7 @@ RowanService >> excludedInstVars [
 RowanService >> executeCommand [
 	"RSR -> RowanServices primary api."
 
+	self checkForDeadProcesses.
 	self setDebugActionBlock.
 	[ 
 	Rowan commandResultClass initializeResults.
