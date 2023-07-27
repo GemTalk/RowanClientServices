@@ -21,6 +21,28 @@ RowanAnsweringService class >> templateClassName [
 	^#RowanAnsweringService
 ]
 
+{ #category : 'client command support' }
+RowanAnsweringService >> addHaltToString: aString [
+	" temporary to make Debug It work for Jadeite in Pharo through RSR which 
+	doesn't use the gci "
+
+	| newString trimmedString |
+	trimmedString := aString trimSeparators. 
+	trimmedString first = $|
+		ifTrue: [ 
+			| rs ws |
+			rs := ReadStream on: trimmedString.
+			ws := WriteStream on: String new.
+			ws nextPut: rs next.
+			ws nextPutAll: (rs upTo: $|).
+			rs next.
+			ws nextPutAll: ' | self halt. '.
+			ws nextPutAll: rs upToEnd.
+			newString := ws contents ]
+		ifFalse: [ newString := 'self halt. ' , trimmedString ].
+	^ newString
+]
+
 { #category : 'private' }
 RowanAnsweringService >> addLowerCaseSymbolsIn: theClass To: array [
   array addAll: theClass selectors.
@@ -131,17 +153,22 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicExecReturningPrintString: aString context: oop shouldDebug: shouldDebug [
-	| object symbolList tempMethod result |
+	| object symbolList tempMethod result amendedString |
 	object := Object _objectForOop: oop.
 	symbolList := Rowan image symbolList.
-	[ tempMethod := aString _compileInContext: object symbolList: symbolList ]
+	shouldDebug
+		ifTrue: [ amendedString := self addHaltToString: aString ]
+		ifFalse: [ amendedString := aString ].
+	Transcript cr; show: amendedString. 
+	[ tempMethod := amendedString _compileInContext: object symbolList: symbolList ]
 		on: CompileError
 		do: [ :ex | 
-			answer := Array with: false with: ex errorDetails.
+			answer := Array with: false with: ex errorDetails with: amendedString.
 			^ answer ].
 	shouldDebug
 		ifTrue: [ 
-			tempMethod setBreakAtStepPoint: 1.
+			| theResult |
+			theResult := tempMethod setBreakAtStepPoint: 1 breakpointLevel: 1.
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop ].
 	[ 
 	result := tempMethod _executeInContext: object.
@@ -477,7 +504,17 @@ RowanAnsweringService >> execReturningObject: aString [
 { #category : 'client commands' }
 RowanAnsweringService >> execReturningPrintString: aString context: oop [
 
-	answer := self basicExecReturningPrintString: aString context: oop shouldDebug: false.
+	answer := self execReturningPrintString: aString context: oop shouldDebug: false.
+	RowanCommandResult addResult: self.
+
+	"return answer for testing" 
+	^answer
+]
+
+{ #category : 'client commands' }
+RowanAnsweringService >> execReturningPrintString: aString context: oop shouldDebug: shouldDebug [
+
+	answer := self basicExecReturningPrintString: aString context: oop shouldDebug: shouldDebug.
 	RowanCommandResult addResult: self.
 
 	"return answer for testing" 
