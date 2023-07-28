@@ -830,6 +830,13 @@ RowanService >> setDebugActionBlock [
 		debugActionBlock: [ :ex | 
 					| debuggerResult suspendedProcess |
 					suspendedProcess := GsProcess _current.
+					ex class = CompileError
+						ifTrue: [ | compileErrorService |
+							self postCommandExecution.
+							compileErrorService := RowanCompileErrorServiceServer new.
+							compileErrorService gsArguments: ex errorDetails. 
+							updates := Array with: compileErrorService.
+							^ ex return ].
 					[ 
 					suspendedProcess suspend.
 					RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
