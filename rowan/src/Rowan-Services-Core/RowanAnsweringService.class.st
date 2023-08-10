@@ -152,14 +152,16 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 ]
 
 { #category : 'client command support' }
-RowanAnsweringService >> basicExecReturningPrintString: aString context: oop shouldDebug: shouldDebug [
-	| object symbolList tempMethod result amendedString |
+RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebug returningString: returnStringBoolean [
+	| object symbolList tempMethod result amendedString return |
 	object := Object _objectForOop: oop.
 	symbolList := Rowan image symbolList.
 	shouldDebug
 		ifTrue: [ amendedString := self addHaltToString: aString ]
 		ifFalse: [ amendedString := aString ].
-	Transcript cr; show: amendedString. 
+	Transcript
+		cr;
+		show: amendedString.
 	[ tempMethod := amendedString _compileInContext: object symbolList: symbolList ]
 		on: CompileError
 		do: [ :ex | 
@@ -172,13 +174,21 @@ RowanAnsweringService >> basicExecReturningPrintString: aString context: oop sho
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop ].
 	[ 
 	result := tempMethod _executeInContext: object.
-	answer := Array with: true with: result asOop with: result printString ]
+	return := returnStringBoolean
+		ifTrue: [ result printString ]
+		ifFalse: [ result ].
+	answer := Array with: true with: result asOop with: return ]
 		ensure: [ 
 			shouldDebug
 				ifTrue: [ tempMethod clearBreakAtStepPoint: 1 ] ].
 	RowanService autoCommit == true
 		ifTrue: [ System commitTransaction ].
 	^ answer
+]
+
+{ #category : 'client command support' }
+RowanAnsweringService >> basicExecReturningPrintString: aString context: oop shouldDebug: shouldDebug [
+	^self basicExec: aString context: oop shouldDebug: shouldDebug returningString: true
 ]
 
 { #category : 'client command support' }
@@ -436,6 +446,16 @@ RowanAnsweringService >> exec: aString context: oop inWindow: handle [
   answer key
     ifTrue: [ RowanBrowserService new saveRootObject: answer value windowHandle: handle ].	"return answer for testing"
   ^ answer
+]
+
+{ #category : 'client commands' }
+RowanAnsweringService >> exec: aString context: oop shouldDebug: shouldDebug [
+
+	answer := self basicExec: aString context: oop shouldDebug: shouldDebug returningString: false.
+	RowanCommandResult addResult: self.
+
+	"return answer for testing" 
+	^answer
 ]
 
 { #category : 'client commands' }
