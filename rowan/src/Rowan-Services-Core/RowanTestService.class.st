@@ -10,3 +10,9 @@ Class {
 	#superclass : 'RowanService',
 	#category : 'Rowan-Services-Core'
 }
+
+{ #category : 'rsr' }
+RowanTestService class >> templateClassName [
+
+	^#RowanTestService
+]

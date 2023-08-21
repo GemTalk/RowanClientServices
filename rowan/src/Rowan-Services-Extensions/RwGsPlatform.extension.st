@@ -86,6 +86,7 @@ RwGsPlatform >> serviceClasses [
 		add: RowanBrowserService;
 		add: RowanClassService;
 		add: RowanClassDefinitionService;
+		add: RowanCompileErrorService;
 		add: RowanComponentService;
 		add: RowanComponentDefinitionService;
 		add: RowanDebuggerService;
@@ -109,6 +110,7 @@ RwGsPlatform >> serviceClasses [
 		add: RowanProjectDefinitionService;
 		add: RowanQueryService;
 		add: RowanSubcomponentDefinitionService; 
+		add: RowanTranscriptService;
 		add: RowanTestService;
 		add: RowanVariableService.
 	^ array
