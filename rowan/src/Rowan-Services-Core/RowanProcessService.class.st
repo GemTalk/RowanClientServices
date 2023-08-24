@@ -76,7 +76,7 @@ RowanProcessService >> clearOrganizers [
 		ifNotNil: [ 
 			frames
 				do: [ :frameService | 
-					frameService organizer: nil.
+					frameService organizer: nil.  
 					frameService method organizer: nil.
 					frameService vars
 						ifNotNil: [ :vars | vars do: [ :variableService | variableService organizer: nil ] ] ] ]

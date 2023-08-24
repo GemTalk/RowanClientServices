@@ -987,7 +987,11 @@ RowanClassService >> poolDictionaryNames: newValue [
 { #category : 'rsr' }
 RowanClassService >> postCommandExecution [
 	super postCommandExecution.
-	methods do: [:methodService | methodService clearOrganizers].
+	methods
+		ifNil: [ 
+			self updateType: #jadeiteShouldNotUpdateOnClient.
+			methods := Array new	"may not have been a behavior" ]
+		ifNotNil: [ methods do: [ :methodService | methodService clearOrganizers ] ]
 ]
 
 { #category : 'printing' }
