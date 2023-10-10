@@ -8,6 +8,9 @@ Object
 Class {
 	#name : 'RowanTestService',
 	#superclass : 'RowanService',
+	#instVars : [
+		'name'
+	],
 	#category : 'Rowan-Services-Core'
 }
 
