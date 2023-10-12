@@ -317,6 +317,7 @@ RowanProjectService >> initializePackageGroups [
 { #category : 'client commands' }
 RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: strict [
 	| spec browserService |
+	self updateType: #dontUpdate.  "this service should not be updated on the client"
 	spec := (RwSpecification fromUrl: path)
 		projectsHome: projectsHomePath;
 		componentNames: componentNames;
