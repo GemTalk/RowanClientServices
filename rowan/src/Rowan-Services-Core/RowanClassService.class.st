@@ -482,6 +482,13 @@ RowanClassService >> dictionaryName [
 	^dictionaryName
 ]
 
+{ #category : 'rsr' }
+RowanClassService >> executeCommand [
+
+	updateAfterCommand ifNil: [updateAfterCommand := true]. 
+	^super executeCommand
+]
+
 { #category : 'Updating' }
 RowanClassService >> expand: boolean [
 
