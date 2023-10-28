@@ -745,6 +745,9 @@ RowanService >> resume: suspendedProcess orStep: debuggerResult [
 	suspendedProcess
 		perform: debuggerResult first
 		withArguments: (debuggerResult copyFrom: 2 to: debuggerResult size).
+	debuggerResult first = #trimStackToLevel: ifTrue:[
+		^(RowanProcessServiceServer existingProcessServiceFor: suspendedProcess) updateClient.
+			].
 	(Delay forMilliseconds: 100) wait.
 	suspendedProcess resume
 ]
