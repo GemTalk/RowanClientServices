@@ -64,9 +64,7 @@ RowanFrameService >> initializeProcess: aGsProcess level: anInteger organizer: a
       classIsResolvable := (Rowan image
         resolveClassNamed: cls theNonMetaClass name asString) isNil not.
       className ].
-  stepPoint := gsNMethod == gsNMethod homeMethod
-    ifTrue: [ aGsProcess _stepPointAt: anInteger ]
-    ifFalse: [ gsNMethod homeMethod _stepPointForMeth: gsNMethod ip: (frameData at: 2) ].
+  stepPoint :=  gsNMethod homeMethod _stepPointForMeth: gsNMethod ip: (frameData at: 2).
   vars := self varsFor: frameData
 ]
 
