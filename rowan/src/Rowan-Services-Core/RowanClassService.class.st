@@ -1468,6 +1468,7 @@ RowanClassService >> updateMethodsAfterRenameFrom: oldClassName to: newClassName
 { #category : 'updates' }
 RowanClassService >> updatePackageAndProject [
 	| packageService projectService |
+	packageName = Rowan unpackagedName ifTrue:[^self]. 
 	packageService := RowanPackageService forPackageNamed: packageName.
 	packageService update.
 	projectService := RowanProjectService new name: projectName.
