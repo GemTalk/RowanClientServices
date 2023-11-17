@@ -96,7 +96,6 @@ RowanTestService >> createRowanSample1Project [
 	self addRowanSample1Methods.  
 	self addRowanSample1Test.
 	self addRowanSample1TestMethods.
-	RowanBrowserService new updateProjects
 ]
 
 { #category : 'sample projects' }
