@@ -91,6 +91,21 @@ RowanProjectService >> addPackageNamed: packageName [
 	self answer: #'duplicatePackage'
 ]
 
+{ #category : 'client commands' }
+RowanProjectService >> addPackagesNamed: packageNames [
+	"for tests"
+	packageNames do:[:packageName | 
+	Rowan image
+		loadedPackageNamed: packageName
+		ifAbsent: [ 
+			self browserTool
+				addPackageNamed: packageName
+				toComponentNamed: 'Core'
+				andProjectNamed: name.
+			 ]].
+	self update.
+]
+
 { #category : 'rowan' }
 RowanProjectService >> audit [
 	^ (Rowan projectNamed: name) audit
@@ -231,6 +246,18 @@ RowanProjectService >> componentServicesFor: theRwProject [
 
 { #category : 'other' }
 RowanProjectService >> createProjectComponent: componentName symDict: defaultSymbolDictName convention: thePackageConvention format: packageFormat projectsHome: projectsHome type: repositoryType [
+	^ self
+		createProjectComponent: componentName
+		symDict: defaultSymbolDictName
+		convention: thePackageConvention
+		format: packageFormat
+		projectsHome: projectsHome
+		type: repositoryType
+		shouldWrite: true
+]
+
+{ #category : 'other' }
+RowanProjectService >> createProjectComponent: componentName symDict: defaultSymbolDictName convention: thePackageConvention format: packageFormat projectsHome: projectsHome type: repositoryType shouldWrite: shouldWrite [
 	| definedProject resolvedProject |
 	Rowan version < '3.0.0' asRwSemanticVersionNumber
 		ifTrue: [ self error: 'This script needs to be run against a Rowan v3 solo extent' ].
@@ -242,10 +269,11 @@ RowanProjectService >> createProjectComponent: componentName symDict: defaultSym
 		packageFormat: packageFormat;
 		projectsHome: projectsHome;
 		yourself.
-	(projectsHome asFileReference / name / 'rowan')
-		ensureDeleteAll.
 	resolvedProject := definedProject resolveProject.
-	resolvedProject write.
+	shouldWrite
+		ifTrue: [ 
+			(projectsHome asFileReference / name / 'rowan') ensureDeleteAll.
+			resolvedProject write ].
 	resolvedProject loadAsDefined.
 	RowanBrowserService new updateProjects
 ]

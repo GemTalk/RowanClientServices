@@ -83,6 +83,24 @@ RowanPackageService >> classHierarchy: theClasses [
 ]
 
 { #category : 'rowan' }
+RowanPackageService >> createClassNamed: className superclass: superClassName instVars: instVars [
+	| classDefinition browserTool |
+	classDefinition := RwClassDefinition
+		newForClassNamed: className
+		super: superClassName
+		instvars: instVars
+		classinstvars: #()
+		classvars: #()
+		category: ''
+		comment: ''
+		pools: #()
+		type: 'normal'.
+	browserTool := Rowan projectTools browser.
+	browserTool createClass: classDefinition inPackageNamed: name.
+	self update.
+]
+
+{ #category : 'rowan' }
 RowanPackageService >> createPackageNamed: aString inProject: projName [
 	| projectService | 
 	name := aString.
