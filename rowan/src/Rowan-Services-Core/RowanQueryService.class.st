@@ -115,6 +115,17 @@ RowanQueryService >> implementorsOf: selector [
 ]
 
 { #category : 'queries' }
+RowanQueryService >> implementorsOfAll: selectors [
+
+	| methods |
+	methods := Array new. 
+	selectors do:[:selector | 
+	methods addAll: (organizer implementorsOf: selector asSymbol)].
+	queryResults := self methodServicesFrom: methods.
+	self returnQueryToClient.
+]
+
+{ #category : 'queries' }
 RowanQueryService >> instVarReaders: instVarName in: className [
   | methods symbolAssociation theClasses |
   symbolAssociation := Rowan image symbolList resolveSymbol: className.
@@ -238,6 +249,17 @@ RowanQueryService >> sendersOf: selector [
 	methods := organizer sendersOf: selector asSymbol.
 	queryResults := self methodServicesFrom: methods first.
 	self setFirstReferenceUsing: queryResults and: methods. 
+	self returnQueryToClient.
+]
+
+{ #category : 'queries' }
+RowanQueryService >> sendersOfAll: selectors [
+
+	| methods |
+	methods := Array new. 
+	selectors do:[:selector | 
+	methods addAll: (organizer sendersOf: selector asSymbol) first].
+	queryResults := self methodServicesFrom: methods.
 	self returnQueryToClient.
 ]
 

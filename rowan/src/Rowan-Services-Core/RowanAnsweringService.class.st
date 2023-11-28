@@ -642,7 +642,7 @@ RowanAnsweringService >> loadedPackageExists: packageName [
 { #category : 'client commands' }
 RowanAnsweringService >> lowercaseSelectorsMatching: lowercaseSymbol [
   answer := self basicSortedSelectors
-    select: [ :symbol | lowercaseSymbol sunitMatch: symbol asLowercase ].
+    select: [ :symbol | lowercaseSymbol asLowercase sunitMatch: symbol asLowercase ].
   RowanCommandResult addResult: self
 ]
 
