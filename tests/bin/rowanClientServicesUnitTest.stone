@@ -227,11 +227,11 @@ loadProjectSpecs
 	rowanProjectsSandbox asFileReference ensureCreateDirectory.
 	warnings := {}.
 	[ 
-		| loadSpecs rowanProject |
+		| loadSpecs rowanClientServicesProject rowanLoadSpec |
 		self preDoitSpecLoad: [:loadSpec |
 			loadSpec projectsHome: externalsStBase ].
-		rowanProject := Rowan projectNamed: 'Rowan'.
-		loadSpecs := rowanProject loadedLoadSpecifications.
+		rowanClientServicesProject := Rowan projectNamed: 'RowanClientServices'.
+		loadSpecs := rowanClientServicesProject loadedLoadSpecifications.
 		loadSpecs do: [:loadSpec |
 			loadSpec specName = 'RowanClientServices'
 				ifTrue: [
@@ -241,6 +241,10 @@ loadProjectSpecs
 				projectsHome: '$ROWAN_PROJECTS_HOME';
 				addCustomConditionalAttributes: #('tests' 'testsV2');
 				yourself ].
+		rowanLoadSpec := (Rowan projectNamed: 'Rowan') loadSpecification.
+		rowanLoadSpec 
+			addComponentNamed: 'SharedTests'.
+		loadSpecs addLoadSpec: rowanLoadSpec.
 		loadSpecs load.
 		System commit.
 	]
