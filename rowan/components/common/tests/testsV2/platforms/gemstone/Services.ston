@@ -4,19 +4,7 @@ RwPlatformNestedProjectLoadComponentV2 {
 		'gemstone'
 	],
 	#packageNames : [
-		'Rowan-Services-TestsV2',
-		'Rowan-Services-Tests-Extensions'
+		'Rowan-Services-TestsV2'
 	],
-	#conditionalPackageMapSpecs : {
-		'gemstone' : {
-			'allusers' : {
-				#packageNameToPlatformPropertiesMap : {
-					'Rowan-Services-Tests-Extensions' : {
-						'symbolDictName' : 'RowanKernel'
-					}
-				}
-			}
-		}
-	},
 	#comment : ''
 }

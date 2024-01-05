@@ -122,7 +122,7 @@ RowanFileService >> fileInChunk: aString [
 	"don't halt on compile warnings"
 
 	| fileIn |
-	fileIn := GsFileIn _fromStream: (ReadStream on: aString).
+	fileIn := GsFileIn newFromStream: (ReadStream on: aString).
 	[ fileIn doFileIn ]
 		on: CompileWarning
 		do: [ :ex | 

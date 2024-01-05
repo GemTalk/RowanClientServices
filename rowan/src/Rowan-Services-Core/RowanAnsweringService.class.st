@@ -576,9 +576,7 @@ RowanAnsweringService >> expressionSelector: string [
 
 { #category : 'client commands' }
 RowanAnsweringService >> fileContentsOf: filePath [
-	| file |
-	file := File openForReadFileNamed: filePath.
-	answer := file readStream contents.
+	answer := filePath asFileReference contents.
 	RowanCommandResult addResult: self
 ]
 
