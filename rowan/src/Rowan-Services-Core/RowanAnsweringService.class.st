@@ -154,14 +154,12 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 { #category : 'client command support' }
 RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebug returningString: returnStringBoolean [
 	| object symbolList tempMethod result amendedString return |
+	GsFile gciLogServer: 'basicExec:context:shouldDebug:returningString: '. 
 	object := Object _objectForOop: oop.
 	symbolList := Rowan image symbolList.
 	shouldDebug
 		ifTrue: [ amendedString := self addHaltToString: aString ]
 		ifFalse: [ amendedString := aString ].
-	Transcript
-		cr;
-		show: amendedString.
 	[ tempMethod := amendedString _compileInContext: object symbolList: symbolList ]
 		on: CompileError
 		do: [ :ex | 
@@ -173,7 +171,8 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 			theResult := tempMethod setBreakAtStepPoint: 1 breakpointLevel: 1.
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop ].
 	[ 
-	result := tempMethod _executeInContext: object.
+	GsFile gciLogServer: 'about to #_executeInContext:'.
+	[[result := tempMethod _executeInContext: object] on: Error do:[:ex | GsFile gciLogServer: ex printString]] ensure: [GsFile gciLogServer: 'ensure after #_executeInContext:'].
 	return := returnStringBoolean
 		ifTrue: [ result printString ]
 		ifFalse: [ result ].

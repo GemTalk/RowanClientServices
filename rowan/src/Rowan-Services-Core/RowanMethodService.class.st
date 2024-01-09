@@ -254,7 +254,7 @@ RowanMethodService >> clearBreakAt: stepPoint [
 	method := self isUnboundMethod 
 			ifTrue:[(Object _objectForOop: oop) homeMethod] 
 			ifFalse:[self gsNMethod].
-	method clearBreakAtStepPoint: stepPoint.
+	method _breakOperation: 2 forStepPoint: stepPoint breakpointLevel: 1.
 	self update. 
 	RowanCommandResult addResult: self.
 ]
@@ -767,7 +767,7 @@ RowanMethodService >> setBreakAt: stepPoint [
   method := self isUnboundMethod
     ifTrue: [ (Object _objectForOop: oop) homeMethod ]
     ifFalse: [ self gsNMethod ].
-  method setBreakAtStepPoint: stepPoint.
+  method setBreakAtStepPoint: stepPoint breakpointLevel: 1.
   self class breakPointsAreEnabled
     ifFalse: [ self disableBreakAt: stepPoint ].
   self update.
@@ -795,6 +795,11 @@ RowanMethodService >> setHasMethodHistory [
 { #category : 'initialization' }
 RowanMethodService >> setSupersAndSubsFor: theClass [
 	| theSuper implementingClass |
+	true
+		ifTrue: [ 
+			hasSubs := false.
+			hasSupers := false.
+			^ self	"may be implicated in gem out of memory conditions if tempobj cache size isn't raised" ].
 	theSuper := theClass superClass.
 	theSuper
 		ifNotNil: [ 

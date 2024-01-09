@@ -832,7 +832,7 @@ RowanService >> setDebugActionBlock [
 		breakpointLevel: 1;
 		debugActionBlock: [ :ex | 
 					| debuggerResult suspendedProcess |
-					suspendedProcess := GsProcess _current.
+					suspendedProcess := Processor activeProcess.
 					ex class = CompileError
 						ifTrue: [ | compileErrorService |
 							self postCommandExecution.
@@ -841,9 +841,7 @@ RowanService >> setDebugActionBlock [
 							updates := Array with: compileErrorService.
 							^ ex return ].
 					[ 
-					suspendedProcess suspend.
 					RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
-
 					debuggerResult := (RowanProcessServiceServer
 						existingProcessServiceFor: suspendedProcess)
 						ifNil: [ 
@@ -859,7 +857,7 @@ RowanService >> setDebugActionBlock [
 							RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
 							suspendedProcess resume	"let the exception handler block return nil" ]
 						ifFalse: [ self resume: suspendedProcess orStep: debuggerResult ] ] fork.
-					Processor yield.
+					suspendedProcess suspend.
 					debuggerResult = #'terminate'
 						ifTrue: [ 
 							self postCommandExecution.
