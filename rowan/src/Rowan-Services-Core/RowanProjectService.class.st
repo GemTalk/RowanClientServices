@@ -203,7 +203,6 @@ RowanProjectService >> checkout: branchName [
 	| project |
 	project := self rwProject. 
 	Rowan gitTools gitcheckoutIn: project repositoryRootPath asFileReference with: branchName.
-	self reloadProject.
 ]
 
 { #category : 'client commands' }
