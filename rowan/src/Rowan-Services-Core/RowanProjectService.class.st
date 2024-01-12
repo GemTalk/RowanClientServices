@@ -203,15 +203,13 @@ RowanProjectService >> checkout: branchName [
 	| project |
 	project := self rwProject. 
 	Rowan gitTools gitcheckoutIn: project repositoryRootPath asFileReference with: branchName.
-	Rowan gemstoneTools topaz reloadProjectNamed: name.
-	self update.
+	self reloadProject.
 ]
 
 { #category : 'client commands' }
 RowanProjectService >> checkoutTag: tagName [ 
 	Rowan gitTools gitcheckoutIn: self repositoryRoot with: tagName.
-	Rowan gemstoneTools topaz reloadProjectNamed: name.
-	self update
+	self reloadProject
 ]
 
 { #category : 'client commands' }
