@@ -92,6 +92,21 @@ RowanBrowserService >> basicAllClasses [
 ]
 
 { #category : 'client commands' }
+RowanBrowserService >> checkForAddedProjects: projectServices [
+	| loadedProjects addedProjects loadedProjectServices |
+	loadedProjects := Rowan image loadedProjects.
+	addedProjects := Array new.
+	loadedProjectServices := loadedProjects
+		collect: [ :project | RowanProjectService newNamed: project name ].
+	loadedProjectServices
+		do: [ :loadedProjectService | 
+			(projectServices includes: loadedProjectService)
+				ifFalse: [ addedProjects add: loadedProjectService ] ].
+	addedProjects
+		do: [ :projectService | RowanCommandResult addResult: projectService ]
+]
+
+{ #category : 'client commands' }
 RowanBrowserService >> classHierarchy [
 	| theClasses |
 	theClasses := allClasses collect:[:classService | classService theClass].

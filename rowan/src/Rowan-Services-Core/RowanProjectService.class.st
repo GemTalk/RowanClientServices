@@ -203,12 +203,13 @@ RowanProjectService >> checkout: branchName [
 	| project |
 	project := self rwProject. 
 	Rowan gitTools gitcheckoutIn: project repositoryRootPath asFileReference with: branchName.
+	self reloadProject.
 ]
 
 { #category : 'client commands' }
 RowanProjectService >> checkoutTag: tagName [ 
 	Rowan gitTools gitcheckoutIn: self repositoryRoot with: tagName.
-	self reloadProject
+	self reloadProject.
 ]
 
 { #category : 'client commands' }
