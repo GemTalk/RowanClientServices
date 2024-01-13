@@ -103,7 +103,7 @@ RowanBrowserService >> checkForAddedProjects: projectServices [
 			(projectServices includes: loadedProjectService)
 				ifFalse: [ addedProjects add: loadedProjectService ] ].
 	addedProjects
-		do: [ :projectService | RowanCommandResult addResult: projectService ]
+		do: [ :projectService | RowanCommandResult addResult: projectService update ]
 ]
 
 { #category : 'client commands' }
