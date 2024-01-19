@@ -832,12 +832,19 @@ RowanService >> setDebugActionBlock [
 		breakpointLevel: 1;
 		debugActionBlock: [ :ex | 
 					| debuggerResult suspendedProcess |
+					_connection isOpen
+						ifFalse: [ 
+							GsFile gciLogServer: ex printString.
+							GsFile gciLogServer: 'connection not open'.
+							"can't return" 
+							Processor activeProcess terminate ].
 					suspendedProcess := Processor activeProcess.
 					ex class = CompileError
-						ifTrue: [ | compileErrorService |
+						ifTrue: [ 
+							| compileErrorService |
 							self postCommandExecution.
 							compileErrorService := RowanCompileErrorServiceServer new.
-							compileErrorService gsArguments: ex errorDetails. 
+							compileErrorService gsArguments: ex errorDetails.
 							updates := Array with: compileErrorService.
 							^ ex return ].
 					[ 
@@ -849,7 +856,9 @@ RowanService >> setDebugActionBlock [
 								openDebuggerOn: suspendedProcess
 								exception: ex
 								connection: _connection ]
-						ifNotNil: [ :processService | processService updateClient ].
+						ifNotNil: [ :processService | 
+							GsFile gciLogServer: 'updateClient ...'.
+							processService updateClient ].
 					ex isResumable
 						ifFalse: [ debuggerResult := #'terminate' ].
 					debuggerResult = #'terminate'

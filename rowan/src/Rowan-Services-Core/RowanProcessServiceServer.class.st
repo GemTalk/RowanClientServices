@@ -16,6 +16,7 @@ RowanProcessServiceServer class >> openDebuggerOn: suspendedProcess exception: e
 	" for use with rsr only"
 
 	| processService |
+	
 	processService := self saveOnSuspendedProcess: suspendedProcess exception: ex connection: connection.
 	^processService openDebugger
 ]
