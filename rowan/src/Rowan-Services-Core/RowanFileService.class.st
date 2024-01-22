@@ -214,17 +214,19 @@ RowanFileService >> remove [
 
 { #category : 'client commands' }
 RowanFileService >> write: contents [
-	| thePath fileReference writeStream |
+	"protocol: client commands"
+
+	| thePath fileReference |
 	thePath := path last = $/
 		ifTrue: [ path copyFrom: 1 to: path size - 1 ]
 		ifFalse: [ path ].
 	fileReference := FileReference fileSystem: FileSystem disk path: thePath asPath.
-	writeStream := fileReference writeStream.
-	[ 
-	writeStream
-		nextPutAll: contents asUnicodeString;
-		flush ]
-		ensure: [ writeStream close ]
+	fileReference
+		writeStreamDo: [ :writeStream | 
+			writeStream
+				truncate;
+				nextPutAll: contents asUnicodeString;
+				flush ]
 ]
 
 { #category : 'client commands' }
