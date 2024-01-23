@@ -218,7 +218,7 @@ RowanFileService >> write: contents [
 
 	| thePath fileReference |
 	thePath := path last = $/
-		ifTrue: [ path copyFrom: 1 to: path size - 1 ]
+		ifTrue: [ path copyFrom: 1 to: path size - 1 ] 
 		ifFalse: [ path ].
 	fileReference := FileReference fileSystem: FileSystem disk path: thePath asPath.
 	fileReference
