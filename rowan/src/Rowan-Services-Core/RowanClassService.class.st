@@ -112,7 +112,8 @@ RowanClassService >> addCategory: string [
 	theClass := self theClass.
 	meta
 		ifTrue: [ theClass := theClass class ].
-	theClass addCategory: string
+	theClass addCategory: string.
+	self updateClass.
 ]
 
 { #category : 'constants' }
@@ -1116,7 +1117,8 @@ RowanClassService >> renameCategoryFrom: old to: new [
 	affectedSelectors := behavior selectorsIn: old.
 	methods := methods select:[:methodService | affectedSelectors includes: methodService selector].
 	self moveMethods: methods to: new.
-	self removeCategories: (Array with: old)
+	self removeCategories: (Array with: old).
+	self updateClass.
 ]
 
 { #category : 'client commands' }
