@@ -293,7 +293,7 @@
 		},
 		{
 			"className" : "RowanClassServiceTest",
-			"status" : "passed",
+			"status" : "failures",
 			"selector" : "test_setSuperSubIndicators",
 			"time" : "0"
 		},
