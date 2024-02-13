@@ -153,16 +153,13 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebug returningString: returnStringBoolean [
-	| object symbolList tempMethod result amendedString return |
+	| object symbolList tempMethod result  return |
 	object := Object _objectForOop: oop.
 	symbolList := Rowan image symbolList.
-	shouldDebug
-		ifTrue: [ amendedString := self addHaltToString: aString ]
-		ifFalse: [ amendedString := aString ].
-	[ tempMethod := amendedString _compileInContext: object symbolList: symbolList ]
+	[ tempMethod := aString _compileInContext: object symbolList: symbolList ]
 		on: CompileError
 		do: [ :ex | 
-			answer := Array with: false with: ex errorDetails with: amendedString.
+			answer := Array with: false with: ex errorDetails with: aString.
 			^ answer ].
 	shouldDebug
 		ifTrue: [ 

@@ -327,7 +327,6 @@ RowanService >> excludedInstVars [
 { #category : 'rsr' }
 RowanService >> executeCommand [
 	"RSR -> RowanServices primary api."
-
 	self checkForDeadProcesses.
 	self setDebugActionBlock.
 	[ 
@@ -835,8 +834,7 @@ RowanService >> setDebugActionBlock [
 					_connection isOpen
 						ifFalse: [ 
 							GsFile gciLogServer: ex printString.
-							GsFile gciLogServer: 'connection not open'.
-							"can't return" 
+							GsFile gciLogServer: 'connection not open'.	"can't return"
 							Processor activeProcess terminate ].
 					suspendedProcess := Processor activeProcess.
 					ex class = CompileError
