@@ -934,11 +934,12 @@ RowanService >> symbolDictionaryNamed: aName [
 
 { #category : 'rsr' }
 RowanService >> unregisteredCopy [
-	"copy of service without any reference to the rsr connection"
+	"copy of service without any reference to the rsr connection or organizer"
 
 	| copy |
-	copy := self copy.
+	copy := self copy. 
 	copy nilRsrVariables.
+	copy organizer: nil. 
 	^copy
 ]
 

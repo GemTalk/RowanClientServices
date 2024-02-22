@@ -162,9 +162,14 @@ RowanBrowserService >> clearWindowRegistry [
 
 { #category : 'client commands' }
 RowanBrowserService >> commitTransaction [
+	"makes sure our permanent method history does not have any rsr inst var values as Semaphores can prevent commits"
 	| answeringService |
+	(UserGlobals at: #'RowanMethodHistory')
+		keysAndValuesDo: [ :key :value | 
+			key nilRsrVariables.
+			value do: [ :svc | svc nilRsrVariables ] ].
 	answeringService := RowanAnsweringService new answer: System commitTransaction.
-	RowanCommandResult addResult: answeringService.
+	RowanCommandResult addResult: answeringService
 ]
 
 { #category : 'client commands' }

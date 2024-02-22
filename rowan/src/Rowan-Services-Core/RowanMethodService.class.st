@@ -159,6 +159,7 @@ RowanMethodService >> accessedInstVars: anArray [
 { #category : 'method history' }
 RowanMethodService >> addToMethodHistory [
   | rowanMethodHistory methodHistory |
+
   rowanMethodHistory := self userGlobals
     at: #'RowanMethodHistory'
     ifAbsentPut: [ Dictionary new ].
@@ -786,10 +787,13 @@ RowanMethodService >> setDefinedClass: aClass [
 
 { #category : 'method history' }
 RowanMethodService >> setHasMethodHistory [
-  | answeringService |
-  answeringService := RowanAnsweringService new.
-  hasMethodHistory := (answeringService basicMethodHistoryFor: self) answer size
-    > 1.
+	| answeringService history |
+	answeringService := RowanAnsweringService new.
+	history := self userGlobals
+		at: #'RowanMethodHistory'
+		ifAbsent: [ ^ hasMethodHistory := false ].
+	history at: self ifAbsent: [ ^ hasMethodHistory := false ].
+	hasMethodHistory := true
 ]
 
 { #category : 'initialization' }

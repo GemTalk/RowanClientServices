@@ -26,7 +26,7 @@ RowanAnsweringService >> addHaltToString: aString [
 	" temporary to make Debug It work for Jadeite in Pharo through RSR which 
 	doesn't use the gci "
 
-	| newString trimmedString |
+	| newString trimmedString | 
 	trimmedString := aString trimSeparators. 
 	trimmedString first = $|
 		ifTrue: [ 
@@ -188,13 +188,11 @@ RowanAnsweringService >> basicExecReturningPrintString: aString context: oop sho
 { #category : 'client command support' }
 RowanAnsweringService >> basicMethodHistoryFor: methodService [
   | rowanMethodHistory |
+
   rowanMethodHistory := self userGlobals
     at: #'RowanMethodHistory'
-    ifAbsentPut: [ Dictionary new ].
-  answer := (rowanMethodHistory at: methodService unregisteredCopy ifAbsentPut: [ Array new ])
-    asOrderedCollection.
-  answer
-    addFirst: (rowanMethodHistory keys detect: [ :svc | svc = methodService ])
+    ifAbsent: [ rowanMethodHistory := Dictionary new ].
+  answer := rowanMethodHistory at: methodService  ifAbsent: [Array new]
 ]
 
 { #category : 'client command support' }
