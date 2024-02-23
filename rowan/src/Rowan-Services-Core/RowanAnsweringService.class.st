@@ -187,12 +187,13 @@ RowanAnsweringService >> basicExecReturningPrintString: aString context: oop sho
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicMethodHistoryFor: methodService [
-  | rowanMethodHistory |
-
-  rowanMethodHistory := self userGlobals
-    at: #'RowanMethodHistory'
-    ifAbsent: [ rowanMethodHistory := Dictionary new ].
-  answer := rowanMethodHistory at: methodService  ifAbsent: [Array new]
+	| rowanMethodHistory |
+	rowanMethodHistory := self userGlobals
+		at: #'RowanMethodHistory'
+		ifAbsent: [ rowanMethodHistory := Dictionary new ].
+	answer := rowanMethodHistory at: methodService ifAbsent: [ Array new ].
+	answer isEmpty
+		ifTrue: [ answer add: methodService ]
 ]
 
 { #category : 'client command support' }
