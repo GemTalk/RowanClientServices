@@ -72,6 +72,13 @@ RowanAnsweringService >> allClassNames [
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> allPackageNames [
+
+	answer := Rowan image packageNames asSortedCollection asArray.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> allTestsIn: classServices [
 	answer := Array new. 
 	classServices do:[:service | answer addAll: service allTests].
