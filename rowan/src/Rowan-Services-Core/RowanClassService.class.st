@@ -1058,6 +1058,15 @@ RowanClassService >> refreshMethodsFor: classOrMeta [
 					service ifNotNil: [ service accessedInstVars add: instVar asString ] ] ].
 	self initializeTestMethodsFor: classOrMeta thisClass.
 	self setVisibleTests.	"methods must be available"
+	selectedPackageServices
+		ifNotNil: [ 
+			methods
+				do: [ :methodService | 
+					methodService
+						inSelectedPackage:
+							(selectedPackageServices
+								detect: [ :selectedPackageService | selectedPackageService name = methodService packageName ]
+								ifNone: [  ]) notNil ] ]
 ]
 
 { #category : 'client commands' }

@@ -534,6 +534,9 @@ RowanMethodService >> initialize: aGsNMethod organizer: aClassOrganizer [
 		inSelectedPackage := false.
 		^self
 	].
+	selectedPackageServices ifNotNil: [
+		inSelectedPackage := (selectedPackageServices detect: [:packageService | packageService name = packageName] ifNone:[]) notNil. 
+		]. 
 	meta := inClass isMeta.
 	self 
 		forClass: inClass thisClass 
@@ -551,6 +554,16 @@ RowanMethodService >> initializeTestMethodsFor: aClass [
 				ifTrue: [ ^ self ].
 			testSelectors := aClass thisClass allTestSelectors.
 			isTestMethod := testSelectors includes: selector ]
+]
+
+{ #category : 'accessing' }
+RowanMethodService >> inSelectedPackage [
+	^inSelectedPackage
+]
+
+{ #category : 'accessing' }
+RowanMethodService >> inSelectedPackage: object [
+	inSelectedPackage := object
 ]
 
 { #category : 'testing' }
