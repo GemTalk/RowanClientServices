@@ -115,7 +115,7 @@ RowanProjectService >> audit [
 RowanProjectService >> basicLoadProject: aBlock [ 
 	| updatedProjects |
 	[ updatedProjects := aBlock value ]
-		on: Warning
+		on: Warning, RwInvalidCategoryProtocolConventionErrorNotification
 		do: [ :ex | 
 			Transcript
 				cr;
