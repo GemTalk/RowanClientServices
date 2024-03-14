@@ -281,14 +281,6 @@ RowanService >> createSymbolDictionaryNamed: aName [
 	^ dictionary
 ]
 
-{ #category : 'rsr' }
-RowanService >> debug: anException
-raisedDuring: aMessageSend
-answerUsing: aResolver [
-
-	aResolver break: (RsrRemoteException from: anException)
-]
-
 { #category : 'symbol dictionaries' }
 RowanService >> defaultSymbolDictionary [
 	"used?"
@@ -868,7 +860,8 @@ RowanService >> setDebugActionBlock [
 					debuggerResult = #'terminate'
 						ifTrue: [ 
 							self postCommandExecution.
-							ex return: nil	"stop processing the exception but let rsr return" ].
+							ex tag: #rsrProcessTerminated. 
+							RsrUnhandledException signal: ex  "stop processing the exception but let rsr return" ].
 					ex resume ]
 ]
 
