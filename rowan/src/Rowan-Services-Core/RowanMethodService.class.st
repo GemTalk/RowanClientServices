@@ -159,11 +159,10 @@ RowanMethodService >> accessedInstVars: anArray [
 { #category : 'method history' }
 RowanMethodService >> addToMethodHistory [
   | rowanMethodHistory methodHistory |
-
   rowanMethodHistory := self userGlobals
     at: #'RowanMethodHistory'
     ifAbsentPut: [ Dictionary new ].
-  methodHistory := rowanMethodHistory at: self ifAbsentPut: [ Array new ].
+  methodHistory := rowanMethodHistory at: self unregisteredCopy ifAbsentPut: [ Array new ].
   methodHistory add: self unregisteredCopy
 ]
 

@@ -138,12 +138,18 @@ RowanService >> answer: anObject [
 { #category : 'commands support' }
 RowanService >> autoCommitIfRequired [
 	| commitResult |
-	self class autoCommit == true ifTrue:[
-		commitResult := System commitTransaction.
-		RowanAutoCommitService new autoCommit:  
-			(commitResult 
-				ifTrue:[true] 
-				ifFalse:[#failed])].
+	self class autoCommit == true
+		ifTrue: [ 
+			commitResult := [ System commitTransaction ]
+				on: Error
+				do: [ :e | 
+					RowanAutoCommitService new autoCommit: #'failed'.
+					^ self ].
+			RowanAutoCommitService new
+				autoCommit:
+					(commitResult
+						ifTrue: [ true ]
+						ifFalse: [ #'failed' ]) ]
 ]
 
 { #category : 'rowan' }
