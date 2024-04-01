@@ -852,8 +852,8 @@ RowanService >> setDebugActionBlock [
 								openDebuggerOn: suspendedProcess
 								exception: ex
 								connection: _connection ]
-						ifNotNil: [ :processService | 
-							GsFile gciLogServer: 'updateClient ...'.
+						ifNotNil: [ :processService |   
+							GsFile gciLogServer: 'updateClient'.
 							processService updateClient ].
 					ex isResumable
 						ifFalse: [ debuggerResult := #'terminate' ].
@@ -862,7 +862,7 @@ RowanService >> setDebugActionBlock [
 							RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
 							suspendedProcess resume	"let the exception handler block return nil" ]
 						ifFalse: [ self resume: suspendedProcess orStep: debuggerResult ] ] fork.
-					suspendedProcess suspend.
+					suspendedProcess ifNotNil: [:proc | proc suspend].
 					debuggerResult = #'terminate'
 						ifTrue: [ 
 							self postCommandExecution.
