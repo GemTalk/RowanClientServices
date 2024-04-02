@@ -821,6 +821,7 @@ RowanProjectService >> wasDeleted [
 
 { #category : 'client commands' }
 RowanProjectService >> write [
-	Rowan projectTools write writeProjectNamed: name
-
+	[ Rowan projectTools write writeProjectNamed: name ]
+		on: RwInvalidCategoryProtocolConventionErrorNotification
+		do: [ :ex | ex resume ]
 ]
