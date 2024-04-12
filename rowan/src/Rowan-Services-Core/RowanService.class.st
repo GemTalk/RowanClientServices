@@ -376,42 +376,28 @@ RowanService >> fileOut: ws on: path [
 
 { #category : 'rsr' }
 RowanService >> gsInteractionInformFailureHandler [
-  self interactionHandlerActive
-   ifFalse: [ 
-      ^ GsInteractionHandler new
-        defaultBlock: [ :ignored | Error signal: 'expected a confirmation' ];
-        confirmBlock: [ :interaction | interaction ok ];
-        informBlock: [ :interaction |  ];
-        inspectBlock: [ :interaction |  ];
-        yourself ].
-  ^ GsInteractionHandler new
-    confirmBlock: [ :interaction | 
-          | exception answer |
-          exception := ClientForwarderSend new
-            receiver: self
-            clientObj: 1
-            selector: #'confirmMessageBox:'
-            args: (Array with: interaction prompt).
-          answer := exception defaultAction.	"expect printString of answer back. Jadeite has limited ability to convert client objects to oops"
-          answer evaluate ];
-    informBlock: [ :interaction | 
-          | exception |
-          exception := ClientForwarderSend new
-            receiver: self
-            clientObj: 1
-            selector: #'informMessageBox:'
-            args: (Array with: interaction message).
-          exception defaultAction.
-          nil ];
-    inspectBlock: [ :interaction | 
-          | exception |
-          exception := ClientForwarderSend new
-            receiver: self
-            clientObj: 1
-            selector: #'inspectServerObject:'
-            args: (Array with: interaction theObject asOop).
-          exception defaultAction.
-          interaction theObject ]
+	^ GsInteractionHandler new
+		confirmBlock: [ :interaction | 
+					| promise |
+					organizer := nil. 
+					promise := remoteSelf jadeiteConfirm: interaction prompt.
+					organizer := ClassOrganizer new.  
+					promise wait ];
+		informBlock: [ :interaction | 
+					| promise |
+					organizer := nil. 
+					promise := remoteSelf jadeiteNotify: interaction prompt.
+					organizer := ClassOrganizer new.  
+					promise wait  ];
+		inspectBlock: [ :interaction | 
+					"| exception |
+					exception := ClientForwarderSend new
+						receiver: self
+						clientObj: 1
+						selector: #'inspectServerObject:'
+						args: (Array with: interaction theObject asOop).
+					exception defaultAction.
+					interaction theObject "]
 ]
 
 { #category : 'perform' }
