@@ -376,28 +376,24 @@ RowanService >> fileOut: ws on: path [
 
 { #category : 'rsr' }
 RowanService >> gsInteractionInformFailureHandler [
+	| promise |
 	^ GsInteractionHandler new
 		confirmBlock: [ :interaction | 
-					| promise |
 					organizer := nil. 
 					promise := remoteSelf jadeiteConfirm: interaction prompt.
 					organizer := ClassOrganizer new.  
 					promise wait ];
 		informBlock: [ :interaction | 
-					| promise |
 					organizer := nil. 
-					promise := remoteSelf jadeiteNotify: interaction prompt.
+					promise := remoteSelf jadeiteNotify: interaction message.
 					organizer := ClassOrganizer new.  
 					promise wait  ];
 		inspectBlock: [ :interaction | 
-					"| exception |
-					exception := ClientForwarderSend new
-						receiver: self
-						clientObj: 1
-						selector: #'inspectServerObject:'
-						args: (Array with: interaction theObject asOop).
-					exception defaultAction.
-					interaction theObject "]
+					organizer := nil. 
+					promise := remoteSelf jadeiteInspect: interaction theObject asOop.
+					organizer := ClassOrganizer new.  
+					promise wait.
+					interaction theObject]
 ]
 
 { #category : 'perform' }
