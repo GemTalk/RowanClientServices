@@ -57,6 +57,8 @@ RowanProjectService >> _isSkew [
 
 { #category : 'comparing' }
 RowanProjectService >> = projectService [
+
+	(projectService isKindOf: RowanProjectService) ifFalse:[^false]. 
 	^projectService isProjectService ifTrue: [name = projectService name] ifFalse: [^false]
 ]
 
