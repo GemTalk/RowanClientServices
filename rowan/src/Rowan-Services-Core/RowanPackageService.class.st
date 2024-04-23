@@ -337,34 +337,34 @@ RowanPackageService >> setDefaultTemplate [
 
 { #category : 'client commands' }
 RowanPackageService >> testClasses [
-  organizer := ClassOrganizer new.
-  testClasses := Set new.
-  self loadedClasses
-    valuesDo: [ :loadedClass | 
-      | cls |
-      cls := loadedClass handle.
-      (cls inheritsFrom: TestCase)
-        ifTrue: [ 
-          cls isAbstract
-            ifFalse: [ 
-              | classService |
-              classService := RowanClassService basicForClassNamed: cls name.
-              testClasses add: classService ] ] ].
-  self loadedClassExtensions
-    valuesDo: [ :loadedClass | 
-      | cls |
-      cls := loadedClass handle.
-      (cls inheritsFrom: TestCase)
-        ifTrue: [ 
-          cls isAbstract
-            ifFalse: [ 
-              | classService |
-              classService := RowanClassService basicForClassNamed: cls name.
-              testClasses add: classService ] ] ].
-  updateType := #'testClasses:browser:'.
-  testClasses := testClasses asArray.
-  testClasses do: [ :classService | classService update ].
-  RowanCommandResult addResult: self
+	organizer ifNil: [ organizer := ClassOrganizer new ].
+	testClasses := Set new.
+	self loadedClasses
+		valuesDo: [ :loadedClass | 
+			| cls |
+			cls := loadedClass handle.
+			(cls inheritsFrom: TestCase)
+				ifTrue: [ 
+					cls isAbstract
+						ifFalse: [ 
+							| classService |
+							classService := RowanClassService basicForClassNamed: cls name.
+							testClasses add: classService ] ] ].
+	self loadedClassExtensions
+		valuesDo: [ :loadedClass | 
+			| cls |
+			cls := loadedClass handle.
+			(cls inheritsFrom: TestCase)
+				ifTrue: [ 
+					cls isAbstract
+						ifFalse: [ 
+							| classService |
+							classService := RowanClassService basicForClassNamed: cls name.
+							testClasses add: classService ] ] ].
+	updateType := #'testClasses:browser:'.
+	testClasses := testClasses asArray.
+	testClasses do: [ :classService | classService update ].
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'updates' }

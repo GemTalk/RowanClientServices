@@ -45,11 +45,11 @@ RowanAnsweringService >> addHaltToString: aString [
 
 { #category : 'private' }
 RowanAnsweringService >> addLowerCaseSymbolsIn: theClass To: array [
-  array addAll: theClass selectors.
-  array addAll: theClass class selectors.
-  array addAll: theClass instVarNames.
-  array addAll: theClass class instVarNames.
-  array addAll: theClass classVarNames.
+	array addAll: theClass selectors.
+	array addAll: theClass class selectors.
+	array addAll: theClass instVarNames.
+	array addAll: theClass class instVarNames.
+	array addAll: theClass classVarNames
 ]
 
 { #category : 'client commands' }
@@ -189,7 +189,11 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicExecReturningPrintString: aString context: oop shouldDebug: shouldDebug [
-	^self basicExec: aString context: oop shouldDebug: shouldDebug returningString: true
+	^ self
+		basicExec: aString
+		context: oop
+		shouldDebug: shouldDebug
+		returningString: true
 ]
 
 { #category : 'client command support' }
@@ -879,8 +883,7 @@ RowanAnsweringService >> transcriptInstalled [
 
 { #category : 'private' }
 RowanAnsweringService >> transcriptObject [
-	
-	^(SessionTemps current  at: #'TranscriptStream_SessionStream')
+	^ SessionTemps current at: #'TranscriptStream_SessionStream'
 ]
 
 { #category : 'client commands' }
