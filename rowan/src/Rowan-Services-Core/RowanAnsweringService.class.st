@@ -592,9 +592,19 @@ RowanAnsweringService >> flipTranscript [
 		self jadeiteServer installTranscript]
 ]
 
-{ #category : 'client commands' }
+{ #category : 'extensions' }
 RowanAnsweringService >> formatSource: aString [
-	answer := (RBParser parseMethod: aString) formattedCode.
+	[ answer := (RBParser parseMethod: aString) formattedCode ]
+		on: Error
+		do: [ :ex | 
+			| ws |
+			ws := WriteStream on: String new.
+			ws
+				nextPutAll: 'Could not format method ';
+				cr;
+				nextPutAll: ex printString.
+			self inform: ws contents.
+			^ self ].
 	RowanCommandResult addResult: self
 ]
 
