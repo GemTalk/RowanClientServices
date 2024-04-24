@@ -345,9 +345,33 @@ RowanProjectService >> initializePackageGroups [
 
 { #category : 'client commands' }
 RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: strict [
-	| spec browserService |
-	self updateType: #dontUpdate.  "this service should not be updated on the client"
-	spec := (RwSpecification fromUrl: path)
+	| spec browserService actualPath ws |
+	ws := WriteStream on: String new.
+	actualPath := path copyFrom: 6 to: path size. "`file:` is prepended to argument"
+	self updateType: #'dontUpdate'.	"this service should not be updated on the client"
+	(FileReference / actualPath) isDirectory
+		ifTrue: [ 
+			ws
+				nextPutAll: 'Path is not a file. Project not loaded.';
+				cr;
+				nextPutAll: actualPath.
+			self inform: ws contents.
+			^ self ].	
+	spec := [ RwSpecification fromUrl: path ]
+		on: Error
+		do: [ :ex | 
+			ws
+				nextPutAll: 'Error occurred during loading of file. Debug?';
+				cr;
+				nextPutAll: 'Path:';
+				tab;
+				nextPutAll: actualPath;
+				cr;
+				nextPutAll: ex printString.
+			(self confirm: ws contents)
+				ifTrue: [ ex pass ]
+				ifFalse: [ ^ self ] ].
+	spec
 		projectsHome: projectsHomePath;
 		componentNames: componentNames;
 		customConditionalAttributes: attributes;
