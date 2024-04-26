@@ -335,7 +335,7 @@ RowanPackageService >> setDefaultTemplate [
 	defaultTemplate := self genericClassCreationTemplate.
 ]
 
-{ #category : 'client commands' }
+{ #category : 'extensions' }
 RowanPackageService >> testClasses [
 	organizer ifNil: [ organizer := ClassOrganizer new ].
 	testClasses := Set new.
@@ -363,7 +363,6 @@ RowanPackageService >> testClasses [
 							testClasses add: classService ] ] ].
 	updateType := #'testClasses:browser:'.
 	testClasses := testClasses asArray.
-	testClasses do: [ :classService | classService update ].
 	RowanCommandResult addResult: self
 ]
 
