@@ -330,7 +330,7 @@ RowanService >> executeCommand [
 		gciLogServer:
 			DateTime now asStringMs , ' {'
 				, Processor activeProcess identityHash printString , '} '
-				, command printString , '->' , commandArgs printString.
+				, self printString, '>>', command printString , '->' , commandArgs printString.
 	self checkForDeadProcesses.
 	self setDebugActionBlock.
 	[ 
