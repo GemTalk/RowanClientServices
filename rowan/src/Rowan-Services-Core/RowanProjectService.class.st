@@ -318,6 +318,12 @@ RowanProjectService >> existsOnDisk [
 	^existsOnDisk
 ]
 
+{ #category : 'client commands' }
+RowanProjectService >> exportTopazFormatTo: filePath [
+
+	self rwProject exportTopazFormatTo: filePath
+]
+
 { #category : 'comparing' }
 RowanProjectService >> hash [
 	^self name hash

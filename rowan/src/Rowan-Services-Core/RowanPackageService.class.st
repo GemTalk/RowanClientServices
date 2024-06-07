@@ -129,6 +129,21 @@ RowanPackageService >> deletePackage [
 
 ]
 
+{ #category : 'client commands' }
+RowanPackageService >> exportTopazFormatTo: filePath [
+	| rwProject |
+	rwProject := (RowanProjectService new name: projectName) rwProject.
+	rwProject
+		exportTopazFormatTo: filePath
+		logClassCreation: false
+		excludeClassInitializers: false
+		excludeRemoveAllMethods: false
+		usingPackageNamesMap:
+			(Dictionary new
+				at: filePath put: {name};
+				yourself)
+]
+
 { #category : 'rowan' }
 RowanPackageService >> genericClassCreationTemplate [
 
