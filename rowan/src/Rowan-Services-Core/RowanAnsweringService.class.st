@@ -702,6 +702,16 @@ RowanAnsweringService >> packageOrDictionaryFor: classService [
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> packageServiceFor: classService [ 
+	| packageService |
+	classService update. 
+	packageService := RowanPackageService forPackageNamed: classService packageName.
+	packageService update.
+	answer := packageService.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> printStringOf: oop toMaxSize: integer [
   answer := self basicPrintStringOf: oop toMaxSize: integer.
   RowanCommandResult addResult: self.
@@ -736,6 +746,16 @@ answeringService answer. "
   ns := ProfMonitor computeInterval: time / 1000.
   answer := ProfMonitor monitorBlock: block intervalNs: ns.
   RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
+RowanAnsweringService >> projectServiceFor: classService [ 
+	| projectService |
+	classService update. 
+	projectService := RowanProjectService new name: classService projectName.
+	projectService update.
+	answer := projectService.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
