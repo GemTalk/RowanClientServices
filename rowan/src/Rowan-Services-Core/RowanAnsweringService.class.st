@@ -707,8 +707,7 @@ RowanAnsweringService >> packageServiceFor: classService [
 	classService update. 
 	packageService := RowanPackageService forPackageNamed: classService packageName.
 	packageService update.
-	answer := packageService.
-	RowanCommandResult addResult: self
+	^packageService
 ]
 
 { #category : 'client commands' }
@@ -749,13 +748,21 @@ answeringService answer. "
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> projectAndPackageServiceFor: classService [
+	classService update.
+	answer := Array
+		with: (self projectServiceFor: classService)
+		with: (self packageServiceFor: classService).
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> projectServiceFor: classService [ 
 	| projectService |
 	classService update. 
 	projectService := RowanProjectService new name: classService projectName.
 	projectService update.
-	answer := projectService.
-	RowanCommandResult addResult: self
+	^projectService
 ]
 
 { #category : 'client commands' }
