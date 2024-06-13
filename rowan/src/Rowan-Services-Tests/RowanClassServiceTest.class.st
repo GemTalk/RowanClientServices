@@ -309,9 +309,7 @@ RowanClassServiceTest >> test_methodHistoryAdd [
 
   | classService methodService source secondSource |
   self jadeiteIssueTested: #'issu518' withTitle: 'Add method history'.
-  UserGlobals
-    at: #'RowanMethodHistory'
-    ifAbsentPut: [ Dictionary new	"if no methods are yet saved in this repository" ].
+  RowanService new rowanMethodHistory. "make sure method history is initialized"
   methodService := RowanMethodService new
     selector: #'test_methodHistoryAdd';
     className: 'RowanServicesTestClass';
@@ -345,36 +343,33 @@ RowanClassServiceTest >> test_methodHistoryAdd [
 
 { #category : 'test method compilation' }
 RowanClassServiceTest >> test_methodHistoryInitialize [
-  "saving a new method should initialize the method's history"
+	"saving a new method should initialize the method's history"
 
-  | classService methodService source |
-  self jadeiteIssueTested: #'issu518' withTitle: 'Add method history'.
-  UserGlobals
-    at: #'RowanMethodHistory'
-    ifAbsentPut: [ Dictionary new	"if no methods are yet saved in this repository" ].
-  methodService := RowanMethodService new
-    selector: #'test_methodHistoryInitialize';
-    className: 'RowanServicesTestClass';
-    meta: false;
-    yourself.
-  self
-    assert:
-      ((self userGlobals at: #'RowanMethodHistory') at: methodService ifAbsent: [  ])
-    equals: nil.
-  classService := RowanClassService forClassNamed: self servicesDefaultClassName.
-  source := 'test_methodHistoryInitialize | abc | abc := 1. abc := abc + abc. ^abc'.
-  classService saveMethodSource: source category: 'other'.
-  [ 
-  self
-    assert: ((UserGlobals at: #'RowanMethodHistory') at: methodService)
-    equals: (Array with: methodService).
-  self
-    assert:
-      ((UserGlobals at: #'RowanMethodHistory') at: methodService) any source
-    equals: source ]
-    ensure: [ 
-      (UserGlobals at: #'RowanMethodHistory') removeKey: methodService.
-      classService removeSelector: methodService selector ]
+	| classService methodService source |
+	self jadeiteIssueTested: #'issu518' withTitle: 'Add method history'.
+	RowanService new rowanMethodHistory.	"make sure method history is initialized"
+	methodService := RowanMethodService new
+		selector: #'test_methodHistoryInitialize';
+		className: 'RowanServicesTestClass';
+		meta: false;
+		yourself.
+	self
+		assert:
+			((self userGlobals at: #'RowanMethodHistory') at: methodService ifAbsent: [  ])
+		equals: nil.
+	classService := RowanClassService forClassNamed: self servicesDefaultClassName.
+	source := 'test_methodHistoryInitialize | abc | abc := 1. abc := abc + abc. ^abc'.
+	classService saveMethodSource: source category: 'other'.
+	[ 
+	self
+		assert: ((UserGlobals at: #'RowanMethodHistory') at: methodService)
+		equals: (Array with: methodService).
+	self
+		assert: ((UserGlobals at: #'RowanMethodHistory') at: methodService) any source
+		equals: source ]
+		ensure: [ 
+			(UserGlobals at: #'RowanMethodHistory') removeKey: methodService.
+			classService removeSelector: methodService selector ]
 ]
 
 { #category : 'tests' }

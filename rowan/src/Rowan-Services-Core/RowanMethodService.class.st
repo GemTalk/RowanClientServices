@@ -158,12 +158,11 @@ RowanMethodService >> accessedInstVars: anArray [
 
 { #category : 'method history' }
 RowanMethodService >> addToMethodHistory [
-  | rowanMethodHistory methodHistory |
-  rowanMethodHistory := self userGlobals
-    at: #'RowanMethodHistory'
-    ifAbsentPut: [ Dictionary new ].
-  methodHistory := rowanMethodHistory at: self unregisteredCopy ifAbsentPut: [ Array new ].
-  methodHistory add: self unregisteredCopy
+	| methodHistory |
+	methodHistory := self rowanMethodHistory
+		at: self unregisteredCopy
+		ifAbsentPut: [ Array new ].
+	methodHistory add: self unregisteredCopy
 ]
 
 { #category : 'client commands' }
@@ -799,12 +798,7 @@ RowanMethodService >> setDefinedClass: aClass [
 
 { #category : 'method history' }
 RowanMethodService >> setHasMethodHistory [
-	| answeringService history |
-	answeringService := RowanAnsweringService new.
-	history := self userGlobals
-		at: #'RowanMethodHistory'
-		ifAbsent: [ ^ hasMethodHistory := false ].
-	history at: self ifAbsent: [ ^ hasMethodHistory := false ].
+	self rowanMethodHistory at: self ifAbsent: [ ^ hasMethodHistory := false ].
 	hasMethodHistory := true
 ]
 

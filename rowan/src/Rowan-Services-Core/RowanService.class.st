@@ -764,6 +764,12 @@ RowanService >> rowanFixMe [
 ]
 
 { #category : 'accessing' }
+RowanService >> rowanMethodHistory [
+
+	^UserGlobals at: #'RowanMethodHistory' ifAbsentPut: [Dictionary new]
+]
+
+{ #category : 'accessing' }
 RowanService >> rowanProjectName [
 
 	"all services should be able to return a project name

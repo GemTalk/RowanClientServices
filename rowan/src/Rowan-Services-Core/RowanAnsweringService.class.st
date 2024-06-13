@@ -198,11 +198,7 @@ RowanAnsweringService >> basicExecReturningPrintString: aString context: oop sho
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicMethodHistoryFor: methodService [
-	| rowanMethodHistory |
-	rowanMethodHistory := self userGlobals
-		at: #'RowanMethodHistory'
-		ifAbsent: [ rowanMethodHistory := Dictionary new ].
-	answer := rowanMethodHistory at: methodService ifAbsent: [ Array new ].
+	answer := self rowanMethodHistory at: methodService ifAbsent: [ Array new ].
 	answer isEmpty
 		ifTrue: [ answer add: methodService ]
 ]
@@ -778,11 +774,7 @@ RowanAnsweringService >> projectsRepositoryRoots: projectNames [
 
 { #category : 'client commands' }
 RowanAnsweringService >> removeMethodHistoryFor: methodService [
-  | rowanMethodHistory |
-  rowanMethodHistory := self userGlobals
-    at: #'RowanMethodHistory'
-    ifAbsentPut: [ Dictionary new ].
-  rowanMethodHistory removeKey: methodService ifAbsent: [  ]
+	self rowanMethodHistory removeKey: methodService ifAbsent: [  ]
 ]
 
 { #category : 'client commands' }

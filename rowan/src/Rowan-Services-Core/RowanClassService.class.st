@@ -626,9 +626,7 @@ RowanClassService >> initializeMethodHistoryFor: source [
   "about to compile a method. If possible, ensure it's method history is setup."
 
   | rowanMethodHistory methodHistory selector methodService |
-  rowanMethodHistory := self userGlobals
-    at: #'RowanMethodHistory'
-    ifAbsentPut: [ Dictionary new ].
+  rowanMethodHistory := self rowanMethodHistory.
   selector := [ (Rowan platform parseSelectorFrom: source) asSymbol ]
     on: CompileWarning
     do: [ :ex | ex resume ].
