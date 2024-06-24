@@ -141,6 +141,7 @@ RowanDictionaryService >> update [
 					classService := RowanClassService new name: key asString.
 					classService versions: value classHistory size.
 					classService version: (value classHistory indexOf: value).
+					classService setIsTestCase. 
 					classes add: classService ]
 				ifFalse: [ 
 					| printString theKey |
