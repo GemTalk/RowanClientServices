@@ -749,9 +749,23 @@ RowanService >> resume: suspendedProcess orStep: debuggerResult [
 	suspendedProcess
 		perform: debuggerResult first
 		withArguments: (debuggerResult copyFrom: 2 to: debuggerResult size).
-	debuggerResult first = #trimStackToLevel: ifTrue:[
-		^(RowanProcessServiceServer existingProcessServiceFor: suspendedProcess) updateClient.
-			].
+	debuggerResult first = #'trimStackToLevel:'
+		ifTrue: [ 
+			| result processService |
+			GsFile
+				gciLogServer:
+					DateTime now asStringMs , ' {'
+						, Processor activeProcess identityHash printString , '} '
+						, #'trimStackToLevel:'.
+			processService := RowanProcessServiceServer
+				existingProcessServiceFor: suspendedProcess.
+			result := processService updateClient.
+			GsFile
+				gciLogServer:
+					DateTime now asStringMs , ' {'
+						, Processor activeProcess identityHash printString , '} '
+						, 'updateClient complete'.
+			^ self resume: suspendedProcess orStep: result ].
 	(Delay forMilliseconds: 100) wait.
 	suspendedProcess resume
 ]
@@ -847,6 +861,11 @@ RowanService >> setDebugActionBlock [
 							GsFile gciLogServer: ex printString.
 							GsFile gciLogServer: 'connection not open'.	"can't return"
 							Processor activeProcess terminate ].
+					GsFile
+						gciLogServer:
+							DateTime now asStringMs , ' {'
+								, Processor activeProcess identityHash printString , '} '
+								, ex printString.
 					suspendedProcess := Processor activeProcess.
 					ex class = CompileError
 						ifTrue: [ 
@@ -865,8 +884,7 @@ RowanService >> setDebugActionBlock [
 								openDebuggerOn: suspendedProcess
 								exception: ex
 								connection: _connection ]
-						ifNotNil: [ :processService |  
-							processService updateClient ].
+						ifNotNil: [ :processService | processService updateClient ].
 					ex isResumable
 						ifFalse: [ debuggerResult := #'terminate' ].
 					debuggerResult = #'terminate'
@@ -874,12 +892,12 @@ RowanService >> setDebugActionBlock [
 							RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
 							suspendedProcess resume	"let the exception handler block return nil" ]
 						ifFalse: [ self resume: suspendedProcess orStep: debuggerResult ] ] fork.
-					suspendedProcess ifNotNil: [:proc | proc suspend].
+					suspendedProcess ifNotNil: [ :proc | proc suspend ].
 					debuggerResult = #'terminate'
 						ifTrue: [ 
 							self postCommandExecution.
-							ex tag: #rsrProcessTerminated. 
-							RsrUnhandledException signal: ex  "stop processing the exception but let rsr return" ].
+							ex tag: #'rsrProcessTerminated'.
+							RsrUnhandledException signal: ex	"stop processing the exception but let rsr return" ].
 					ex resume ]
 ]
 
