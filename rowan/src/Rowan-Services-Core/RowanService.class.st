@@ -746,25 +746,20 @@ RowanService >> resume: suspendedProcess orStep: debuggerResult [
 			"open a new debugger if necessary"
 			RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
 			^ suspendedProcess resume ].
+	debuggerResult = #'terminate'
+		ifTrue: [ 
+			RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
+			suspendedProcess terminate.
+			^ self ].
 	suspendedProcess
 		perform: debuggerResult first
 		withArguments: (debuggerResult copyFrom: 2 to: debuggerResult size).
 	debuggerResult first = #'trimStackToLevel:'
 		ifTrue: [ 
 			| result processService |
-			GsFile
-				gciLogServer:
-					DateTime now asStringMs , ' {'
-						, Processor activeProcess identityHash printString , '} '
-						, #'trimStackToLevel:'.
 			processService := RowanProcessServiceServer
 				existingProcessServiceFor: suspendedProcess.
 			result := processService updateClient.
-			GsFile
-				gciLogServer:
-					DateTime now asStringMs , ' {'
-						, Processor activeProcess identityHash printString , '} '
-						, 'updateClient complete'.
 			^ self resume: suspendedProcess orStep: result ].
 	(Delay forMilliseconds: 100) wait.
 	suspendedProcess resume
