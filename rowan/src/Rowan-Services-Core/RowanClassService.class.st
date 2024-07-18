@@ -124,13 +124,15 @@ RowanClassService >> addSubclassWarningString [
 
 { #category : 'client commands' }
 RowanClassService >> allSubclassServices [
-  | subclassServices |
-  subclassServices := self theClass subclasses asArray
-    collect: [ :aClass | RowanClassService minimalForClassNamed: aClass name ].
-  hierarchyServices := Dictionary new.
-  hierarchyServices at: #'expand' put: subclassServices.
-  (hierarchyServices at: #'expand')
-    do: [ :classService | classService allSubclassServices ]
+	| subclassServices |
+	RowanCommandResult addResult: self.
+	self updateType: #'updatedFullInClassHierarchy:browser:'.
+	subclassServices := self theClass subclasses asArray
+		collect: [ :aClass | RowanClassService minimalForClassNamed: aClass name ].
+	subclassServices isEmpty ifFalse: [hasSubclasses := true]. 
+	hierarchyServices := Dictionary new.
+	hierarchyServices at: #'expand' put: subclassServices.
+	subclassServices do: [ :classService | classService allSubclassServices ]
 ]
 
 { #category : 'Accessing' }
@@ -561,19 +563,20 @@ RowanClassService >> forClassNamed: className [
 
 { #category : 'client commands' }
 RowanClassService >> fullHierarchy [
-  | behavior sortedSubclasses |
-  behavior := self theClass.
-  hierarchyServices := Dictionary new.
-  hierarchyServices at: #'expand' put: (Array with: self).
-  sortedSubclasses := behavior subclasses
-    asSortedCollection: [ :x :y | x name < y name ].
-  RowanCommandResult addResult: self.
-  sortedSubclasses
-    do: [ :subclass | 
-      | classService |
-      classService := (self classServiceFromOop: subclass asOop) meta: meta.
-      (hierarchyServices at: #'expand') add: classService.
-      classService allSubclassServices ].
+	| behavior sortedSubclasses |
+	behavior := self theClass.
+	hierarchyServices := Dictionary new.
+	hierarchyServices at: #'expand' put: Array new.
+	sortedSubclasses := behavior subclasses
+		asSortedCollection: [ :x :y | x name < y name ].
+	updateType := #'updatedFullInClassHierarchy:browser:'.
+	RowanCommandResult addResult: self.
+	sortedSubclasses
+		do: [ :subclass | 
+			| classService |
+			classService := (self classServiceFromOop: subclass asOop) meta: meta.
+			(hierarchyServices at: #'expand') add: classService.
+			classService allSubclassServices ]
 ]
 
 { #category : 'comparing' }
