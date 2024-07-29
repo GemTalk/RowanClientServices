@@ -998,7 +998,6 @@ RowanClassService >> postCommandExecution [
 	super postCommandExecution.
 	methods
 		ifNil: [ 
-			self updateType: #jadeiteShouldNotUpdateOnClient.
 			methods := Array new	"may not have been a behavior" ]
 		ifNotNil: [ methods do: [ :methodService | methodService clearOrganizers ] ]
 ]
