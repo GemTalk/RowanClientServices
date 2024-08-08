@@ -775,15 +775,15 @@ RowanMethodService >> servicePerform: symbol withArguments: collection [
 
 { #category : 'client commands' }
 RowanMethodService >> setBreakAt: stepPoint [
-  | method |
-  method := self isUnboundMethod
-    ifTrue: [ (Object _objectForOop: oop) homeMethod ]
-    ifFalse: [ self gsNMethod ].
-  method setBreakAtStepPoint: stepPoint breakpointLevel: 1.
-  self class breakPointsAreEnabled
-    ifFalse: [ self disableBreakAt: stepPoint ].
-  self update.
-  RowanCommandResult addResult: self
+	| method |
+	method := self isUnboundMethod
+		ifTrue: [ (Object _objectForOop: oop) homeMethod ]
+		ifFalse: [ self gsNMethod ].
+	method setBreakAtStepPoint: stepPoint breakpointLevel: 1.
+	self class breakPointsAreEnabled
+		ifFalse: [ self disableBreakAt: stepPoint ].
+	self update.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'initialization' }

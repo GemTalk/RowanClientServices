@@ -1242,11 +1242,13 @@ RowanClassService >> saveMethodSource: source category: category [
 				signal: 1001
 				args: (Array with: compilationResult value)
 				signalDictionary: GemStoneError ].
+	organizer := ClassOrganizer new. 
 	methodService := self
 		methodServiceFrom: gsNMethod
 		in: behavior
 		compiltationResult: compilationResult.
 	RowanCommandResult addResult: methodService.
+	self refreshFrom: self theClass. "make sure new methods have proper inst var refs"
 	RowanQueryService new
 		organizer: ClassOrganizer new;
 		hierarchyImplementorsOf: methodService selector
@@ -1262,6 +1264,12 @@ RowanClassService >> saveMethodSource: source category: category [
 			gsNMethod _selectorPool asArray , (Array with: methodService selector).
 	methodService addToMethodHistory.
 	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
+RowanClassService >> saveMethodSources: sources category: category [
+	sources do:[:source | 
+		self saveMethodSource: source category: category]
 ]
 
 { #category : 'other' }
