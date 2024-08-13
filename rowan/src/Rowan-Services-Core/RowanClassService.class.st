@@ -584,12 +584,12 @@ RowanClassService >> hash [
 	^self name hash bitXor: meta hash
 ]
 
-{ #category : 'accessing' }
+{ #category : 'Accessing' }
 RowanClassService >> hasSubclasses [
 	^hasSubclasses
 ]
 
-{ #category : 'accessing' }
+{ #category : 'Accessing' }
 RowanClassService >> hasSubclasses: object [
 	hasSubclasses := object
 ]
