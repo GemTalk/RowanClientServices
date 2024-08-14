@@ -326,11 +326,6 @@ RowanService >> excludedInstVars [
 RowanService >> executeCommand [
 	"RSR -> RowanServices primary api."
 
-	GsFile
-		gciLogServer:
-			DateTime now asStringMs , ' {'
-				, Processor activeProcess identityHash printString , '} '
-				, self printString, '>>', command printString , '->' , commandArgs printString.
 	self checkForDeadProcesses.
 	self setDebugActionBlock.
 	[ 
@@ -338,24 +333,13 @@ RowanService >> executeCommand [
 	organizer := ClassOrganizer new.
 	[ 
 	updateType := nil.	"Update type is only for returned commands"
-	GsFile
-		gciLogServer:
-			DateTime now asStringMs , ' {'
-				, Processor activeProcess identityHash printString
-				, '}  - about to execute command'.
-	self servicePerform: command withArguments: commandArgs.
-	GsFile
-		gciLogServer:
-			DateTime now asStringMs , ' {'
-				, Processor activeProcess identityHash printString
-				, '}  - finished execute command' ]
+	self servicePerform: command withArguments: commandArgs ]
 		on: GsInteractionRequest
 		do: [ :ex | 
 			ex
 				response:
 					(ex interaction interactWith: self gsInteractionInformFailureHandler) ].
 	updates := Rowan commandResultClass results.
-
 	self postCommandExecution ]
 		on: Exception
 		do: [ :ex | 
@@ -366,10 +350,6 @@ RowanService >> executeCommand [
 						, ex printString.
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
 			ex pass ].
-	GsFile
-		gciLogServer:
-			DateTime now asStringMs , ' {'
-				, Processor activeProcess identityHash printString , '}  exiting'.
 	^ self
 ]
 
