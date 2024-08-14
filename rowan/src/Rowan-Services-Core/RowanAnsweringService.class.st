@@ -55,7 +55,7 @@ RowanAnsweringService >> addLowerCaseSymbolsIn: theClass To: array [
 { #category : 'client commands' }
 RowanAnsweringService >> allClassesStartingWith: string [
   answer := SortedCollection new.
-  organizer classes
+  self organizer classes
     do: [ :cls | 
       (cls name beginsWith: string)
         ifTrue: [ answer add: cls name asString ] ].
@@ -66,7 +66,7 @@ RowanAnsweringService >> allClassesStartingWith: string [
 { #category : 'client commands' }
 RowanAnsweringService >> allClassNames [
   answer := SortedCollection new.
-  answer addAll: (organizer classes collect: [ :cls | cls name asString ]).
+  answer addAll: (self organizer classes collect: [ :cls | cls name asString ]).
   answer := answer asArray.
   RowanCommandResult addResult: self
 ]
@@ -115,7 +115,7 @@ RowanAnsweringService >> autocompleteSymbols [
   | newClassNames newLowerCaseSymbols |
   newClassNames := Array new.
   newLowerCaseSymbols := Array new.
-  organizer classes
+  self organizer classes
     do: [ :cls | 
       newClassNames add: cls name asString.
       self addLowerCaseSymbolsIn: cls To: newLowerCaseSymbols ].
@@ -226,7 +226,7 @@ RowanAnsweringService >> basicPrintStringOfObject: object toMaxSize: integer [
 RowanAnsweringService >> basicSortedSelectors [
   | selectors |
   selectors := IdentitySet new.
-  organizer classes
+  self organizer classes
     do: [ :aClass | 
       | metaClass |
       metaClass := aClass.
@@ -290,7 +290,7 @@ RowanAnsweringService >> classHasSubclasses: oop [
 RowanAnsweringService >> clearAllBreaks [
   | methodServices |
   methodServices := RowanQueryService new
-    organizer: organizer;
+    organizer: self organizer;
     basicBreakpointMethods.
   GsNMethod clearAllBreaks.
   methodServices
@@ -302,7 +302,7 @@ RowanAnsweringService >> clearMethodBreaks: methodServices [
   methodServices
     do: [ :methodService | 
       methodService
-        organizer: organizer;
+        organizer: self organizer;
         clearMethodBreaks ]
 ]
 
@@ -386,7 +386,7 @@ RowanAnsweringService >> debug: aString inFrame: level ofProcess: processOop con
 RowanAnsweringService >> disableAllBreaks [
   | methodServices |
   methodServices := RowanQueryService new
-    organizer: organizer;
+    organizer: self organizer;
     basicBreakpointMethods.
   GsNMethod _disableAllBreaks.
   methodServices
@@ -398,7 +398,7 @@ RowanAnsweringService >> disableMethodBreaks: methodServices [
   methodServices
     do: [ :methodService | 
       methodService
-        organizer: organizer;
+        organizer: self organizer;
         disableMethodBreaks ]
 ]
 
@@ -406,7 +406,7 @@ RowanAnsweringService >> disableMethodBreaks: methodServices [
 RowanAnsweringService >> enableAllBreaks [
   | methodServices |
   methodServices := RowanQueryService new
-    organizer: organizer;
+    organizer: self organizer;
     basicBreakpointMethods.
   GsNMethod _enableAllBreaks.
   methodServices
@@ -418,7 +418,7 @@ RowanAnsweringService >> enableMethodBreaks: methodServices [
   methodServices
     do: [ :methodService | 
       methodService
-        organizer: organizer;
+        organizer: self organizer;
         enableMethodBreaks ]
 ]
 
@@ -665,7 +665,7 @@ RowanAnsweringService >> methodHistoryFor: methodService [
 RowanAnsweringService >> methodReferenceCounts: methodServices [
   answer := Array new.
   methodServices
-    do: [ :methodService | answer add: (organizer sendersOf: methodService selector) first size ].
+    do: [ :methodService | answer add: (self organizer sendersOf: methodService selector) first size ].
   RowanCommandResult addResult: self.
   ^ answer	"for testing"
 ]
@@ -930,7 +930,7 @@ RowanAnsweringService >> updateAutocompleteSymbols [
     ifAbsent: [ ^ self	"autocomplete not activated" ].
   newClassNames := Array new.
   newLowerCaseSymbols := Array new.
-  organizer classes
+  self organizer classes
     do: [ :cls | 
       (cache first includes: cls name asString)
         ifFalse: [ newClassNames add: cls name asString ].

@@ -150,7 +150,7 @@ RowanClassService >> allTests [
 				forSelector: selector
 				class: (theClass whichClassIncludesSelector: selector asString)
 				meta: false
-				organizer: organizer ]
+				organizer: self organizer ]
 ]
 
 { #category : 'testing' }
@@ -176,7 +176,6 @@ RowanClassService >> basicRefreshFrom: theClass [
 	command := nil. 
 	commandArgs := nil. 
 	superclassName := theClass superClass ifNotNil:[:theSuper | theSuper name asString]. 
-	organizer ifNil: [organizer := ClassOrganizer new]. "for Jade and tests"
 	versions := theClass classHistory size.
 	version := theClass classHistory indexOf: theClass.
 	self setComment.
@@ -191,7 +190,7 @@ RowanClassService >> basicRefreshFrom: theClass [
 	instVarNames := classOrMeta instVarNames asArray. 
 	self setIsTestCase.
 	self updateIsExtension.
-	hasSubclasses := (organizer subclassesOf: theClass) notEmpty.
+	hasSubclasses := (self organizer subclassesOf: theClass) notEmpty.
 ]
 
 { #category : 'Accessing' }
@@ -647,7 +646,7 @@ RowanClassService >> initializeMethodHistoryFor: source [
         forSelector: selector
         class: self theClass
         meta: meta
-        organizer: organizer.
+        organizer: self organizer.
       methodHistory := rowanMethodHistory
         at: methodService unregisteredCopy
         ifAbsentPut: [ Array new ] ]
@@ -765,7 +764,7 @@ RowanClassService >> methods [
 RowanClassService >> methodServiceFrom: gsNMethod in: behavior compiltationResult: compilationResult [
 	| methodService |
 
-	methodService := RowanMethodService forGsNMethod: gsNMethod organizer: organizer. 
+	methodService := RowanMethodService forGsNMethod: gsNMethod organizer: self organizer. 
 	methodService compilationWarnings: compilationResult value.
 	^methodService
 ]
@@ -873,7 +872,7 @@ RowanClassService >> moveMethods: methodServices to: category [
 	methodServices
 		do: [ :methodService | 
 			| beforePackageName |
-			methodService organizer: organizer.
+			methodService organizer: self organizer.
 			beforePackageName := methodService packageName.
 			behavior rwMoveMethod: methodService selector toCategory: category.
 			methodService update.
@@ -937,7 +936,7 @@ RowanClassService >> oneLevelClassHierarchy [
 			| classService |
 			classService := (self classServiceFromOop: subclass asOop) meta: meta.
 			(hierarchyServices at: #'expand') add: classService.
-			(organizer subclassesOf: subclass) notEmpty
+			(self organizer subclassesOf: subclass) notEmpty
 				ifTrue: [ classService hasSubclasses: true ] ].
 	updateType := #'updatedOneLevelInClassHierarchy:browser:'.
 	RowanCommandResult addResult: self
@@ -1043,12 +1042,12 @@ RowanClassService >> refreshFrom: theClass [
 RowanClassService >> refreshMethodsFor: classOrMeta [
 	| gsNMethods subclasses |
 	methods := SortedCollection sortBlock: [ :x :y | x selector < y selector ].
-	subclasses := organizer allSubclassesOf: classOrMeta thisClass.
-	self methodServicesFor: classOrMeta organizer: organizer subclasses: subclasses.
+	subclasses := self organizer allSubclassesOf: classOrMeta thisClass.
+	self methodServicesFor: classOrMeta organizer: self organizer subclasses: subclasses.
 	methods := methods asOrderedCollection.
 	classOrMeta allInstVarNames
 		do: [ :instVar | 
-			gsNMethods := organizer accessorsOf: instVar inClass: classOrMeta.
+			gsNMethods :=self  organizer accessorsOf: instVar inClass: classOrMeta.
 			gsNMethods
 				do: [ :gsNMethod | 
 					| service |
@@ -1144,7 +1143,7 @@ RowanClassService >> renameClass: oldClassName to: newClassName [
   renamedName := oldClassName.
   self updateMethodsAfterRenameFrom: oldClassName to: newClassName.
   self updateSubclassesOf: newClass.
-  references := organizer update referencesToObject: oldClass.
+  references := self organizer update referencesToObject: oldClass.
   references do: [ :method | 
     | newSource compileResult failedCompile methodService oldSource |
     failedCompile := false.
@@ -1163,7 +1162,7 @@ RowanClassService >> renameClass: oldClassName to: newClassName [
         method ].
     methodService := RowanMethodService
       forGsNMethod: compileResult
-      organizer: organizer.
+      organizer: self organizer.
     failedCompile
       ifTrue: [ methodService comparisonSource: oldClassName ]
       ifFalse: [ methodService comparisonSource: oldSource ].
@@ -1502,7 +1501,7 @@ RowanClassService >> updateSubclasses [
 { #category : 'private' }
 RowanClassService >> updateSubclassesOf: newClass [
   organizer := ClassOrganizer new.
-  (organizer allSubclassesOf: newClass)
+  (self organizer allSubclassesOf: newClass)
     do: [ :subclass | 
       | subclassService |
       subclassService := RowanClassService minimalForClassNamed: subclass name.

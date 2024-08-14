@@ -333,6 +333,7 @@ RowanService >> executeCommand [
 	organizer := ClassOrganizer new.
 	[ 
 	updateType := nil.	"Update type is only for returned commands"
+	command ifNil: [^self]. 
 	self servicePerform: command withArguments: commandArgs ]
 		on: GsInteractionRequest
 		do: [ :ex | 
@@ -629,6 +630,12 @@ RowanService >> nilRsrVariables [
 	_id := nil. 
 	_connection := nil. 
 	remoteSelf := nil
+]
+
+{ #category : 'accessing' }
+RowanService >> organizer [
+
+	^organizer ifNil: [organizer := ClassOrganizer new]
 ]
 
 { #category : 'accessing' }

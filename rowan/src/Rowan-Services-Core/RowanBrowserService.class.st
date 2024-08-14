@@ -46,7 +46,7 @@ RowanBrowserService >> abortTransactionAndUpdateServices: services [
 	services
 		do: [ :service | 
 			service
-				organizer: organizer;
+				organizer: self organizer;
 				updateLatest ]
 ]
 
@@ -80,7 +80,7 @@ RowanBrowserService >> basicAllClasses [
 	packageNames := Rowan image packageNames.
 	theClasses
 		addAll:
-			(organizer classes
+			(self organizer classes
 				collect: [ :theClass | 
 					| service |
 					service := RowanClassService new name: theClass name.
@@ -198,7 +198,7 @@ RowanBrowserService >> confirmDuplicateName: definitionString [
 { #category : 'client commands' }
 RowanBrowserService >> defaultClassHierarchy [
 	hierarchyServices := Dictionary new.   
-	organizer hierarchy keysAndValuesDo: [:key :value |
+	self organizer hierarchy keysAndValuesDo: [:key :value |
 		| classService |
 		classService := key == #nil ifTrue:[#nil] ifFalse: [RowanClassService basicForClassNamed: key name].
 		hierarchyServices at: classService put: (value collect:[:cls | RowanClassService basicForClassNamed: cls name]) asArray.
@@ -274,7 +274,7 @@ RowanBrowserService >> packagesWithTests [
 	testPackages := Set new.
 	testCount := 0.
 	packageNames := Rowan image packageNames. 
-	(organizer allSubclassesOf: TestCase)
+	(self organizer allSubclassesOf: TestCase)
 		do: [ :sub | 
 			| packageName testMethodCount |
 			testMethodCount := (sub sunitSelectors
@@ -346,8 +346,8 @@ RowanBrowserService >> releaseWindowHandle: integer [
 { #category : 'client commands' }
 RowanBrowserService >> reloadProjects: projectServices andUpdateServices: services [
 	| projectNames answeringService |
-	services do: [ :service | service organizer: organizer ].
-	projectServices do: [ :service | service organizer: organizer ].
+	services do: [ :service | service organizer: self organizer ].
+	projectServices do: [ :service | service organizer: self organizer ].
 	projectServices do: [ :projectService | projectService reloadProject ].
 	projectNames := projectServices
 		collect: [ :projectService | projectService name ].
@@ -355,7 +355,7 @@ RowanBrowserService >> reloadProjects: projectServices andUpdateServices: servic
 		do: [ :service | 
 			(projectNames includes: service rowanProjectName)
 				ifTrue: [ service updateLatest ] ].
-	answeringService := RowanAnsweringService new organizer: organizer.
+	answeringService := RowanAnsweringService new organizer: self organizer.
 	answeringService updateAutocompleteSymbols.
 ]
 
