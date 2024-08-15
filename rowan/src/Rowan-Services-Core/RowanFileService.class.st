@@ -147,7 +147,7 @@ RowanFileService >> fileoutDictionaries: dictionaryNames [
 	self writeFileOutHeaderOn: ws.
 	dictionaryNames
 		do: [ :dictionaryName | 
-			organizer
+			self organizer
 				fileOutClassesAndMethodsInDictionary: (Rowan globalNamed: dictionaryName)
 				on: ws ].
 	self fileOut: ws on: path

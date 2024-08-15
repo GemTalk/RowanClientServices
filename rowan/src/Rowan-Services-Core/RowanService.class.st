@@ -118,11 +118,11 @@ RowanService class >> versionRangeHigh: lowRange [
 
 { #category : 'commands support' }
 RowanService >> addAllSubclassHierarchiesOf: theClass to: hierarchies [
-	(organizer subclassesOf: theClass)
+	(self organizer subclassesOf: theClass)
 		do: [ :subclass | 
 			hierarchies
 				add:
-					(organizer allSuperclassesOf: theClass) , (Array with: theClass with: subclass).
+					(self organizer allSuperclassesOf: theClass) , (Array with: theClass with: subclass).
 			self addAllSubclassHierarchiesOf: subclass to: hierarchies ]
 ]
 
@@ -195,7 +195,7 @@ RowanService >> classHierarchy: theClasses [
 
 { #category : 'rsr' }
 RowanService >> clearOrganizers [
-	organizer := nil.
+	self organizer: nil.
 	updates do: [ :update | update organizer: nil ]
 ]
 
@@ -270,7 +270,7 @@ RowanService >> createServiceFor: aClass unlessExistingIn: newServices expand: t
 		ifTrue: [ service expand: true ]
 		ifFalse: [ service expand: false ].
 
-	(organizer subclassesOf: aClass) size > 0
+	(self organizer subclassesOf: aClass) size > 0
 		ifTrue: [ service hasSubclasses: true ].
 
 	^ service
@@ -330,7 +330,6 @@ RowanService >> executeCommand [
 	self setDebugActionBlock.
 	[ 
 	Rowan commandResultClass initializeResults.
-	organizer := ClassOrganizer new.
 	[ 
 	updateType := nil.	"Update type is only for returned commands"
 	command ifNil: [^self]. 
@@ -385,19 +384,19 @@ RowanService >> gsInteractionInformFailureHandler [
 	| promise |
 	^ GsInteractionHandler new
 		confirmBlock: [ :interaction | 
-					organizer := nil. 
+					self organizer: nil. 
 					promise := remoteSelf jadeiteConfirm: interaction prompt.
-					organizer := ClassOrganizer new.  
+					self organizer: ClassOrganizer new.  
 					promise wait ];
 		informBlock: [ :interaction | 
-					organizer := nil. 
+					self organizer: nil. 
 					promise := remoteSelf jadeiteNotify: interaction message.
-					organizer := ClassOrganizer new.  
+					self organizer: ClassOrganizer new.  
 					promise wait  ];
 		inspectBlock: [ :interaction | 
-					organizer := nil. 
+					self organizer: nil. 
 					promise := remoteSelf jadeiteInspect: interaction theObject asOop.
-					organizer := ClassOrganizer new.  
+					self organizer: ClassOrganizer new.  
 					promise wait.
 					interaction theObject]
 ]
@@ -662,7 +661,7 @@ RowanService >> peerHierarchies: theClasses [
 						do: [ :subclass | 
 							peerHierarchies
 								add:
-									((organizer allSuperclassesOf: subclass)
+									((self organizer allSuperclassesOf: subclass)
 										add: subclass;
 										yourself) ] ] ].
 	^ peerHierarchies
@@ -795,7 +794,7 @@ RowanService >> servicePerform: commandSymbol withArguments: collection shouldUp
 
 	shouldUpdate := possiblyUpdate.	"let the command decide if an update is actually needed"
 	super perform: commandSymbol withArguments: collection.
-	(shouldUpdate and: [organizer notNil])
+	(shouldUpdate and: [self organizer notNil])
 		ifTrue: [ "a nil organizer implies that this process is in the process of terminating" self update ]
 ]
 
@@ -808,7 +807,7 @@ them in the newServices temporary for look up"
 	allPackageNames := Rowan image packageNames.
 	newServices := Array new.
 	theClasses
-		do: [ :aClass | toExpand addAll: (organizer allSuperclassesOf: aClass) ].
+		do: [ :aClass | toExpand addAll: (self organizer allSuperclassesOf: aClass) ].
 	levels
 		keysAndValuesDo: [ :key :value | 
 			| newKey |
@@ -921,12 +920,12 @@ RowanService >> stripOutUnicode: string [
 
 { #category : 'commands support' }
 RowanService >> superclassChainsFor: behaviors [
-	organizer := ClassOrganizer new. 
-	^behaviors collect:[:behavior | | supers |
-			supers := organizer allSuperclassesOf: behavior. 
-			supers add: behavior. 
-			supers].
-
+	^ behaviors
+		collect: [ :behavior | 
+			| supers |
+			supers := self organizer allSuperclassesOf: behavior.
+			supers add: behavior.
+			supers ]
 ]
 
 { #category : 'symbol dictionaries' }

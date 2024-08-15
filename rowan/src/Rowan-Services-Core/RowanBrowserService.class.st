@@ -268,7 +268,7 @@ RowanBrowserService >> openWindows [
 { #category : 'client commands' }
 RowanBrowserService >> packagesWithTests [
 	| packageNames |
-	organizer := ClassOrganizer new.	"when we call this method, our world has changed from a reload, etc."
+	self organizer: ClassOrganizer new.	"when we call this method, our world has changed from a reload, etc."
 	testPackages := Set new.
 	testCount := 0.
 	testPackages := Set new.

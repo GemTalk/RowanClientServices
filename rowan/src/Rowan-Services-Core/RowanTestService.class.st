@@ -36,7 +36,7 @@ RowanTestService >> addRowanSample1Methods [
 	classService := RowanClassService new
 		name: 'RowanSample1';
 		update.
-	classService organizer: organizer.
+	classService organizer: self organizer.
 	classService saveMethodSource: 'foo ^''foo''' category: 'accessing'.
 	classService meta: true.
 	classService
@@ -60,7 +60,7 @@ RowanTestService >> addRowanSample1TestMethods [
 	| classService |
 	classService := RowanClassService new name: 'RowanSample1Test';
 		update.
-	classService organizer: organizer. 
+	classService organizer: self organizer. 
 	classService saveMethodSource: 'test1
 	
 	self assert: RowanSample1 new foo = ''foo''' category: 'tests'.

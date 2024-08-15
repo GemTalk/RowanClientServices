@@ -40,7 +40,7 @@ RowanQueryService >> breakPointMethods [
 RowanQueryService >> browseClassReferences: className [
 
 	| methods |
-	methods := organizer referencesTo: className asSymbol.
+	methods := self organizer referencesTo: className asSymbol.
 	queryResults := self methodServicesFrom: methods first.
 	self returnQueryToClient.
 ]
@@ -49,7 +49,7 @@ RowanQueryService >> browseClassReferences: className [
 RowanQueryService >> browseReferencesTo: symbol [
 
 	| methods |
-	methods := organizer referencesTo: symbol.
+	methods := self organizer referencesTo: symbol.
 	queryResults := self methodServicesFrom: methods first.
 	self returnQueryToClient.
 ]
@@ -85,8 +85,8 @@ RowanQueryService >> hierarchyImplementorsOf: selector inClass: className [
 	behavior := Rowan globalNamed: className.
 	classes := behavior allSuperclasses. 
 	classes add: behavior. 
-	classes addAll: (organizer allSubclassesOf: behavior). 
-	methods := organizer implementorsOf: selector in: classes.
+	classes addAll: (self organizer allSubclassesOf: behavior). 
+	methods := self organizer implementorsOf: selector in: classes.
 	queryResults := self methodServicesFrom: methods.
 	self returnQueryToClient.
 ]
@@ -98,8 +98,8 @@ RowanQueryService >> hierarchySendersOf: selector inClass: className [
 	behavior := Rowan globalNamed: className.
 	classes := behavior allSuperclasses. 
 	classes add: behavior. 
-	classes addAll: (organizer allSubclassesOf: behavior). 
-	methods := organizer sendersOf: selector in: classes.
+	classes addAll: (self organizer allSubclassesOf: behavior). 
+	methods := self organizer sendersOf: selector in: classes.
 	queryResults := self methodServicesFrom: methods first.
 	self setFirstReferenceUsing: queryResults and: methods. 
 	self returnQueryToClient.
@@ -109,7 +109,7 @@ RowanQueryService >> hierarchySendersOf: selector inClass: className [
 RowanQueryService >> implementorsOf: selector [
 
 	| methods |
-	methods := organizer implementorsOf: selector asSymbol.
+	methods := self organizer implementorsOf: selector asSymbol.
 	queryResults := self methodServicesFrom: methods.
 	self returnQueryToClient.
 ]
@@ -120,7 +120,7 @@ RowanQueryService >> implementorsOfAll: selectors [
 	| methods |
 	methods := Array new. 
 	selectors do:[:selector | 
-	methods addAll: (organizer implementorsOf: selector asSymbol)].
+	methods addAll: (self organizer implementorsOf: selector asSymbol)].
 	queryResults := self methodServicesFrom: methods.
 	self returnQueryToClient.
 ]
@@ -132,7 +132,7 @@ RowanQueryService >> instVarReaders: instVarName in: className [
   symbolAssociation ifNil: [ ^ self ].
   theClasses := symbolAssociation value allSuperclasses.
   theClasses add: symbolAssociation value.
-  theClasses addAll: (organizer allSubclassesOf: symbolAssociation value).
+  theClasses addAll: (self organizer allSubclassesOf: symbolAssociation value).
   methods := Array new.
   theClasses
     do: [ :theClass | 
@@ -151,7 +151,7 @@ RowanQueryService >> instVarWriters: instVarName in: className [
   symbolAssociation ifNil: [ ^ self ].
   theClasses := symbolAssociation value allSuperclasses.
   theClasses add: symbolAssociation value.
-  theClasses addAll: (organizer allSubclassesOf: symbolAssociation value).
+  theClasses addAll: (self organizer allSubclassesOf: symbolAssociation value).
   methods := Array new.
   theClasses
     do: [ :theClass | 
@@ -168,7 +168,7 @@ RowanQueryService >> literalReferences: string [
 
 	| methods compilationResult |
 	compilationResult := string evaluate.  
-	methods := organizer referencesToLiteral: compilationResult.
+	methods := self organizer referencesToLiteral: compilationResult.
 	queryResults := self methodServicesFrom: methods first.
 	self setFirstReferenceUsing: queryResults and: methods.
 	self returnQueryToClient.
@@ -177,7 +177,7 @@ RowanQueryService >> literalReferences: string [
 { #category : 'queries' }
 RowanQueryService >> methodsContaining: string [
   | methods sorted |
-  methods := organizer substringSearch: string.
+  methods := self organizer substringSearch: string.
   sorted := SortedCollection
     sortBlock: [ :x :y | 
       x className = y className
@@ -205,9 +205,8 @@ RowanQueryService >> methodServicesFrom: methods [
 	| sorted | 
 	sorted := SortedCollection sortBlock: [:x :y | x className = y className ifTrue:[x selector < y selector] ifFalse:[x className < y className]].
 	sorted addAll: (methods collect:[:gsNMethod | 
-			RowanMethodService forSelector: gsNMethod selector class: gsNMethod inClass thisClass meta: gsNMethod inClass isMeta organizer: organizer]).
+			RowanMethodService forSelector: gsNMethod selector class: gsNMethod inClass thisClass meta: gsNMethod inClass isMeta organizer: self organizer]).
 	^sorted asArray
-
 ]
 
 { #category : 'queries' }
@@ -246,7 +245,7 @@ RowanQueryService >> returnQueryToClient [
 RowanQueryService >> sendersOf: selector [
 
 	| methods |
-	methods := organizer sendersOf: selector asSymbol.
+	methods := self organizer sendersOf: selector asSymbol.
 	queryResults := self methodServicesFrom: methods first.
 	self setFirstReferenceUsing: queryResults and: methods. 
 	self returnQueryToClient.
@@ -258,7 +257,7 @@ RowanQueryService >> sendersOfAll: selectors [
 	| methods |
 	methods := Array new. 
 	selectors do:[:selector | 
-	methods addAll: (organizer sendersOf: selector asSymbol) first].
+	methods addAll: (self organizer sendersOf: selector asSymbol) first].
 	queryResults := self methodServicesFrom: methods.
 	self returnQueryToClient.
 ]

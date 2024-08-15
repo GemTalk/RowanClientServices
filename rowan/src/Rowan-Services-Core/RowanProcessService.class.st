@@ -70,7 +70,7 @@ RowanProcessService class >> templateClassName [
 
 { #category : 'initialize' }
 RowanProcessService >> clearOrganizers [
-	organizer := nil.
+	self organizer: nil. 
 	updates := nil.
 	frames
 		ifNotNil: [ 

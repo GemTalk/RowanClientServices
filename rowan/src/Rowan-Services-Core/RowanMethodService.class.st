@@ -169,9 +169,9 @@ RowanMethodService >> addToMethodHistory [
 RowanMethodService >> allReferences [
   | methods |
   oop := self gsNMethod asOop.
-  methods := organizer sendersOf: selector.
+  methods := self organizer sendersOf: selector.
   references := methods first
-    collect: [ :gsNMethod | self class forGsNMethod: gsNMethod organizer: organizer ].
+    collect: [ :gsNMethod | self class forGsNMethod: gsNMethod organizer: self organizer ].
   RowanCommandResult addResult: self
 ]
 
@@ -822,7 +822,7 @@ RowanMethodService >> setSupersAndSubsFor: theClass [
 						environmentId: 0
 						otherwise: nil) sourceString.
 					superDisplayString := implementingClass name , '>>' , selector ] ].
-	(organizer allSubclassesOf: theClass thisClass)
+	(self organizer allSubclassesOf: theClass thisClass)
 		do: [ :cls | 
 			| aClass |
 			aClass := theClass isMeta
@@ -924,7 +924,7 @@ RowanMethodService >> update [
 		oop ifNil: [oop := self gsNMethod asOop]].
 	self 
 		initialize: (Object _objectForOop: oop) 
-		organizer: organizer.
+		organizer: self organizer.
 	RowanCommandResult addResult: self.
 ]
 

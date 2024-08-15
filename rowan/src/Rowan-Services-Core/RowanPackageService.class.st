@@ -352,7 +352,6 @@ RowanPackageService >> setDefaultTemplate [
 
 { #category : 'extensions' }
 RowanPackageService >> testClasses [
-	organizer ifNil: [ organizer := ClassOrganizer new ].
 	testClasses := Set new.
 	self loadedClasses
 		valuesDo: [ :loadedClass | 
