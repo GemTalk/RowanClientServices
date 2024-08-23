@@ -319,6 +319,9 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	should be updated. Would like a less heavy weight solution than this, though."
 	packageService := RowanPackageService forPackageNamed: classService packageName.
 	packageService update.
+	packageService
+		testClasses;
+		updateType: nil.
 	projectService := RowanProjectService newNamed: packageService projectName.
 	projectService update.
 	packageService selectedClass: classService.
