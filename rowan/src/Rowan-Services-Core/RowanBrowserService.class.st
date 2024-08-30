@@ -170,7 +170,8 @@ RowanBrowserService >> commitTransaction [
 			key nilRsrVariables.
 			value do: [ :svc | svc nilRsrVariables ] ].
 	answeringService := RowanAnsweringService new answer: System commitTransaction.
-	RowanCommandResult addResult: answeringService
+	RowanCommandResult addResult: answeringService.
+	^answeringService answer
 ]
 
 { #category : 'client commands' }

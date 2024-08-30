@@ -140,7 +140,7 @@ RowanService >> autoCommitIfRequired [
 	| commitResult |
 	self class autoCommit == true
 		ifTrue: [ 
-			commitResult := [ System commitTransaction ]
+			[ commitResult := RowanBrowserService new commitTransaction ]
 				on: Error
 				do: [ :e | 
 					RowanAutoCommitService new autoCommit: #'failed'.
