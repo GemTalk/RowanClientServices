@@ -155,14 +155,31 @@ RowanAnsweringServiceTest >> test_matchingPattern [
 
 { #category : 'tests' }
 RowanAnsweringServiceTest >> test_maxPrint [
-	self jadeiteIssueTested: #issue398 withTitle: 'String Inspectors don''t display lfs'.
-	self assert: (service printStringOf: 123 asOop toMaxSize: 5) equals: '123'.
-	self assert: (service printStringOf: 123 asOop toMaxSize: 2) equals: '12...'.
-	self assert: (service printStringOf: 'abc' asOop toMaxSize: 2) equals: '''a...'.
-	self assert: (service printStringOf: Object new asOop toMaxSize: 25) equals: 'anObject'.
-	self assert: (service printStringOf: 'ab
-cd' asOop toMaxSize: 25) equals: '''ab
-cd'''.  "includes lf (10) - no ? substitution"
+	self
+		jadeiteIssueTested: #'issue398'
+		withTitle: 'String Inspectors don''t display lfs'.
+	self
+		assert: (service printStringOf: 123 asOop toMaxSize: 5)
+		equals: '123' asUnicodeString.
+	self
+		assert: (service printStringOf: 123 asOop toMaxSize: 2)
+		equals: '12...' asUnicodeString.
+	self
+		assert: (service printStringOf: 'abc' asOop toMaxSize: 2)
+		equals: '''a...' asUnicodeString.
+	self
+		assert: (service printStringOf: Object new asOop toMaxSize: 25)
+		equals: 'anObject' asUnicodeString.
+	self
+		assert:
+			(service
+				printStringOf:
+					'ab
+cd' asOop
+				toMaxSize: 25)
+		equals:
+			'''ab
+cd''' asUnicodeString	"includes lf (10) - no ? substitution"
 ]
 
 { #category : 'tests' }

@@ -86,6 +86,52 @@ RowanServicesTest >> createClassDefinitionNamed: className [
 ]
 
 { #category : 'support' }
+RowanServicesTest >> createNonDiskTestProjectNamed: projectName packageName: packageName [
+	| project componentName |
+	Rowan image
+		newOrExistingSymbolDictionaryNamed: self defaultSymbolDictionaryName.	"make sure symbol dictionary is created at same time project is created"
+	componentName := self servicesTestComponentName.
+	project := RwResolvedProjectV2 new
+		projectName: projectName;
+		projectsHome: self _testRowanProjectsSandbox;
+		gemstoneSetDefaultSymbolDictNameTo: self defaultSymbolDictionaryName;
+		repoType: #'none';
+		yourself.
+	project resolveProject.
+
+	project
+		addSubcomponentNamed: componentName
+			condition: 'tests'
+			comment: 'a test component';
+		addPackageNamed: packageName toComponentNamed: componentName;
+		gemstoneSetSymbolDictName: self defaultSymbolDictionaryName
+			forPackageNamed: packageName;
+		yourself.
+
+	project load.
+	^ project
+]
+
+{ #category : 'support' }
+RowanServicesTest >> createProjectDefinitionNamed: projectName [
+	| project |
+	Rowan image
+		newOrExistingSymbolDictionaryNamed: self defaultSymbolDictionaryName.	"make sure symbol dictionary is created at same time project is created"
+	project := RwResolvedProjectV2 new
+		projectName: projectName;
+		projectsHome: self _testRowanProjectsSandbox;
+		gemstoneSetDefaultSymbolDictNameTo: self defaultSymbolDictionaryName;
+		yourself.
+	project resolveProject.
+	project
+		addSubcomponentNamed: self servicesTestComponentName
+		condition: 'tests'
+		comment: 'a test component'.
+	project load.
+	^ project
+]
+
+{ #category : 'support' }
 RowanServicesTest >> createServicesTestClass [
   | packageDefinition classDefinition |
   packageDefinition := self createServicesTestPackage.
@@ -97,6 +143,18 @@ RowanServicesTest >> createServicesTestClass [
     createClassDefinitionNamed: self servicesDefaultClassName.
   packageDefinition addClassDefinition: classDefinition.
   ^ classDefinition
+]
+
+{ #category : 'support' }
+RowanServicesTest >> createServicesTestPackage [
+	| projectDefinition |
+	defaultProjectDefinition
+		ifNotNil: [ :projectDef | ^ projectDef packageNamed: self servicesTestPackageName ].
+	projectDefinition := self defaultProjectDefinition.
+	projectDefinition
+		addPackageNamed: self servicesTestPackageName
+		toComponentNamed: self servicesTestComponentName.
+	^ projectDefinition packageNamed: self servicesTestPackageName
 ]
 
 { #category : 'support' }
@@ -151,6 +209,28 @@ RowanServicesTest >> jadeiteIssueTested: aSymbol withTitle: anObject [
 		https://github.com/GemTalk/Jadeite/issues/"
 ]
 
+{ #category : 'support' }
+RowanServicesTest >> loadRowanSample1 [ 
+	| projectsHome projectName loadSpec resolvedProject |
+	projectName := 'RowanSample1'.
+	(Rowan image loadedProjectNamed: projectName ifAbsent: [  ])
+		ifNotNil: [ :prj | Rowan image _removeLoadedProject: prj ].
+	projectsHome := self _testRowanProjectsSandbox.
+	(projectsHome / projectName) ensureDeleteAll.
+	loadSpec := (RwSpecification
+		fromUrl:
+			'file:$ROWAN_PROJECTS_HOME/Rowan/samples/RowanSample1_resolved_v2.ston')
+		projectsHome: projectsHome;
+		yourself.
+	resolvedProject := loadSpec resolve.
+	resolvedProject load
+]
+
+{ #category : 'support' }
+RowanServicesTest >> loadServicesTestProject [
+	self defaultProjectDefinition load
+]
+
 { #category : 'unicode method' }
 RowanServicesTest >> removeUnicodeSymbolsFromUserGlobals [
   "RowanServicesTest new addUnicodeSymbolToUserGlobals"
@@ -171,6 +251,12 @@ RowanServicesTest >> servicesDefaultClassName [
 RowanServicesTest >> servicesDefaultTestClassName [
 
 	^'RowanServicesTestClassForTesting'
+]
+
+{ #category : 'accessing' }
+RowanServicesTest >> servicesTestComponentName [ 
+
+	^'Core'
 ]
 
 { #category : 'constants' }

@@ -118,8 +118,8 @@ RowanClassServiceTest >> test_classHierarchy [
 	self assert: (objectClassService isKindOf: RowanClassService).
 	self assert: objectClassService name equals: 'Object'.
 	rowanServiceService := (hierarchy at: objectClassService) first. 
-	self assert: rowanServiceService name equals: 'RowanService'.
-	self assert: (hierarchy at: rowanServiceService) first name equals: 'RowanClassService'.
+	self assert: rowanServiceService name equals: 'RsrObject'.
+	self assert: (hierarchy at: rowanServiceService) first name equals: 'RsrAbstractService'.
 ]
 
 { #category : 'tests' }
@@ -136,8 +136,8 @@ RowanClassServiceTest >> test_classHierarchyClassSide [
 	self assert: (objectClassService isKindOf: RowanClassService).
 	self assert: objectClassService name equals: 'Object'.
 	rowanServiceService := (hierarchy at: objectClassService) first. 
-	self assert: rowanServiceService name equals: 'RowanService'.
-	self assert: (hierarchy at: rowanServiceService) first name equals: 'RowanClassService'.
+	self assert: rowanServiceService name equals: 'RsrObject'.
+	self assert: (hierarchy at: rowanServiceService) first name equals: 'RsrAbstractService'.
 ]
 
 { #category : 'tests' }
