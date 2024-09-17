@@ -883,9 +883,10 @@ RowanClassService >> moveMethods: methodServices to: category [
 
 { #category : 'client commands' }
 RowanClassService >> moveMethodSelectors: methodSelectors toPackageNamed: thePackageName [
-	| targetPackageService |
+	| targetPackageService theClass |
+	theClass := meta ifTrue: [self theClass class] ifFalse: [self theClass]. 
 	methodSelectors
-		do: [ :selector | self theClass rwMoveMethod: selector toPackage: thePackageName ].
+		do: [ :selector | theClass rwMoveMethod: selector toPackage: thePackageName ].
 	self update.
 	targetPackageService := (RowanPackageService forPackageNamed: thePackageName)
 		update.
