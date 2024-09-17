@@ -106,15 +106,25 @@ RowanProcessService >> initialize [
 
 { #category : 'initialize' }
 RowanProcessService >> initialize: aGsProcess status: aString [
-
 	| theOrganizer |
-	theOrganizer := ClassOrganizer new. 
+	theOrganizer := ClassOrganizer new.
 	frames := Array new: aGsProcess stackDepth.
-	1 to: aGsProcess stackDepth do: [:i | 
-		frames at: i put: (RowanFrameServiceServer process: aGsProcess level: i organizer: theOrganizer).
-	].
-	oop := aGsProcess asOop.  
-	status := aString.
+	1 to: aGsProcess stackDepth do: [ :i | 
+		frames
+			at: i
+			put:
+				([ RowanFrameServiceServer process: aGsProcess level: i organizer: theOrganizer ]
+					on: Error , Halt
+					do: [ :ex | 
+						GsFile gciLogServer: 'error building Jadeite debugger - ' , ex printString.
+						RowanFrameServiceServer basicNew
+							label: 'unprintable frame - error: ' , ex printString;
+							method:
+									(RowanMethodServiceServer new
+											stepPoints: Array new;
+											breakPoints: Array new) ]) ].
+	oop := aGsProcess asOop.
+	status := aString
 ]
 
 { #category : 'accessing' }

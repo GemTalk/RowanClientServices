@@ -68,10 +68,21 @@ RowanFrameService >> initializeProcess: aGsProcess level: anInteger organizer: a
   vars := self varsFor: frameData
 ]
 
+{ #category : 'accessing' }
+RowanFrameService >> label: object [
+	label := object
+]
+
 { #category : 'other' }
 RowanFrameService >> method [
 
 	^method
+]
+
+{ #category : 'other' }
+RowanFrameService >> method: aMethodService [
+
+	method := aMethodService
 ]
 
 { #category : 'other' }
