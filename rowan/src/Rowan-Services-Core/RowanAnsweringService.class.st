@@ -948,3 +948,9 @@ RowanAnsweringService >> updateAutocompleteSymbols [
   updateType := #'updateSymbols:'.
   RowanCommandResult addResult: self
 ]
+
+{ #category : 'client commands' }
+RowanAnsweringService >> updateServices: services [
+
+	services do: [:service | service update]
+]
