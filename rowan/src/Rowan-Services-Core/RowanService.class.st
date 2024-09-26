@@ -669,12 +669,17 @@ RowanService >> peerHierarchies: theClasses [
 
 { #category : 'other' }
 RowanService >> postCommandExecution [
+	self postCommandExecutionWithoutAutoCommit.
+	self autoCommitIfRequired.
+]
+
+{ #category : 'other' }
+RowanService >> postCommandExecutionWithoutAutoCommit [
 	| visitLog |
 	self clearOrganizers.
 	self removeDuplicateServices.
 	visitLog := Set new.
 	self massageServiceForRsrTransportWithVisitLog: visitLog.
-	self autoCommitIfRequired.
 ]
 
 { #category : 'rowan' }

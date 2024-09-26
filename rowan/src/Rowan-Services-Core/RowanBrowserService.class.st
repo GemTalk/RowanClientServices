@@ -310,8 +310,17 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	| theClass classService packageService projectService |
 	theClass := [ 
 	[ (SessionTemps current at: #'jadeiteCompileClassMethod') _executeInContext: nil ]
-		on: CompileWarning
-		do: [ :ex | ex resume ] ]
+		on: CompileWarning , CompileError
+		do: [ :ex | 
+			(ex isKindOf: CompileError)
+				ifTrue: [ 
+					| compileErrorService |
+					self postCommandExecutionWithoutAutoCommit.
+					compileErrorService := RowanCompileErrorServiceServer new.
+					compileErrorService gsArguments: ex errorDetails.
+					updates := Array with: compileErrorService.
+					^ RowanCommandResult addResult: compileErrorService ]
+				ifFalse: [ ex resume ] ] ]
 		ensure: [ SessionTemps current at: #'jadeiteCompileClassMethod' put: nil ].
 	classService := RowanClassService new name: theClass name.
 	classService update.
