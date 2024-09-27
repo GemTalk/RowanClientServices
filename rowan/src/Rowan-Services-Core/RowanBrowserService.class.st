@@ -339,7 +339,8 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	selectedClass := classService.
 	updateType := #'none'.
 	self updateSymbols: (Array with: theClass name asString).
-	RowanCommandResult addResult: self
+	RowanCommandResult addResult: self.
+	^classService
 ]
 
 { #category : 'client commands' }

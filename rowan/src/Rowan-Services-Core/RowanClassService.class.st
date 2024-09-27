@@ -1082,6 +1082,29 @@ RowanClassService >> removeCategories: theCategories [
 ]
 
 { #category : 'client commands' }
+RowanClassService >> removeInstVar: instVarName [
+	"assumes inst var refs were removed"
+
+	| theClass definitionString browserService anonymousMethod  |
+	self refreshFrom: self theClass.
+	theClass := self theClass.
+	meta
+		ifTrue: [ theClass := theClass class ].
+	definitionString := self template.
+	definitionString := self replaceSubString: ' ' , instVarName , ' ' in: definitionString with: ' '.
+	definitionString := self replaceSubString: ' ' , instVarName , ')' in: definitionString with: ')'.
+	definitionString := self replaceSubString: '(' , instVarName , ' ' in: definitionString with: '('.
+	definitionString := self replaceSubString: '(' , instVarName , ')' in: definitionString with: '()'.
+	anonymousMethod := definitionString
+		_compileInContext: nil
+		symbolList: Rowan image symbolList.
+	SessionTemps current at: #'jadeiteCompileClassMethod' put: anonymousMethod.
+	browserService := RowanBrowserServiceServer new.
+	browserService recompileMethodsAfterClassCompilation.
+	shouldUpdate := true.
+]
+
+{ #category : 'client commands' }
 RowanClassService >> removeMethods: methodsToRemove [
 
 	| notRemoved |
