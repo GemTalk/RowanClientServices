@@ -746,9 +746,12 @@ answeringService answer. "
 { #category : 'client commands' }
 RowanAnsweringService >> projectAndPackageServiceFor: classService [
 	classService update.
-	answer := Array
-		with: (self projectServiceFor: classService)
-		with: (self packageServiceFor: classService).
+	answer := classService updateType = #'removed:'
+		ifTrue: [ nil ]
+		ifFalse: [ 
+			Array
+				with: (self projectServiceFor: classService)
+				with: (self packageServiceFor: classService) ].
 	RowanCommandResult addResult: self
 ]
 

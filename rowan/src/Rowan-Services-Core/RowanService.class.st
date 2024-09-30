@@ -583,6 +583,8 @@ RowanService >> massageObject: object atIndex: index visitLog: visitLog [
 		ifTrue: [ ^ object at: index put: (Array with: theValue key with: theValue value) ].
 	(theValue isKindOf: RowanService)
 		ifTrue: [ ^ theValue massageServiceForRsrTransportWithVisitLog: visitLog ].
+	theValue class = LargeInteger 
+		ifTrue:[^self]. 
 	theValue class isVariable
 		ifTrue: [ ^self massageCollection: theValue visitLog: visitLog ]
 ]

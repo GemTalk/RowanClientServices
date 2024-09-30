@@ -1550,6 +1550,16 @@ RowanClassService >> updateTests [
 	RowanCommandResult addResult: self update
 ]
 
+{ #category : 'accessing' }
+RowanClassService >> updateType [
+	^updateType
+]
+
+{ #category : 'accessing' }
+RowanClassService >> updateType: object [
+	updateType := object
+]
+
 { #category : 'Accessing' }
 RowanClassService >> version [
 	^version
