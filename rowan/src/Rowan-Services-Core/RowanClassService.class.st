@@ -1085,23 +1085,42 @@ RowanClassService >> removeCategories: theCategories [
 RowanClassService >> removeInstVar: instVarName [
 	"assumes inst var refs were removed"
 
-	| theClass definitionString browserService anonymousMethod  |
+	| theClass definitionString browserService anonymousMethod |
 	self refreshFrom: self theClass.
 	theClass := self theClass.
+	(self instVarNames includes: instVarName asSymbol)
+		ifFalse: [ 
+			| superService |
+			superService := RowanClassService new
+				name: theClass superClass name;
+				meta: meta.
+			^ superService removeInstVar: instVarName ].
 	meta
 		ifTrue: [ theClass := theClass class ].
 	definitionString := self template.
-	definitionString := self replaceSubString: ' ' , instVarName , ' ' in: definitionString with: ' '.
-	definitionString := self replaceSubString: ' ' , instVarName , ')' in: definitionString with: ')'.
-	definitionString := self replaceSubString: '(' , instVarName , ' ' in: definitionString with: '('.
-	definitionString := self replaceSubString: '(' , instVarName , ')' in: definitionString with: '()'.
+	definitionString := self
+		replaceSubString: ' ' , instVarName , ' '
+		in: definitionString
+		with: ' '.
+	definitionString := self
+		replaceSubString: ' ' , instVarName , ')'
+		in: definitionString
+		with: ')'.
+	definitionString := self
+		replaceSubString: '(' , instVarName , ' '
+		in: definitionString
+		with: '('.
+	definitionString := self
+		replaceSubString: '(' , instVarName , ')'
+		in: definitionString
+		with: '()'.
 	anonymousMethod := definitionString
 		_compileInContext: nil
 		symbolList: Rowan image symbolList.
 	SessionTemps current at: #'jadeiteCompileClassMethod' put: anonymousMethod.
 	browserService := RowanBrowserServiceServer new.
 	browserService recompileMethodsAfterClassCompilation.
-	shouldUpdate := true.
+	shouldUpdate := true
 ]
 
 { #category : 'client commands' }
