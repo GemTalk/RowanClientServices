@@ -54,7 +54,7 @@ RowanAnsweringService >> addLowerCaseSymbolsIn: theClass To: array [
 
 { #category : 'client commands' }
 RowanAnsweringService >> allClassesStartingWith: string [
-  answer := SortedCollection new.
+  answer := SortedCollection new. 
   self organizer classes
     do: [ :cls | 
       (cls name beginsWith: string)
