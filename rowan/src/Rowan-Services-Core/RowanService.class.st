@@ -734,6 +734,12 @@ RowanService >> removeSymbolDictionaryNamed: aName [
 
 { #category : 'rsr' }
 RowanService >> resume: suspendedProcess orStep: debuggerResult [
+	Transcript
+		cr;
+		show: 'RowanService>>resume:orStep: - ';
+		show: debuggerResult;
+		show: ' ';
+		show: suspendedProcess asOop printString.
 	debuggerResult = #'resume'
 		ifTrue: [ 
 			"open a new debugger if necessary"
@@ -741,6 +747,7 @@ RowanService >> resume: suspendedProcess orStep: debuggerResult [
 			^ suspendedProcess resume ].
 	debuggerResult = #'terminate'
 		ifTrue: [ 
+			Transcript cr; show: 'RowanService>>resume:orStep:'; show: debuggerResult. 
 			RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
 			suspendedProcess terminate.
 			^ self ].
@@ -755,6 +762,11 @@ RowanService >> resume: suspendedProcess orStep: debuggerResult [
 			result := processService updateClient.
 			^ self resume: suspendedProcess orStep: result ].
 	(Delay forMilliseconds: 100) wait.
+	Transcript
+		cr;
+		show: 'RowanService>>resume:orStep: - ';
+		show: 'about to resume ';
+		show: suspendedProcess asOop printString.
 	suspendedProcess resume
 ]
 
@@ -844,6 +856,7 @@ RowanService >> setDebugActionBlock [
 		breakpointLevel: 1;
 		debugActionBlock: [ :ex | 
 					| debuggerResult suspendedProcess |
+					Transcript cr; show: ex printString. 
 					_connection isOpen
 						ifFalse: [ 
 							GsFile gciLogServer: ex printString.
@@ -873,19 +886,24 @@ RowanService >> setDebugActionBlock [
 								exception: ex
 								connection: _connection ]
 						ifNotNil: [ :processService | processService updateClient ].
+					Transcript cr; show: debuggerResult. 
+					Transcript cr; show: ex isResumable printString. 
 					ex isResumable
 						ifFalse: [ debuggerResult := #'terminate' ].
 					debuggerResult = #'terminate'
 						ifTrue: [ 
+							Transcript cr; show: 'RowanService>>setDebugActionBlock(1) - '; show: debuggerResult. 
 							RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
 							suspendedProcess resume	"let the exception handler block return nil" ]
 						ifFalse: [ self resume: suspendedProcess orStep: debuggerResult ] ] fork.
 					suspendedProcess ifNotNil: [ :proc | proc suspend ].
 					debuggerResult = #'terminate'
 						ifTrue: [ 
+							Transcript cr; show: 'RowanService>>setDebugActionBlock(2) - '; show: debuggerResult. 
 							self postCommandExecution.
 							ex tag: #'rsrProcessTerminated'.
 							RsrUnhandledException signal: ex	"stop processing the exception but let rsr return" ].
+					Transcript cr; show: ex printString; show: ' (resume) '. 
 					ex resume ]
 ]
 

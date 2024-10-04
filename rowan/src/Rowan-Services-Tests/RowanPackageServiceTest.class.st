@@ -123,21 +123,21 @@ RowanPackageServiceTest >> test_compileClassSelectsPackageAndClass [
 
 { #category : 'tests' }
 RowanPackageServiceTest >> test_testClassesIncludesExtensions [
-	| packageService testClassNames |
+	| packageService testClassNames |  
 	self
-		jadeiteIssueTested: #'issue378'
-		withTitle:
-			'(3.0.53) test class not defined in package shows up in package of SUnit browser'.
+		jadeiteIssueTested: #'issue378'   
+		withTitle:       
+			'(3.0.53) test class not defined in package shows up in package of SUnit browser'. 
 	packageService := RowanPackageService
-		forPackageNamed: 'Rowan-Services-Tests-Extensions'.
-	packageService testClasses.
-	testClassNames := packageService jadeite_testClasses
+		forPackageNamed: 'Rowan-Services-Tests-36x'.  
+	packageService testClasses.       
+	testClassNames := packageService jadeite_testClasses 
 		collect: [ :classService | classService name ].
-	self assert: (testClassNames includes: 'RwRowanProjectIssuesTest').	"extension tests"
+	self assert: (testClassNames includes: 'RowanQueryServicesTest').	"extension tests"
 
-	packageService := RowanPackageService forPackageNamed: 'Rowan-Tests'.
+	packageService := RowanPackageService forPackageNamed: 'Rowan-Services-Tests'.
 	packageService testClasses.
 	testClassNames := packageService jadeite_testClasses
 		collect: [ :classService | classService name ].
-	self assert: (testClassNames includes: 'RwRowanProjectIssuesTest')
+	self assert: (testClassNames includes: 'RowanQueryServicesTest')
 ]
