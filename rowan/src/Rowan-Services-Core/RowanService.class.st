@@ -886,24 +886,19 @@ RowanService >> setDebugActionBlock [
 								exception: ex
 								connection: _connection ]
 						ifNotNil: [ :processService | processService updateClient ].
-					Transcript cr; show: debuggerResult. 
-					Transcript cr; show: ex isResumable printString. 
 					ex isResumable
 						ifFalse: [ debuggerResult := #'terminate' ].
 					debuggerResult = #'terminate'
 						ifTrue: [ 
-							Transcript cr; show: 'RowanService>>setDebugActionBlock(1) - '; show: debuggerResult. 
 							RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
 							suspendedProcess resume	"let the exception handler block return nil" ]
 						ifFalse: [ self resume: suspendedProcess orStep: debuggerResult ] ] fork.
 					suspendedProcess ifNotNil: [ :proc | proc suspend ].
 					debuggerResult = #'terminate'
 						ifTrue: [ 
-							Transcript cr; show: 'RowanService>>setDebugActionBlock(2) - '; show: debuggerResult. 
 							self postCommandExecution.
 							ex tag: #'rsrProcessTerminated'.
 							RsrUnhandledException signal: ex	"stop processing the exception but let rsr return" ].
-					Transcript cr; show: ex printString; show: ' (resume) '. 
 					ex resume ]
 ]
 
