@@ -734,12 +734,6 @@ RowanService >> removeSymbolDictionaryNamed: aName [
 
 { #category : 'rsr' }
 RowanService >> resume: suspendedProcess orStep: debuggerResult [
-	Transcript
-		cr;
-		show: 'RowanService>>resume:orStep: - ';
-		show: debuggerResult;
-		show: ' ';
-		show: suspendedProcess asOop printString.
 	debuggerResult = #'resume'
 		ifTrue: [ 
 			"open a new debugger if necessary"
@@ -747,7 +741,6 @@ RowanService >> resume: suspendedProcess orStep: debuggerResult [
 			^ suspendedProcess resume ].
 	debuggerResult = #'terminate'
 		ifTrue: [ 
-			Transcript cr; show: 'RowanService>>resume:orStep:'; show: debuggerResult. 
 			RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
 			suspendedProcess terminate.
 			^ self ].
@@ -762,11 +755,6 @@ RowanService >> resume: suspendedProcess orStep: debuggerResult [
 			result := processService updateClient.
 			^ self resume: suspendedProcess orStep: result ].
 	(Delay forMilliseconds: 100) wait.
-	Transcript
-		cr;
-		show: 'RowanService>>resume:orStep: - ';
-		show: 'about to resume ';
-		show: suspendedProcess asOop printString.
 	suspendedProcess resume
 ]
 
