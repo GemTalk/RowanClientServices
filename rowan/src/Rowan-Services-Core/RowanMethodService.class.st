@@ -713,14 +713,18 @@ RowanMethodService >> rowanProjectName [
 
 { #category : 'client commands' }
 RowanMethodService >> runTest: testSelector inClassName: theClassName [
-
 	| sunitTestResult |
-	sunitTestResult := (Rowan image objectNamed: theClassName) run: testSelector asSymbol.
-	sunitTestResult errorCount > 0 ifTrue:[testResult := 'error']. 
-	sunitTestResult failureCount > 0 ifTrue:[testResult := 'failure']. 
-	sunitTestResult passedCount > 0 ifTrue:[testResult := 'passed']. 
-	testRunClassName := theClassName. 
-	RowanCommandResult addResult: self.
+	sunitTestResult := (Rowan image objectNamed: theClassName)
+		run: testSelector asSymbol.
+	sunitTestResult errorCount > 0
+		ifTrue: [ testResult := 'error' ].
+	sunitTestResult failureCount > 0
+		ifTrue: [ testResult := 'failure' ].
+	sunitTestResult passedCount > 0
+		ifTrue: [ testResult := 'passed' ].
+	testRunClassName := theClassName.
+	updateType := #'testResultUpdate:browser:'.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'accessing' }
