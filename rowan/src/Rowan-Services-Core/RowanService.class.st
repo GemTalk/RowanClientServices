@@ -800,6 +800,7 @@ RowanService >> servicePerform: commandSymbol withArguments: collection shouldUp
 	Therefore, if the command is #update, don't run it here"
 
 	shouldUpdate := possiblyUpdate.	"let the command decide if an update is actually needed"
+	shouldUpdate ifNil: [^self]. 
 	super perform: commandSymbol withArguments: collection.
 	(shouldUpdate and: [self organizer notNil])
 		ifTrue: [ "a nil organizer implies that this process is in the process of terminating" self update ]

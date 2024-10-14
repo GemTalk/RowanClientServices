@@ -1174,45 +1174,49 @@ RowanClassService >> renameCategoryFrom: old to: new [
 
 { #category : 'client commands' }
 RowanClassService >> renameClass: oldClassName to: newClassName [
-  | references newMethods newClass oldClass |
-  newMethods := Array new.
-  oldClass := Rowan image resolveClassNamed: oldClassName.
-  newClass := Rowan projectTools browser
-    renameClassNamed: oldClassName
-    to: newClassName.
-  oop := newClass asOop.
-  name := newClassName.
-  self update.
-  renamedName := oldClassName.
-  self updateMethodsAfterRenameFrom: oldClassName to: newClassName.
-  self updateSubclassesOf: newClass.
-  references := self organizer update referencesToObject: oldClass.
-  references do: [ :method | 
-    | newSource compileResult failedCompile methodService oldSource |
-    failedCompile := false.
-    oldSource := method sourceString.
-    newSource := self
-      replaceSubString: oldClassName
-      in: oldSource
-      with: newClassName.
-    compileResult := [ 
-    method inClass
-      rwCompileMethod: newSource
-      category: (method inClass categoryOfSelector: method selector) asSymbol ]
-      on: CompileError
-      do: [ :ex | 
-        failedCompile := true.
-        method ].
-    methodService := RowanMethodService
-      forGsNMethod: compileResult
-      organizer: self organizer.
-    failedCompile
-      ifTrue: [ methodService comparisonSource: oldClassName ]
-      ifFalse: [ methodService comparisonSource: oldSource ].
-    methodService failedCompile: failedCompile.
-    methodService renamedName: oldClassName.
-    newMethods add: methodService ].
-  RowanCommandResult addResult: (RowanAnsweringService new answer: newMethods)
+	"needs better class reference replacement than just string replacement"
+
+	| references newMethods newClass oldClass |
+	newMethods := Array new.
+	oldClass := Rowan image resolveClassNamed: oldClassName.
+	newClass := Rowan projectTools browser
+		renameClassNamed: oldClassName
+		to: newClassName.
+	oop := newClass asOop.
+	name := newClassName.
+	self update.
+	renamedName := oldClassName.
+	self updateMethodsAfterRenameFrom: oldClassName to: newClassName.
+	self updateSubclassesOf: newClass.
+	references := self organizer update referencesToObject: oldClass.
+	references
+		do: [ :method | 
+			| newSource compileResult failedCompile methodService oldSource |
+			failedCompile := false.
+			oldSource := method sourceString.
+			newSource := self
+				replaceSubString: oldClassName
+				in: oldSource
+				with: newClassName.
+			compileResult := [ 
+			method inClass
+				rwCompileMethod: newSource
+				category: (method inClass categoryOfSelector: method selector) asSymbol ]
+				on: CompileError
+				do: [ :ex | 
+					failedCompile := true.
+					method ].
+			methodService := RowanMethodService
+				forGsNMethod: compileResult
+				organizer: self organizer.
+			failedCompile
+				ifTrue: [ methodService comparisonSource: oldClassName ]
+				ifFalse: [ methodService comparisonSource: oldSource ].
+			methodService failedCompile: failedCompile.
+			methodService renamedName: oldClassName.
+			newMethods add: methodService ].
+	selectedPackageServices do: [ :ea | ea update ].
+	RowanCommandResult addResult: (RowanAnsweringService new answer: newMethods)
 ]
 
 { #category : 'private' }
