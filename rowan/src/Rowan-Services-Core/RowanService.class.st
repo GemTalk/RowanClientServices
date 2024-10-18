@@ -845,7 +845,6 @@ RowanService >> setDebugActionBlock [
 		breakpointLevel: 1;
 		debugActionBlock: [ :ex | 
 					| debuggerResult suspendedProcess |
-					Transcript cr; show: ex printString. 
 					_connection isOpen
 						ifFalse: [ 
 							GsFile gciLogServer: ex printString.
