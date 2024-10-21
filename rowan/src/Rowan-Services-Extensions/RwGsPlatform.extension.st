@@ -112,7 +112,40 @@ RwGsPlatform >> serviceClasses [
 		add: RowanSubcomponentDefinitionService; 
 		add: RowanTranscriptService;
 		add: RowanTestService;
-		add: RowanVariableService.
+		add: RowanVariableService;
+		
+		add: RowanAnsweringServiceServer;
+		add: RowanAutoCommitServiceServer;
+		add: RowanBrowserServiceServer;
+		add: RowanClassServiceServer;
+		"add:  RowanClassDefinitionServiceServer;"
+		add: RowanCompileErrorServiceServer;
+		add: RowanComponentServiceServer;
+		add: RowanComponentDefinitionServiceServer;
+		"add: RowanDebuggerServiceServer;"
+		"add: RowanDefinedProjectServiceServer;"
+		"add: RowanDefinitionServiceServer;"
+		add: RowanDictionaryServiceServer;
+		add: RowanFileServiceServer;
+		add: RowanFrameServiceServer;
+		add: RowanInspectorServiceServer;
+		add: RowanLoadSpecServiceServer;
+		"add: RowanLoggingServiceServer;"
+		add: RowanMethodServiceServer;
+		"add: RowanMethodDefinitionServiceServer; "
+		add: RowanPackageServiceServer;
+		add: RowanPackageDefinitionServiceServer;
+		"add: RowanPackageGroupServiceServer;"
+		"add: RowanPackageGroupDefinitionServiceServer;"
+		"add: RowanPlatformSubcomponentDefinitionServiceServer; "
+		add: RowanProcessServiceServer;
+		add: RowanProjectServiceServer;
+		add: RowanProjectDefinitionServiceServer;
+		add: RowanQueryServiceServer;
+		"add: RowanSubcomponentDefinitionServiceServer; "
+		add: RowanTranscriptServiceServer;
+		add: RowanTestServiceServer;
+		add: RowanVariableServiceServer.
 	^ array
 ]
 
@@ -120,6 +153,12 @@ RwGsPlatform >> serviceClasses [
 RwGsPlatform >> serviceClassFor: className [
 
 	^self serviceClasses detect:[:cls | cls name asString = className asString] ifNone:[]
+]
+
+{ #category : '*rowan-services-extensions' }
+RwGsPlatform >> serviceClassFor: className ifAbsent: absentBlock [
+
+	^self serviceClasses detect:[:cls | cls name asString = className asString] ifNone: absentBlock
 ]
 
 { #category : '*rowan-services-extensions' }
