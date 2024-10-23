@@ -209,6 +209,15 @@ RowanBrowserService >> defaultClassHierarchy [
 ]
 
 { #category : 'client commands' }
+RowanBrowserService >> dictionariesWithTests [
+	"for now, just return the dictionaries" 
+	self organizer: ClassOrganizer new.	"when we call this method, our world has changed from a reload, etc."
+	dictionaries := Rowan image symbolList names collect:[:name | RowanDictionaryService new name: name].
+	updateType := #'testDictionaries:'.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanBrowserService >> findRemovedServices: services [
 
 	services do:[:service | 

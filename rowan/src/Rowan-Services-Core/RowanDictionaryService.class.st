@@ -13,7 +13,8 @@ Class {
 		'classes',
 		'hierarchyServices',
 		'globals',
-		'defaultTemplate'
+		'defaultTemplate',
+		'testClasses'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -121,6 +122,24 @@ RowanDictionaryService >> servicePerform: symbol withArguments: collection [
 RowanDictionaryService >> setDefaultTemplate [
 
 	defaultTemplate := self genericClassCreationTemplate.
+]
+
+{ #category : 'Updating' }
+RowanDictionaryService >> testClasses [
+
+	self update. 
+	testClasses := Set new.
+	self classes
+		do: [ :classService | 
+			| cls |
+			cls := classService theClass.
+			(cls inheritsFrom: TestCase)
+				ifTrue: [ 
+					cls isAbstract
+						ifFalse: [ testClasses add: classService ] ] ].
+	updateType := #'testClasses:browser:'.
+	testClasses := testClasses asArray.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'updates' }
