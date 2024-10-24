@@ -649,7 +649,7 @@ RowanClassService >> initializeMethodHistoryFor: source [
         organizer: self organizer.
       methodHistory := rowanMethodHistory
         at: methodService unregisteredCopy
-        ifAbsentPut: [ Array new ] ]
+        ifAbsentPut: [ Array with: methodService ] ]
 ]
 
 { #category : 'initialization' }
