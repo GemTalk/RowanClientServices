@@ -40,14 +40,6 @@ RowanService class >> breakPointsAreEnabled [
 	^SessionTemps current at: #'Jadeite_BreakPointsAreEnabled' ifAbsentPut: [true]
 ]
 
-{ #category : 'rsr' }
-RowanService class >> clientClass [
-
-	^Rowan platform
-		serviceClassFor: self clientClassName
-		ifAbsent: [Error signal:  'Cannot find client class - ', self clientClassName ]
-]
-
 { #category : 'autocommit' }
 RowanService class >> flipAutoCommit [
 	| newValue |
@@ -94,14 +86,6 @@ RowanService class >> sampleService [
 
 ]
 
-{ #category : 'rsr' }
-RowanService class >> serverClass [
-
-	^Rowan platform
-		serviceClassFor: self serverClassName
-		ifAbsent: [Error signal:  'Cannot find server class - ', self serverClassName ]
-]
-
 { #category : 'autocommit' }
 RowanService class >> setAutoCommit: object [
 
@@ -111,14 +95,6 @@ RowanService class >> setAutoCommit: object [
 { #category : 'autocommit' }
 RowanService class >> setBreakPointsAreEnabled: boolean [
   ^ SessionTemps current at: #'Jadeite_BreakPointsAreEnabled' put: boolean
-]
-
-{ #category : 'rsr' }
-RowanService class >> templateClass [
-
-	^Rowan platform
-		serviceClassFor: self templateClassName
-		ifAbsent: [Error signal:  'Cannot find template class - ', self templateClassName ]
 ]
 
 { #category : 'rsr' }
