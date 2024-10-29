@@ -160,21 +160,18 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebug returningString: returnStringBoolean [
-	| object symbolList tempMethod result return theString |
+	| object symbolList tempMethod result return  |
 	object := Object _objectForOop: oop.
 	symbolList := Rowan image symbolList.
-	shouldDebug
-		ifTrue: [ theString := self addHaltToString: aString ]
-		ifFalse: [theString := aString]. 
-	[ tempMethod := theString _compileInContext: object symbolList: symbolList ]
+	[ tempMethod := aString _compileInContext: object symbolList: symbolList ]
 		on: CompileError
 		do: [ :ex | 
 			answer := Array with: false with: ex errorDetails with: aString.
 			^ answer ].
 	shouldDebug
 		ifTrue: [ 
-			"| theResult |
-			theResult := tempMethod setBreakAtStepPoint: 1 breakpointLevel: 1. <<<< Not working if no other bp's in system."
+			| theResult |
+			theResult := tempMethod setBreakAtStepPoint: 1 breakpointLevel: 1. 
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop ].
 	[ 
 	result := tempMethod _executeInContext: object.

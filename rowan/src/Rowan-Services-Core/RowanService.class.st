@@ -885,6 +885,7 @@ RowanService >> setDebugActionBlock [
 					debuggerResult = #'terminate'
 						ifTrue: [ 
 							self postCommandExecution.
+							RowanBrowserService new unsetSecretBreakpoint. 
 							ex tag: #'rsrProcessTerminated'.
 							RsrUnhandledException signal: ex	"stop processing the exception but let rsr return" ].
 					ex resume ]

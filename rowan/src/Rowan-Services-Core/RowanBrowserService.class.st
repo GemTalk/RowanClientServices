@@ -454,9 +454,33 @@ RowanBrowserService >> selectedClass: object [
 ]
 
 { #category : 'client commands' }
+RowanBrowserService >> turnOffNativeCode [
+	"setting a breakpoint anywhere in the system will turn off native code"
+
+	| methodService |
+	methodService := RowanMethodService new
+		selector: #'methodForTurningOffNativeCode';
+		meta: false;
+		className: 'RowanBrowserServiceServer'.
+	methodService setBreakAt: 1.
+]
+
+{ #category : 'client commands' }
 RowanBrowserService >> unloadProjectsNamed: projectNames [
 	projectNames do: [ :projectName | (RwProject newNamed: projectName) unload ].
 	self updateProjects
+]
+
+{ #category : 'client commands' }
+RowanBrowserService >> unsetSecretBreakpoint [
+	"used for turning off native code"
+
+	| methodService |
+	methodService := RowanMethodService new
+		selector: #'methodForTurningOffNativeCode';
+		meta: false;
+		className: 'RowanBrowserServiceServer'.
+	methodService clearBreakAt: 1.
 ]
 
 { #category : 'client commands' }
