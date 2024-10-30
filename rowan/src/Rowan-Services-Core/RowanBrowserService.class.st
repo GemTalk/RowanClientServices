@@ -485,11 +485,14 @@ RowanBrowserService >> unsetSecretBreakpoint [
 
 { #category : 'client commands' }
 RowanBrowserService >> updateDictionaries [
-
-	dictionaries := Rowan image symbolList names collect:[:name | RowanDictionaryService new name: name asString].
-	dictionaries := dictionaries asOrderedCollection. 
-	updateType ifNil: [updateType := OrderedCollection new]. 
-	updateType add: #dictionaryListUpdate:.
+	dictionaries := Rowan image symbolList names
+		collect: [ :name | 
+			RowanDictionaryService new
+				name: name asString;
+				update ].
+	dictionaries := dictionaries asOrderedCollection.
+	updateType ifNil: [ updateType := OrderedCollection new ].
+	updateType add: #'dictionaryListUpdate:'.
 	RowanCommandResult addResult: self
 ]
 

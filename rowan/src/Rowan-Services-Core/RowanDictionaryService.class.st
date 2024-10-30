@@ -14,7 +14,8 @@ Class {
 		'hierarchyServices',
 		'globals',
 		'defaultTemplate',
-		'testClasses'
+		'testClasses',
+		'classCategories'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -23,6 +24,16 @@ Class {
 RowanDictionaryService class >> templateClassName [
 
 	^#RowanDictionaryService
+]
+
+{ #category : 'accessing' }
+RowanDictionaryService >> classCategoriesFor: dictionary [ 
+
+	| categories |
+	categories := Array new.
+	dictionary classesDo: [:aUserProfile :aSymbolDictionary :aClass |
+		categories add: aClass category]. 
+	^categories asSet asSortedCollection asArray
 ]
 
 { #category : 'accessing' }
@@ -181,6 +192,7 @@ RowanDictionaryService >> update [
 								with: value asOop
 								with: printString) ] ].
 	globals := sorted asArray.
+	classCategories := self classCategoriesFor: dictionary. 
 	RowanCommandResult addResult: self
 ]
 
