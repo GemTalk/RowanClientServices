@@ -42,7 +42,8 @@ Class {
 		'dictionaryName',
 		'wasRemoved',
 		'renamedName',
-		'hasSubclasses'
+		'hasSubclasses',
+		'classCategory'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -169,7 +170,7 @@ RowanClassService >> basicForClassNamed: className [
 	self basicRefreshFrom: theClass.
 ]
 
-{ #category : 'initialization' }
+{ #category : 'Accessing' }
 RowanClassService >> basicRefreshFrom: theClass [
 	| classOrMeta theFilters |
 	oop := theClass asOop.
@@ -191,6 +192,7 @@ RowanClassService >> basicRefreshFrom: theClass [
 	self setIsTestCase.
 	self updateIsExtension.
 	hasSubclasses := (self organizer subclassesOf: theClass) notEmpty.
+	classCategory := classOrMeta category.
 ]
 
 { #category : 'Accessing' }
@@ -200,6 +202,16 @@ RowanClassService >> behavior [
 	behavior := self theClass. 
 	meta == true ifTrue:[behavior := behavior class].
 	^behavior
+]
+
+{ #category : 'accessing' }
+RowanClassService >> classCategory [
+	^classCategory
+]
+
+{ #category : 'accessing' }
+RowanClassService >> classCategory: object [
+	classCategory := object
 ]
 
 { #category : 'client commands' }

@@ -27,16 +27,6 @@ RowanDictionaryService class >> templateClassName [
 ]
 
 { #category : 'accessing' }
-RowanDictionaryService >> classCategoriesFor: dictionary [ 
-
-	| categories |
-	categories := Array new.
-	dictionary classesDo: [:aUserProfile :aSymbolDictionary :aClass |
-		categories add: aClass category]. 
-	^categories asSet asSortedCollection asArray
-]
-
-{ #category : 'accessing' }
 RowanDictionaryService >> classes [
 	^classes
 ]
@@ -163,6 +153,7 @@ RowanDictionaryService >> update [
 	dictionary ifNil: [ ^ self ].
 	(dictionary isKindOf: SymbolDictionary)
 		ifFalse: [ ^ self ].
+	classCategories := Set new. 
 	dictionary
 		keysAndValuesDo: [ :key :value | 
 			value isClass
@@ -171,8 +162,10 @@ RowanDictionaryService >> update [
 					classService := RowanClassService new name: key asString.
 					classService versions: value classHistory size.
 					classService version: (value classHistory indexOf: value).
-					classService setIsTestCase. 
-					classes add: classService ]
+					classService setIsTestCase.
+					classService classCategory: value category.  
+					classes add: classService.
+					classCategories add: value category ]
 				ifFalse: [ 
 					| printString theKey |
 					printString := [ 
@@ -192,7 +185,7 @@ RowanDictionaryService >> update [
 								with: value asOop
 								with: printString) ] ].
 	globals := sorted asArray.
-	classCategories := self classCategoriesFor: dictionary. 
+	classCategories := classCategories  asSortedCollection asArray. 
 	RowanCommandResult addResult: self
 ]
 
