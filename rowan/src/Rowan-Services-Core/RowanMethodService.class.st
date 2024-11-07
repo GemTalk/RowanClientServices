@@ -462,8 +462,17 @@ RowanMethodService >> forSelector: sel class: theClass meta: boolean organizer: 
 
 { #category : 'Accessing' }
 RowanMethodService >> gsNMethod [
-
-	^[self classOrMeta compiledMethodAt: selector ] on: Error do:[:ex | nil "removed method"]
+	| theName theClass theBehavior |
+	theName := className copyUpTo: Character space.
+	theClass := (AllUsers userWithId: 'SystemUser') objectNamed: theName asSymbol.
+	theClass
+		ifNil: [ 
+			"can't find class"
+			^ nil ].
+	theBehavior := self meta
+		ifTrue: [ theClass class ]
+		ifFalse: [ theClass ].
+	^ theBehavior compiledMethodAt: selector otherwise: nil
 ]
 
 { #category : 'comparing' }
