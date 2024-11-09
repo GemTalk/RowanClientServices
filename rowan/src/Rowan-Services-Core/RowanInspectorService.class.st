@@ -155,7 +155,7 @@ RowanInspectorService >> inspect: anOop from: indexStart to: indexStop [
   RowanCommandResult addResult: self
 ]
 
-{ #category : 'client commands' }
+{ #category : 'command support' }
 RowanInspectorService >> inspect: oopOrObject inWindow: handle [
 	| anObject |
 	self setOopFrom: oopOrObject.
@@ -173,6 +173,7 @@ RowanInspectorService >> inspect: oopOrObject inWindow: handle [
 	self addDynamicInstVars: anObject.
 	self addFirstIndexedVars: anObject.
 	isStringObject := anObject class canUnderstand: #asByteArray.
+	nextIndices := Array new. 
 	RowanCommandResult addResult: self
 ]
 
