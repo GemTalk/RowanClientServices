@@ -332,7 +332,7 @@ RowanService >> executeCommand [
 	Rowan commandResultClass initializeResults.
 	[ 
 	updateType := nil.	"Update type is only for returned commands"
-	command ifNil: [^self]. 
+	command ifNil: [ ^ self ].
 	self servicePerform: command withArguments: commandArgs ]
 		on: GsInteractionRequest
 		do: [ :ex | 
@@ -343,11 +343,13 @@ RowanService >> executeCommand [
 	self postCommandExecution ]
 		on: Exception
 		do: [ :ex | 
-			GsFile
-				gciLogServer:
-					DateTime now asStringMs , ' {'
-						, Processor activeProcess identityHash printString , '}  - got error: '
-						, ex printString.
+			(ex isKindOf: Notification)
+				ifFalse: [ 
+					GsFile
+						gciLogServer:
+							DateTime now asStringMs , ' {'
+								, Processor activeProcess identityHash printString
+								, '}  - got exception: ' , ex printString ].
 			RowanDebuggerService new saveProcessOop: GsProcess _current asOop.
 			ex pass ].
 	^ self
