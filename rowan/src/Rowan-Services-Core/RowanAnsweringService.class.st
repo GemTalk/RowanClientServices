@@ -212,14 +212,16 @@ RowanAnsweringService >> basicPrintStringOf: oop toMaxSize: integer [
 
 { #category : 'client command support' }
 RowanAnsweringService >> basicPrintStringOfObject: object toMaxSize: integer [
-  "avoid the oop conversion when we already have the object"
+	"avoid the oop conversion when we already have the object"
 
-  | printString |
-  printString := object printString asUnicodeString.
-  printString := printString size > integer
-    ifTrue: [ (printString copyFrom: 1 to: integer) , '...' ]
-    ifFalse: [ printString ].
-  ^ printString
+	| printString |
+	printString := [ object printString asUnicodeString ]
+		on: Error
+		do: [ :ex | 'Error printing object with oop - ' , object asOop printString, ': ', ex printString ].
+	printString := printString size > integer
+		ifTrue: [ (printString copyFrom: 1 to: integer) , '...' ]
+		ifFalse: [ printString ].
+	^ printString
 ]
 
 { #category : 'client command support' }
