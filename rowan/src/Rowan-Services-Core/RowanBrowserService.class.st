@@ -281,9 +281,7 @@ RowanBrowserService >> packagesWithTests [
 	self organizer: ClassOrganizer new.	"when we call this method, our world has changed from a reload, etc."
 	testPackages := Set new.
 	testCount := 0.
-	testPackages := Set new.
-	testCount := 0.
-	packageNames := Rowan image packageNames. 
+	packageNames := Rowan image packageNames.  
 	(self organizer allSubclassesOf: TestCase)
 		do: [ :sub | 
 			| packageName testMethodCount |
