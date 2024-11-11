@@ -137,7 +137,7 @@ RowanDictionaryService >> testClasses [
 			(cls inheritsFrom: TestCase)
 				ifTrue: [ 
 					cls isAbstract
-						ifFalse: [ testClasses add: classService ] ] ].
+						ifFalse: [ testClasses add: classService update] ] ].
 	updateType := #'testClasses:browser:'.
 	testClasses := testClasses asArray.
 	RowanCommandResult addResult: self

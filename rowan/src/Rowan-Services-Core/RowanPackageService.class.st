@@ -363,7 +363,7 @@ RowanPackageService >> testClasses [
 						ifFalse: [ 
 							| classService |
 							classService := RowanClassService basicForClassNamed: cls name.
-							testClasses add: classService ] ] ].
+							testClasses add: classService update ] ] ].
 	self loadedClassExtensions
 		valuesDo: [ :loadedClass | 
 			| cls |
@@ -374,7 +374,7 @@ RowanPackageService >> testClasses [
 						ifFalse: [ 
 							| classService |
 							classService := RowanClassService basicForClassNamed: cls name.
-							testClasses add: classService ] ] ].
+							testClasses add: classService update ] ] ].
 	updateType := #'testClasses:browser:'.
 	testClasses := testClasses asArray.
 	RowanCommandResult addResult: self
