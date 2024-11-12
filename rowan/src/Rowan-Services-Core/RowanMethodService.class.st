@@ -220,15 +220,6 @@ RowanMethodService >> category: newValue [
 ]
 
 { #category : 'Accessing' }
-RowanMethodService >> classFromName [
-  "the dictionary browser may have versions numbers in the name"
-
-  | nameSymbol |
-  nameSymbol := (className copyUpTo: Character space) asSymbol.
-  ^ (System myUserProfile resolveSymbol: nameSymbol) value
-]
-
-{ #category : 'Accessing' }
 RowanMethodService >> className [
 	^className
 
@@ -241,10 +232,11 @@ RowanMethodService >> className: newValue [
 
 { #category : 'Accessing' }
 RowanMethodService >> classOrMeta [
-
+	| theClass |
+	theClass := self theClass ifNil: [^nil]. 
 	^meta 
-			ifTrue:[self classFromName class] 
-			ifFalse: [self classFromName].
+			ifTrue:[theClass class] 
+			ifFalse: [theClass].
 ]
 
 { #category : 'client commands' }
@@ -462,16 +454,8 @@ RowanMethodService >> forSelector: sel class: theClass meta: boolean organizer: 
 
 { #category : 'Accessing' }
 RowanMethodService >> gsNMethod [
-	| theName theClass theBehavior |
-	theName := className copyUpTo: Character space.
-	theClass := (AllUsers userWithId: 'SystemUser') objectNamed: theName asSymbol.
-	theClass
-		ifNil: [ 
-			"can't find class"
-			^ nil ].
-	theBehavior := self meta
-		ifTrue: [ theClass class ]
-		ifFalse: [ theClass ].
+	| theBehavior |
+	theBehavior := self theClass ifNil: [^nil]. 
 	^ theBehavior compiledMethodAt: selector otherwise: nil
 ]
 
@@ -609,12 +593,6 @@ RowanMethodService >> meta: aBoolean [
 	"allow nil parameter for now" 
 	meta := aBoolean == true
 
-]
-
-{ #category : 'Accessing' }
-RowanMethodService >> method [
-
-	^self classFromName compiledMethodAt: selector otherwise: nil
 ]
 
 { #category : 'Accessing' }
@@ -926,6 +904,26 @@ RowanMethodService >> testResult [
 	^testResult
 ]
 
+{ #category : 'accessing' }
+RowanMethodService >> theClass [
+	"the dictionary browser may have versions numbers in the name"
+
+	| theName theBehavior theClass |
+	theName := (className copyUpTo: Character space) asSymbol.
+	theClass := ((AllUsers userWithId: 'SystemUser') objectNamed: theName asSymbol)
+		ifNil: [ 
+			(AllUsers userWithId: GsCurrentSession currentSession userProfile userId)
+				objectNamed: theName asSymbol ].
+	theClass
+		ifNil: [ 
+			"can't find class"
+			^ nil ].
+	theBehavior := self meta
+		ifTrue: [ theClass class ]
+		ifFalse: [ theClass ].
+	^theBehavior
+]
+
 { #category : 'updates' }
 RowanMethodService >> update [
 	super update.
@@ -968,7 +966,7 @@ RowanMethodService >> updatePackageProjectAfterCategoryChange: beforePackageName
 	self projectService update
 ]
 
-{ #category : '(as yet unclassified)' }
+{ #category : 'updates' }
 RowanMethodService >> updateSource: string [
 	source := string
 ]
