@@ -95,14 +95,12 @@ RowanServicesTest >> createNonDiskTestProjectNamed: projectName packageName: pac
 		projectName: projectName;
 		projectsHome: self _testRowanProjectsSandbox;
 		gemstoneSetDefaultSymbolDictNameTo: self defaultSymbolDictionaryName;
-		repoType: #'none';
+		repoType: #none;
 		yourself.
 	project resolveProject.
 
 	project
-		addSubcomponentNamed: componentName
-			condition: 'tests'
-			comment: 'a test component';
+		addLoadComponentNamed: componentName comment: 'a test component';
 		addPackageNamed: packageName toComponentNamed: componentName;
 		gemstoneSetSymbolDictName: self defaultSymbolDictionaryName
 			forPackageNamed: packageName;
@@ -123,10 +121,11 @@ RowanServicesTest >> createProjectDefinitionNamed: projectName [
 		gemstoneSetDefaultSymbolDictNameTo: self defaultSymbolDictionaryName;
 		yourself.
 	project resolveProject.
+
 	project
-		addSubcomponentNamed: self servicesTestComponentName
-		condition: 'tests'
+		addLoadComponentNamed: self servicesTestComponentName
 		comment: 'a test component'.
+
 	project load.
 	^ project
 ]
@@ -147,14 +146,12 @@ RowanServicesTest >> createServicesTestClass [
 
 { #category : 'support' }
 RowanServicesTest >> createServicesTestPackage [
-	| projectDefinition |
-	defaultProjectDefinition
-		ifNotNil: [ :projectDef | ^ projectDef packageNamed: self servicesTestPackageName ].
-	projectDefinition := self defaultProjectDefinition.
-	projectDefinition
-		addPackageNamed: self servicesTestPackageName
-		toComponentNamed: self servicesTestComponentName.
-	^ projectDefinition packageNamed: self servicesTestPackageName
+  | projectDefinition |
+  defaultProjectDefinition
+    ifNotNil: [ :projectDef | ^ projectDef packageNamed: self servicesTestPackageName ].
+  projectDefinition := self defaultProjectDefinition.
+  projectDefinition addPackageNamed: self servicesTestPackageName toComponentNamed: self servicesTestComponentName.
+  ^ projectDefinition packageNamed: self servicesTestPackageName
 ]
 
 { #category : 'support' }
@@ -210,19 +207,38 @@ RowanServicesTest >> jadeiteIssueTested: aSymbol withTitle: anObject [
 ]
 
 { #category : 'support' }
-RowanServicesTest >> loadRowanSample1 [ 
-	| projectsHome projectName loadSpec resolvedProject |
+RowanServicesTest >> loadRowanSample1 [
+	| projectsHome projectName specPath |
 	projectName := 'RowanSample1'.
 	(Rowan image loadedProjectNamed: projectName ifAbsent: [  ])
-		ifNotNil: [ :prj | Rowan image _removeLoadedProject: prj ].
+		ifNotNil: [ :prj | prj unload ].
 	projectsHome := self _testRowanProjectsSandbox.
 	(projectsHome / projectName) ensureDeleteAll.
+	specPath := (Rowan image _projectForNonTestProject: 'Rowan') repositoryRoot / 'samples/RowanSample1_resolved_v2.ston' .
+	((RwSpecification
+		fromUrl:
+			'file:', specPath pathString)
+		customConditionalAttributes: #('tests');
+		projectsHome: projectsHome;
+		componentNames: #('Core' 'Tests');
+		yourself) resolveStrict load
+]
+
+{ #category : 'support' }
+RowanServicesTest >> loadRowanSample9 [
+	| projectsHome projectName loadSpec resolvedProject specPath |
+	projectName := 'RowanSample9'.
+	(Rowan image loadedProjectNamed: projectName ifAbsent: [  ])
+		ifNotNil: [ :prj | prj unload ].
+	projectsHome := self _testRowanProjectsSandbox.
+	(projectsHome / projectName) ensureDeleteAll.
+	specPath := (Rowan image _projectForNonTestProject: 'Rowan') repositoryRoot / 'samples/RowanSample9_spec_0002.ston' .
 	loadSpec := (RwSpecification
 		fromUrl:
-			'file:$ROWAN_PROJECTS_HOME/Rowan/samples/RowanSample1_resolved_v2.ston')
+			'file:', specPath pathString)
 		projectsHome: projectsHome;
 		yourself.
-	resolvedProject := loadSpec resolve.
+	resolvedProject := loadSpec resolveStrict.
 	resolvedProject load
 ]
 
