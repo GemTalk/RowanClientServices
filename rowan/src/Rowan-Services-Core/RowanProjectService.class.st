@@ -139,7 +139,6 @@ RowanProjectService >> basicRefresh [
 	name = Rowan unpackagedName
 		ifTrue: [ 
 			isLoaded := false.
-			RowanBrowserService new updateDictionaries.
 			^ self ].
 	(isLoaded := self projectIsLoaded)
 		ifFalse: [ 

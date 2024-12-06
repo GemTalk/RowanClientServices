@@ -804,7 +804,7 @@ RowanService >> servicePerform: commandSymbol withArguments: collection shouldUp
 	shouldUpdate := possiblyUpdate.	"let the command decide if an update is actually needed"
 	shouldUpdate ifNil: [^self]. 
 	super perform: commandSymbol withArguments: collection.
-	(shouldUpdate and: [self organizer notNil])
+	(self shouldUpdate and: [self organizer notNil])
 		ifTrue: [ "a nil organizer implies that this process is in the process of terminating" self update ]
 ]
 
@@ -891,6 +891,11 @@ RowanService >> setDebugActionBlock [
 							ex tag: #'rsrProcessTerminated'.
 							RsrUnhandledException signal: ex	"stop processing the exception but let rsr return" ].
 					ex resume ]
+]
+
+{ #category : 'accessing' }
+RowanService >> shouldUpdate [
+	^shouldUpdate ifNil: [shouldUpdate := false].
 ]
 
 { #category : 'replication' }

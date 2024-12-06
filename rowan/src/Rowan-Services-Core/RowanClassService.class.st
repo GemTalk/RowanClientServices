@@ -1506,12 +1506,19 @@ RowanClassService >> updateClass [
 
 { #category : 'updates' }
 RowanClassService >> updateDirtyState [
-	| projectService | 
-	selectedPackageServices do:[:packageService | 
-		packageService update. 
-		RowanCommandResult addResult: packageService].
-	projectService := RowanProjectService newNamed: self theClass rowanProjectName. 
-	RowanCommandResult addResult: projectService.
+	| projectService wasDirty |
+	selectedPackageServices
+		do: [ :packageService | 
+			wasDirty := packageService isDirty.
+			wasDirty
+				ifFalse: [ 
+					packageService update.
+					(packageService isDirty and: [ wasDirty not ])
+						ifTrue: [ 
+							RowanCommandResult addResult: packageService.
+							projectService := RowanProjectService
+								newNamed: self theClass rowanProjectName.
+							RowanCommandResult addResult: projectService ] ] ]
 ]
 
 { #category : 'initialization' }
