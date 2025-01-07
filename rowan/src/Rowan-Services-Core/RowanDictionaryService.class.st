@@ -114,9 +114,12 @@ RowanDictionaryService >> removeGlobalNamed: symbol [
 
 { #category : 'perform' }
 RowanDictionaryService >> servicePerform: symbol withArguments: collection [
-  self isUpdatingButFoundToBeDeleted
-    ifTrue: [ ^ self handleDeletedService ].
-  super servicePerform: symbol withArguments: collection.
+	self isUpdatingButFoundToBeDeleted
+		ifTrue: [ ^ self handleDeletedService ].
+	super
+		servicePerform: symbol
+		withArguments: collection
+		shouldUpdate: self shouldUpdate
 ]
 
 { #category : 'client commands' }
@@ -191,10 +194,28 @@ RowanDictionaryService >> update [
 ]
 
 { #category : 'updates' }
+RowanDictionaryService >> updateClassCategories [
+	| dictionary sorted theClassCategories |
+	sorted := SortedCollection sortBlock: [ :x :y | x first < y first ].
+	dictionary := Rowan image symbolList objectNamed: name.
+	dictionary ifNil: [ ^ self ].
+	(dictionary isKindOf: SymbolDictionary)
+		ifFalse: [ ^ self ].
+	theClassCategories := Set new.
+	dictionary
+		keysAndValuesDo: [ :key :value | 
+			value isClass
+				ifTrue: [ theClassCategories add: value category ] ].
+	classes := nil.
+	globals := sorted asArray.
+	classCategories := theClassCategories asSortedCollection asArray.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'updates' }
 RowanDictionaryService >> updateForClassCategory: classCategory [
 	| dictionary sorted theClasses theClassCategories |
-	super update.
-	theClasses := Array new.
+	theClasses := OrderedCollection new.
 	sorted := SortedCollection sortBlock: [ :x :y | x first < y first ].
 	dictionary := Rowan image symbolList objectNamed: name.
 	dictionary ifNil: [ ^ self ].
@@ -206,7 +227,8 @@ RowanDictionaryService >> updateForClassCategory: classCategory [
 			value isClass
 				ifTrue: [ 
 					| classService |
-					(value category match: classCategory)
+					((value category = String new and: [ value category = classCategory ])
+						or: [ value category match: classCategory ])
 						ifTrue: [ 
 							classService := RowanClassService new name: key asString.
 							classService versions: value classHistory size.
