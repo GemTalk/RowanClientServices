@@ -217,18 +217,15 @@ RowanClassServiceTest >> test_dirtyState [
 		jadeiteIssueTested: #'issue356'
 		withTitle: 'Add method compilation tests in server services tests'.
 	selector := #'simpleMethod'.
-	self loadRowanSample1.	"ensure we're in a clean state"
+	self deny: (RowanProjectService newNamed: 'Announcements') isDirty.
+	self deny: (RowanPackageService forPackageNamed: 'Announcements-Core-GemStone') isDirty.
+	classService := RowanClassService forClassNamed: 'Announcement'.
 	[ 
-	self deny: (RowanProjectService newNamed: 'RowanSample1') isDirty.
-	self deny: (RowanPackageService forPackageNamed: 'RowanSample1-Core') isDirty.
-	classService := RowanClassService forClassNamed: 'RowanSample1'.
 	classService saveMethodSource: selector asString , ' ^123' category: 'abc'.
-
 	methodService := classService methodsNamed: selector.
-
-	self assert: (RowanProjectService newNamed: 'RowanSample1') isDirty.
-	self assert: (RowanPackageService new name: 'RowanSample1-Core') isDirty ]
-		ensure: [ Rowan projectTools delete deleteProjectNamed: 'RowanSample1' ]
+	self assert: (RowanProjectService newNamed: 'Announcements') isDirty.
+	self assert: (RowanPackageService new name: 'Announcements-Core-GemStone') isDirty ]
+		ensure: [ System abortTransaction ]
 ]
 
 { #category : 'test method compilation' }
