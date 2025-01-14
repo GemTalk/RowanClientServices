@@ -54,7 +54,8 @@ RowanBrowserService >> abortTransactionAndUpdateServices: services [
 RowanBrowserService >> allClasses [
 	allClasses := self basicAllClasses.
 	updateType := #dontUpdate. 
-	RowanCommandResult addResult: self
+	RowanCommandResult addResult: self.
+	^allClasses
 ]
 
 { #category : 'client commands' }
@@ -109,7 +110,7 @@ RowanBrowserService >> checkForAddedProjects: projectServices [
 { #category : 'client commands' }
 RowanBrowserService >> classHierarchy [
 	| theClasses |
-	theClasses := allClasses collect:[:classService | classService theClass].
+	theClasses :=  self allClasses collect:[:classService | classService theClass].
 	hierarchyServices := self classHierarchy: theClasses. 
 	updateType := #classHierarchyUpdate:browser:. 
 	RowanCommandResult addResult: self.
