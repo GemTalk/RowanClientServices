@@ -1,9 +1,5 @@
 "
-No class-specific documentation for RowanTestService, hierarchy is:
-Object
-  RowanService( definition updates command commandArgs updateType organizer)
-    RowanTestService
-
+Support for client tests
 "
 Class {
 	#name : 'RowanTestService',
@@ -96,6 +92,13 @@ RowanTestService >> createRowanSample1Project [
 	self addRowanSample1Methods.  
 	self addRowanSample1Test.
 	self addRowanSample1TestMethods.
+]
+
+{ #category : 'project support' }
+RowanTestService >> deleteProjectNamedOnDisk: projectName [
+	"warning! This will aggressively delete directories on disk. Use cautiously"
+
+	('$ROWAN_PROJECTS_HOME' asFileReference / projectName) ensureDeleteAll
 ]
 
 { #category : 'sample projects' }
