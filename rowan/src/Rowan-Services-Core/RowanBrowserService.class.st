@@ -258,6 +258,29 @@ RowanBrowserService >> newCachedSelectors: object [
 ]
 
 { #category : 'client commands' }
+RowanBrowserService >> newProjectNamed: projectName [
+	| definedProject service |
+	definedProject := (Rowan newProjectNamed: projectName)
+		addLoadComponentNamed: 'Core';
+		packageConvention: 'Rowan';
+		gemstoneSetDefaultSymbolDictNameTo: 'UserGlobals';
+		repoType: 'disk';
+		packageFormat: 'tonel';
+		projectsHome: '$ROWAN_PROJECTS_HOME';
+		yourself.
+	(definedProject projectsHome asFileReference / projectName / 'rowan')
+		ensureDeleteAll.
+	definedProject resolveProject write.
+	service := RowanProjectService new name: projectName.
+	service
+		installProjectFromURL:
+			'file:$ROWAN_PROJECTS_HOME/' , projectName , '/rowan/specs/' , projectName
+				, '.ston'.
+	service loadProjectNamed: projectName.
+	self updateProjects
+]
+
+{ #category : 'client commands' }
 RowanBrowserService >> newProjectNamed: projectName windowHandle: handle [
 	| definedProjectService project |
 	definedProjectService := RowanDefinedProjectService new name: projectName.
