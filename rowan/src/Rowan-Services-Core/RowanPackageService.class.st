@@ -19,7 +19,8 @@ Class {
 		'testClasses',
 		'hierarchyServices',
 		'selectedClass',
-		'dictionaryName'
+		'dictionaryName',
+		'isCurrent'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -160,6 +161,12 @@ RowanPackageService >> hash [
 RowanPackageService >> hierarchyServices [
 
 	^hierarchyServices
+]
+
+{ #category : 'initialize' }
+RowanPackageService >> initialize [
+	super initialize. 
+	isCurrent := false
 ]
 
 { #category : 'Accessing' }
@@ -345,6 +352,12 @@ RowanPackageService >> services: services from: levels expand: toExpand [
 ]
 
 { #category : 'client commands' }
+RowanPackageService >> setCurrent [
+
+	Rowan gemstoneTools topaz currentTopazPackageName: name
+]
+
+{ #category : 'client commands' }
 RowanPackageService >> setDefaultTemplate [
 
 	defaultTemplate := self genericClassCreationTemplate.
@@ -405,7 +418,8 @@ RowanPackageService >> update [
 	projectName := (Rowan image loadedPackageNamed: name) projectName.
 	RowanCommandResult addResult: self.
 	dictionaryName := thePackage gs_symbolDictionary. 
-	shouldUpdate := false
+	isCurrent := Rowan gemstoneTools topaz currentTopazPackageName = name. 
+	shouldUpdate := false.
 ]
 
 { #category : 'updates' }

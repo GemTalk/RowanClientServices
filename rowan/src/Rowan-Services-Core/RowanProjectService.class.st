@@ -28,7 +28,8 @@ Class {
 		'packageGroups',
 		'defaultSymbolDictionaryName',
 		'packageConvention',
-		'diskSha'
+		'diskSha',
+		'isCurrent'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -159,6 +160,7 @@ RowanProjectService >> basicRefresh [
 	componentServices := self componentServices.
 	specService := RowanLoadSpecService new initialize: self rwProject loadSpecification asOop.
 	packageConvention := self rwProject packageConvention.
+	isCurrent := Rowan gemstoneTools topaz currentTopazProjectName = name. 
 	RowanCommandResult addResult: self
 ]
 
@@ -334,6 +336,7 @@ RowanProjectService >> initialize [
 	super initialize. 
 	packages := Array new.
 	isDiskDirty := false.
+	isCurrent := false.
 ]
 
 { #category : 'other' }
@@ -763,6 +766,12 @@ RowanProjectService >> servicePerform: symbol withArguments: collection [
   self isUpdatingButFoundToBeDeleted
     ifTrue: [ ^ self handleDeletedService ].
   super servicePerform: symbol withArguments: collection.
+]
+
+{ #category : 'client commands' }
+RowanProjectService >> setCurrent [
+
+	Rowan gemstoneTools topaz currentTopazProjectName: name
 ]
 
 { #category : 'rowan' }
