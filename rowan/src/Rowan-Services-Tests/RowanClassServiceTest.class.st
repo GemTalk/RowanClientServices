@@ -213,6 +213,7 @@ RowanClassServiceTest >> test_compileMethodNoCategory [
 { #category : 'test method compilation' }
 RowanClassServiceTest >> test_dirtyState [
 	| classService methodService selector |
+	System commitTransaction.	"commit needed to ensure the  later abort will have a clean state to abort to."
 	self
 		jadeiteIssueTested: #'issue356'
 		withTitle: 'Add method compilation tests in server services tests'.
