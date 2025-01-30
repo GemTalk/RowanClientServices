@@ -353,9 +353,20 @@ RowanProjectService >> initializePackageGroups [
 
 { #category : 'client commands' }
 RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: strict [
-	| spec browserService actualPath ws |
+	self
+		installProjectFromFile: path
+		projectsHome: projectsHomePath
+		componentNames: componentNames
+		attributes: attributes
+		resolveStrict: strict
+		alias: nil
+]
+
+{ #category : 'client commands' }
+RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePath componentNames: componentNames attributes: attributes resolveStrict: strict alias: alias [
+	| spec browserService actualPath ws loadSpecs |
 	ws := WriteStream on: String new.
-	actualPath := path copyFrom: 6 to: path size. "`file:` is prepended to argument"
+	actualPath := path copyFrom: 6 to: path size.	"`file:` is prepended to argument"
 	self updateType: #'dontUpdate'.	"this service should not be updated on the client"
 	(FileReference / actualPath) isDirectory
 		ifTrue: [ 
@@ -364,7 +375,7 @@ RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePa
 				cr;
 				nextPutAll: actualPath.
 			self inform: ws contents.
-			^ self ].	
+			^ self ].
 	spec := [ RwSpecification fromUrl: path ]
 		on: Error
 		do: [ :ex | 
@@ -379,13 +390,28 @@ RowanProjectService >> installProjectFromFile: path projectsHome: projectsHomePa
 			(self confirm: ws contents)
 				ifTrue: [ ex pass ]
 				ifFalse: [ ^ self ] ].
-	spec
-		projectsHome: projectsHomePath;
-		componentNames: componentNames;
-		customConditionalAttributes: attributes;
-		yourself.
+	spec projectsHome: projectsHomePath.
+	alias ifNotNil: [ spec projectAlias: alias ].
+
+	componentNames
+		ifNotNil: [ 
+			componentNames size > 0
+				ifTrue: [ spec componentNames: componentNames ] ].
+
+	attributes ifNotNil: [ spec customConditionalAttributes: attributes ].
+
 	strict
-		ifTrue: [ spec resolveStrict ].
+		ifTrue: [ 
+			spec resolveStrict.
+			loadSpecs := spec resolve.
+			loadSpecs
+				do: [ :loadSpec | 
+					"workaround for https://github.com/GemTalk/Rowan/issues/905"
+					(Rowan projectNamed: loadSpec projectName ifAbsent: [  ])
+						ifNotNil: [ :theSpec | 
+							"project is already loaded, reuse projectsHome, so the same git repo is used during reload"
+							loadSpec projectsHome: theSpec projectsHome ] ] ].
+
 	[ spec resolve load ]
 		on: Warning
 		do: [ :ex | 
