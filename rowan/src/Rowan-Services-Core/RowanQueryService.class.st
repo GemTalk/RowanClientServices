@@ -60,22 +60,46 @@ RowanQueryService >> defaultProjectLogSize [
 	^100
 ]
 
+{ #category : 'private' }
+RowanQueryService >> gitError: ex message: messageText [
+	| ws |
+	ws := WriteStream on: String new.
+	ws
+		nextPutAll: messageText;
+		cr;
+		cr;
+		nextPutAll: 'Error: ' , ex messageText.
+	command := nil.
+	commandArgs := nil.
+	Object new inform: ws contents.
+	queryResults := nil.
+	RowanCommandResult addResult: self
+]
+
 { #category : 'queries' }
 RowanQueryService >> gitTagListUsing: projectService [
-  | answerString readStream |
-  Rowan gitTools
-    performGitCommand: 'fetch'
-    in: projectService repositoryRootPath
-    with: '--tags'.
-  answerString := Rowan gitTools
-    performGitCommand: 'tag'
-    in: projectService repositoryRootPath
-    with: '--sort=-taggerdate'.
-  queryResults := Array new.
-  readStream := ReadStream on: answerString.
-  [ readStream atEnd ]
-    whileFalse: [ queryResults add: (readStream upTo: Character lf) ].
-  RowanCommandResult addResult: self
+	| answerString readStream |
+	[ 
+	Rowan gitTools
+		performGitCommand: 'fetch'
+		in: projectService repositoryRootPath
+		with: '--tags' ]
+		on: Error
+		do: [ :ex | 
+			self
+				gitError: ex
+				message:
+					'Error getting git tag list. Is this project attached to a git checkout?'.
+			^ self ].
+	answerString := Rowan gitTools
+		performGitCommand: 'tag'
+		in: projectService repositoryRootPath
+		with: '--sort=-taggerdate'.
+	queryResults := Array new.
+	readStream := ReadStream on: answerString.
+	[ readStream atEnd ]
+		whileFalse: [ queryResults add: (readStream upTo: Character lf) ].
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'queries' }
@@ -211,10 +235,16 @@ RowanQueryService >> methodServicesFrom: methods [
 
 { #category : 'queries' }
 RowanQueryService >> projectBranches: projectName [
-
-	| project  |
-	project := (RwProject newNamed: projectName). 
-	queryResults := Rowan gitTools gitbranchIn: project repositoryRootPath with: ''.
+	| project |
+	project := RwProject newNamed: projectName.
+	[ queryResults := Rowan gitTools gitbranchIn: project repositoryRootPath with: '' ]
+		on: Error
+		do: [ :ex | 
+			self
+				gitError: ex
+				message:
+					'Error getting git branch list. Is this project attached to a git checkout?'.
+			^ self ].
 	RowanCommandResult addResult: self
 ]
 
