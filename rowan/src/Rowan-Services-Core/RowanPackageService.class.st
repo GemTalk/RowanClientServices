@@ -133,6 +133,8 @@ RowanPackageService >> deletePackage [
 { #category : 'client commands' }
 RowanPackageService >> exportTopazFormatTo: filePath [
 	| rwProject |
+	filePath asFileReference isWritable
+		ifFalse: [ ^ self warn: 'File is not writable. Permissions problem?' ].
 	rwProject := (RowanProjectService new name: projectName) rwProject.
 	rwProject
 		exportTopazFormatTo: filePath
