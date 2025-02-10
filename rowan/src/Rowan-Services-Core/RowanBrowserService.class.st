@@ -370,7 +370,7 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	selectedClass := classService.
 	classService updateType: #'newClass:browser:'.
 	self updateSymbols: (Array with: theClass name asString).
-	self classHierarchy. 
+	classService classHierarchy. 
 	RowanCommandResult addResult: self.
 	^classService
 ]
