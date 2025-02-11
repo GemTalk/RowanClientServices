@@ -209,6 +209,8 @@ RowanFileService >> readmeContents [
 
 { #category : 'client commands' }
 RowanFileService >> remove [
+
+	path ifNil: [^self]. 
 	GsFile removeServerFile: path
 ]
 
