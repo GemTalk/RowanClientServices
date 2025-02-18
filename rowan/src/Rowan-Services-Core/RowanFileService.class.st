@@ -76,6 +76,13 @@ RowanFileService >> diveInto: directory [
 ]
 
 { #category : 'client commands' }
+RowanFileService >> exists [
+	
+	answer := path asFileReference exists.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanFileService >> expandPath [
 	answer := path asPath fullName.
 	RowanCommandResult addResult: self.
