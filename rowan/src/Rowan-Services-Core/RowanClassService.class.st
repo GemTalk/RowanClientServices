@@ -939,6 +939,7 @@ RowanClassService >> oneLevelClassHierarchy [
 	"good for expanding an existing hierarchy quickly"
 
 	| behavior sortedSubclasses |
+	self update. 
 	behavior := self theClass.
 	hierarchyServices := Dictionary new.
 	hierarchyServices at: #'expand' put: Array new.
