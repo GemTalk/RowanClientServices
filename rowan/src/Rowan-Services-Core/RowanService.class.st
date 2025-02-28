@@ -371,13 +371,10 @@ RowanService >> extendHierarchies: hierarchies forClasses: theClasses [
 
 { #category : 'commands support' }
 RowanService >> fileOut: ws on: path [
-	| file | 
+	| file |
 	file := path asFileReference.
 	file exists
-		ifTrue: [ 
-			(self confirm: 'File exists. File out anyway?')
-				ifTrue: [ file delete ]
-				ifFalse: [ ^ self ] ].
+		ifTrue: [ file delete ].
 	file := file writeStreamDo: [ :stream | stream nextPutAll: ws contents ]
 ]
 
