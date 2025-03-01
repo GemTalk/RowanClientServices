@@ -84,7 +84,7 @@ RowanFileService >> exists [
 
 { #category : 'client commands' }
 RowanFileService >> expandPath [
-	answer := path asPath fullName.
+	answer := path asFileReference asAbsolute pathString.
 	RowanCommandResult addResult: self.
 	^ answer	"return for testing"
 ]
