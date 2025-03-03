@@ -201,6 +201,16 @@ RowanFileService >> path: object [
 ]
 
 { #category : 'client commands' }
+RowanFileService >> pathStringFor: fileName [
+	| fileReference |
+	fileReference := fileName
+		ifNil: [ path asFileReference ]
+		ifNotNil: [ path asFileReference / fileName ].
+	answer := fileReference pathString.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanFileService >> pop [
 	path := (Path from: path) parent pathString. 
 	self directoryContents
