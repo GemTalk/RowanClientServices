@@ -90,6 +90,15 @@ RowanFileService >> expandPath [
 ]
 
 { #category : 'client commands' }
+RowanFileService >> extension [
+
+	| ref | 
+	ref := path asFileReference.
+	answer := ref extension.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanFileService >> fileContents [
 	| fileReference |
 	fileReference := FileReference fileSystem: FileSystem disk path: path asPath.
