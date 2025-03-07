@@ -133,17 +133,13 @@ RowanPackageService >> deletePackage [
 { #category : 'client commands' }
 RowanPackageService >> exportTopazFormatTo: filePath [
 	| rwProject massagedFilePath fileRef |
-	filePath asFileReference isWritable
-		ifFalse: [ ^ self warn: 'File is not writable. Permissions problem?' ].
 	rwProject := (RowanProjectService new name: projectName) rwProject.
 	fileRef := filePath asFileReference.
-	massagedFilePath := Rowan version
-		>= (RwSemanticVersionNumber fromString: '3.4.0')
-		ifTrue: [ filePath ]
-		ifFalse: [ 
-			filePath asFileReference extension = 'gs'
-				ifTrue: [ fileRef withoutExtension pathString ]
-				ifFalse: [ filePath ] ].
+	massagedFilePath := filePath asFileReference extension = 'gs'
+		ifTrue: [ fileRef withoutExtension pathString ]
+		ifFalse: [ filePath ].
+	(massagedFilePath , '.gs') asFileReference isWritable
+		ifFalse: [ ^ self warn: 'File is not writable. Permissions problem?' ].
 	rwProject
 		exportTopazFormatTo: massagedFilePath
 		logClassCreation: false
