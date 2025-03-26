@@ -957,6 +957,8 @@ RowanAnsweringService >> updateAutocompleteSymbols [
 
 { #category : 'client commands' }
 RowanAnsweringService >> updateServices: services [
-
-	services do: [:service | service update]
+	services
+		do: [ :service | 
+			service update.
+			RowanCommandResult addResult: service ]
 ]
