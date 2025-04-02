@@ -625,6 +625,13 @@ RowanAnsweringService >> interactionHandlerActive [
   RowanCommandResult addResult: self
 ]
 
+{ #category : 'client commands' }
+RowanAnsweringService >> isClassName: aString [
+	answer := (self organizer classes collect: [ :cls | cls name asString ])
+		asArray includes: aString.
+	RowanCommandResult addResult: self
+]
+
 { #category : 'testing' }
 RowanAnsweringService >> isTranscriptInstalled [
 	^self transcriptObject == self jadeiteServer
