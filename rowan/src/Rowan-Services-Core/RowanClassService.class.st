@@ -1044,6 +1044,32 @@ RowanClassService >> projectName: newValue [
 	projectName := newValue
 ]
 
+{ #category : 'client commands' }
+RowanClassService >> recompileAllMethods [
+	methods := Array new.
+	self theClass selectors
+		do: [ :selector | methods add: (self recompileMethod: (self theClass compiledMethodAt: selector)) ]
+]
+
+{ #category : 'client commands' }
+RowanClassService >> recompileMethod: method [
+	| compileResult failedCompile methodService |
+	failedCompile := false.
+	compileResult := [ 
+	method inClass
+		rwCompileMethod: method sourceString
+		category: (method inClass categoryOfSelector: method selector) asSymbol ]
+		on: CompileError
+		do: [ :ex | 
+			failedCompile := true.
+			method ].
+	methodService := RowanMethodService
+		forGsNMethod: compileResult
+		organizer: self organizer.
+	methodService failedCompile: failedCompile.
+	^ methodService
+]
+
 { #category : 'initialization' }
 RowanClassService >> refreshFrom: theClass [
 	| classOrMeta  |

@@ -342,19 +342,11 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	theClass := [ 
 	[ (SessionTemps current at: #'jadeiteCompileClassMethod') _executeInContext: nil ]
 		on: CompileWarning , CompileError
-		do: [ :ex | 
-			(ex isKindOf: CompileError)
-				ifTrue: [ 
-					| compileErrorService |
-					self postCommandExecutionWithoutAutoCommit.
-					compileErrorService := RowanCompileErrorServiceServer new.
-					compileErrorService gsArguments: ex errorDetails.
-					updates := Array with: compileErrorService.
-					^ RowanCommandResult addResult: compileErrorService ]
-				ifFalse: [ ex resume ] ] ]
+		do: [ :ex |  ] ]
 		ensure: [ SessionTemps current at: #'jadeiteCompileClassMethod' put: nil ].
 	classService := RowanClassService new name: theClass name.
 	classService update.
+	classService recompileAllMethods. "handle method compile errors here" 
 	classService updateSubclasses.
 	classService isNewClass: true.	"if nothing else, the dirty state of the package/project services
 	should be updated. Would like a less heavy weight solution than this, though."
@@ -370,9 +362,9 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	selectedClass := classService.
 	classService updateType: #'newClass:browser:'.
 	self updateSymbols: (Array with: theClass name asString).
-	classService classHierarchy. 
+	classService classHierarchy.
 	RowanCommandResult addResult: self.
-	^classService
+	^ classService
 ]
 
 { #category : 'client commands' }
