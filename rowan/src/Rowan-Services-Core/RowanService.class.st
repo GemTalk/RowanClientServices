@@ -767,7 +767,7 @@ RowanService >> rowanFixMe [
 { #category : 'accessing' }
 RowanService >> rowanMethodHistory [
 
-	^UserGlobals at: #'RowanMethodHistory' ifAbsentPut: [Dictionary new]
+	^ (System myUserProfile resolveSymbol: #UserGlobals) value  at: #'RowanMethodHistory' ifAbsentPut: [Dictionary new]
 ]
 
 { #category : 'accessing' }
