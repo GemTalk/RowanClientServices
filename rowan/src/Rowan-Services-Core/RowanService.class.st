@@ -343,6 +343,8 @@ RowanService >> executeCommand [
 	self postCommandExecution ]
 		on: Exception
 		do: [ :ex | 
+			(ex isKindOf: RowanServiceShouldExit)
+				ifTrue: [ ^ self ].
 			(ex isKindOf: Notification)
 				ifFalse: [ 
 					GsFile
@@ -844,6 +846,8 @@ RowanService >> setDebugActionBlock [
 		breakpointLevel: 1;
 		debugActionBlock: [ :ex | 
 					| debuggerResult suspendedProcess |
+					ex class = RowanServiceShouldExit
+						ifTrue: [ ex resume ].
 					_connection isOpen
 						ifFalse: [ 
 							GsFile gciLogServer: ex printString.
@@ -860,9 +864,11 @@ RowanService >> setDebugActionBlock [
 							| compileErrorService |
 							self postCommandExecution.
 							compileErrorService := RowanCompileErrorServiceServer new.
-							compileErrorService gsArguments: ex errorDetails.
+							compileErrorService
+								gsArguments: ex errorDetails;
+								messageText: ex messageText.
 							updates := Array with: compileErrorService.
-							^ ex return ].
+							RowanServiceShouldExit signal ].
 					[ 
 					RowanDebuggerService new saveProcessOop: suspendedProcess asOop.
 					debuggerResult := (RowanProcessServiceServer
@@ -884,7 +890,7 @@ RowanService >> setDebugActionBlock [
 					debuggerResult = #'terminate'
 						ifTrue: [ 
 							self postCommandExecution.
-							RowanBrowserService new unsetSecretBreakpoint. 
+							RowanBrowserService new unsetSecretBreakpoint.
 							ex tag: #'rsrProcessTerminated'.
 							RsrUnhandledException signal: ex	"stop processing the exception but let rsr return" ].
 					ex resume ]
