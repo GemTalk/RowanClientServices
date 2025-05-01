@@ -487,6 +487,21 @@ RowanBrowserService >> unloadProjectsNamed: projectNames [
 ]
 
 { #category : 'client commands' }
+RowanBrowserService >> unsetCurrentPackage [
+	Rowan gemstoneTools topaz currentTopazPackageName: nil.
+	self updateProjects.
+	updateType := #resetCurrentProjectPackage.
+]
+
+{ #category : 'client commands' }
+RowanBrowserService >> unsetCurrentProject [
+	Rowan gemstoneTools topaz currentTopazProjectName: nil.
+	Rowan gemstoneTools topaz currentTopazPackageName: nil.
+	self updateProjects.
+	updateType := #resetCurrentProjectPackage.
+]
+
+{ #category : 'client commands' }
 RowanBrowserService >> unsetSecretBreakpoint [
 	"used for turning off native code"
 

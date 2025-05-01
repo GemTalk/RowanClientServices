@@ -175,6 +175,16 @@ RowanPackageService >> initialize [
 	isCurrent := false
 ]
 
+{ #category : 'accessing' }
+RowanPackageService >> isCurrent [
+	^isCurrent
+]
+
+{ #category : 'accessing' }
+RowanPackageService >> isCurrent: object [
+	isCurrent := object
+]
+
 { #category : 'Accessing' }
 RowanPackageService >> isDirty [
 	isDirty ifNil: [self updateIsDirty]. 
@@ -359,8 +369,14 @@ RowanPackageService >> services: services from: levels expand: toExpand [
 
 { #category : 'client commands' }
 RowanPackageService >> setCurrent [
-
-	Rowan gemstoneTools topaz currentTopazPackageName: name
+	| projectService |
+	Rowan gemstoneTools topaz currentTopazPackageName: name.
+	self update.
+	Rowan gemstoneTools topaz currentTopazProjectName: projectName.
+	projectService := RowanProjectService new name: projectName.
+	projectService update.
+	RowanCommandResult addResult: projectService.
+	updateType := #'resetCurrentProjectPackage'.
 ]
 
 { #category : 'client commands' }

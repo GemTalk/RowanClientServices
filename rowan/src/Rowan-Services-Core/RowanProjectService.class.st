@@ -592,9 +592,10 @@ RowanProjectService >> packages: object [
 
 { #category : 'accessing' }
 RowanProjectService >> packageServices [
-
-	^self packageNames collect:[:packageName | RowanPackageService forPackageNamed: packageName]
-
+	^ self packageNames
+		collect: [ :packageName | 
+			(RowanPackageService forPackageNamed: packageName)
+				isCurrent: Rowan gemstoneTools topaz currentTopazPackageName = packageName ]
 ]
 
 { #category : 'client commands' }
@@ -797,8 +798,11 @@ RowanProjectService >> servicePerform: symbol withArguments: collection [
 
 { #category : 'client commands' }
 RowanProjectService >> setCurrent [
-
-	Rowan gemstoneTools topaz currentTopazProjectName: name
+	Rowan gemstoneTools topaz currentTopazProjectName: name.
+	self update.
+	(self packages includes: Rowan gemstoneTools topaz currentTopazProjectName)
+		ifFalse: [ Rowan gemstoneTools topaz currentTopazPackageName: nil ].
+	updateType := #'resetCurrentProjectPackage'.
 ]
 
 { #category : 'rowan' }
