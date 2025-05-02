@@ -92,7 +92,7 @@ RowanPackageService >> createClassNamed: className superclass: superClassName in
 		instvars: instVars
 		classinstvars: #()
 		classvars: #()
-		category: ''
+		category: 'Kernel'
 		comment: ''
 		pools: #()
 		type: 'normal'.
