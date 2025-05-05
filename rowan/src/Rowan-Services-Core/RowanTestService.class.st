@@ -24,6 +24,18 @@ RowanTestService >> addRowanSample1Class [
 		createClassNamed: 'RowanSample1'
 		superclass: 'Object'
 		instVars: Array new
+		 category: 'Kernel'
+]
+
+{ #category : 'sample projects' }
+RowanTestService >> addRowanSample1ClassWithEmpyClassCategory [
+	| packageService |
+	packageService := RowanPackageService new name: 'RowanSample1-Core'.
+	packageService
+		createClassNamed: 'RowanSample1'
+		superclass: 'Object'
+		instVars: Array new
+		 category: ''
 ]
 
 { #category : 'sample projects' }
@@ -89,6 +101,26 @@ RowanTestService >> createRowanSample1Project [
 	projectService
 		addPackagesNamed: self rowanSample1PackageNames.
 	self addRowanSample1Class.
+	self addRowanSample1Methods.  
+	self addRowanSample1Test.
+	self addRowanSample1TestMethods.
+]
+
+{ #category : 'sample projects' }
+RowanTestService >> createRowanSample1ProjectWithEmpyClassCategory [
+	| projectService  |
+	projectService := RowanProjectService new name: 'RowanSample1'.
+	projectService
+		createProjectComponent: 'Core'
+		symDict: 'SampleSymbolDict'
+		convention: 'RowanHybrid'
+		format: 'tonel'
+		projectsHome: '$ROWAN_PROJECTS_HOME'
+		type: #'none'
+		shouldWrite: false.
+	projectService
+		addPackagesNamed: self rowanSample1PackageNames.
+	self addRowanSample1ClassWithEmpyClassCategory.
 	self addRowanSample1Methods.  
 	self addRowanSample1Test.
 	self addRowanSample1TestMethods.

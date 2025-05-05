@@ -117,6 +117,12 @@ RowanClassService >> addCategory: string [
 	self updateClass.
 ]
 
+{ #category : 'client commands' }
+RowanClassService >> addMissingAccessors [
+	self theClass compileMissingAccessingMethods.
+	self update
+]
+
 { #category : 'constants' }
 RowanClassService >> addSubclassWarningString [
 
@@ -1160,6 +1166,44 @@ RowanClassService >> removeInstVar: instVarName [
 	SessionTemps current at: #'jadeiteCompileClassMethod' put: anonymousMethod.
 	browserService := RowanBrowserServiceServer new.
 	browserService recompileMethodsAfterClassCompilation.
+	shouldUpdate := true
+]
+
+{ #category : 'client commands' }
+RowanClassService >> removeInstVars: theInstVarNames [
+	"assumes inst var refs were removed"
+
+	| theClass definitionString browserService anonymousMethod |
+	theInstVarNames
+		do: [ :instVar | 
+			oop := (Rowan globalNamed: name) asOop. 
+			self refreshFrom: self theClass.
+			theClass := self theClass.
+			meta
+				ifTrue: [ theClass := theClass class ].
+			definitionString := self template.
+			definitionString := self
+				replaceSubString: ' ' , instVar , ' '
+				in: definitionString
+				with: ' '.
+			definitionString := self
+				replaceSubString: ' ' , instVar , ')'
+				in: definitionString
+				with: ')'.
+			definitionString := self
+				replaceSubString: '(' , instVar , ' '
+				in: definitionString
+				with: '('.
+			definitionString := self
+				replaceSubString: '(' , instVar , ')'
+				in: definitionString
+				with: '()'.
+			anonymousMethod := definitionString
+				_compileInContext: nil
+				symbolList: Rowan image symbolList.
+			SessionTemps current at: #'jadeiteCompileClassMethod' put: anonymousMethod.
+			browserService := RowanBrowserServiceServer new.
+			browserService recompileMethodsAfterClassCompilation ].
 	shouldUpdate := true
 ]
 
