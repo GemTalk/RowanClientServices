@@ -1176,12 +1176,15 @@ RowanClassService >> removeInstVars: theInstVarNames [
 	| theClass definitionString browserService anonymousMethod |
 	theInstVarNames
 		do: [ :instVar | 
-			oop := (Rowan globalNamed: name) asOop. 
+			oop := (Rowan globalNamed: name) asOop.
 			self refreshFrom: self theClass.
 			theClass := self theClass.
 			meta
 				ifTrue: [ theClass := theClass class ].
-			definitionString := self template.
+			definitionString := self template copyWithout: Character lf.
+			definitionString := definitionString
+				copyReplaceChar: Character tab
+				with: Character space.
 			definitionString := self
 				replaceSubString: ' ' , instVar , ' '
 				in: definitionString
@@ -1204,7 +1207,9 @@ RowanClassService >> removeInstVars: theInstVarNames [
 			SessionTemps current at: #'jadeiteCompileClassMethod' put: anonymousMethod.
 			browserService := RowanBrowserServiceServer new.
 			browserService recompileMethodsAfterClassCompilation ].
-	shouldUpdate := true
+	shouldUpdate := false.
+	oop := (Rowan globalNamed: name) asOop.
+	self refreshFrom: self theClass
 ]
 
 { #category : 'client commands' }

@@ -337,11 +337,11 @@ RowanPackageService >> removeClassNamed: className [
 
 ]
 
-{ #category : 'rowan' }
+{ #category : 'Accessing' }
 RowanPackageService >> rowanDirty [
-
-	^(RwPackage newNamed: name) isDirty
-
+	^ [ (RwPackage newNamed: name) isDirty ]
+		on: Error
+		do: [ false ]
 ]
 
 { #category : 'rowan' }
