@@ -495,8 +495,9 @@ RowanPackageService >> updateProject [
 
 { #category : 'updates' }
 RowanPackageService >> updateProjectName [
-
-	projectName := (Rowan image loadedPackageNamed: name) projectName.
+	projectName := [ (Rowan image loadedPackageNamed: name) projectName ]
+		on: Error
+		do: [ :ex | 'UnPackaged' ]
 ]
 
 { #category : 'testing' }
