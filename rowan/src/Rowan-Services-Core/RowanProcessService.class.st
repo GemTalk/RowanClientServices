@@ -32,34 +32,32 @@ RowanProcessService class >> onActiveProcess: aGsProcess [
 	^self basicNew
 		initialize;
 		initialize: aGsProcess status: 'active';
+		name: aGsProcess name;
 		yourself
 ]
 
 { #category : 'instance creation' }
 RowanProcessService class >> onReadyProcess: aGsProcess [
-
-	^self basicNew
+	^ self basicNew
 		initialize: aGsProcess status: 'ready';
+		name: aGsProcess name;
 		yourself
-
 ]
 
 { #category : 'instance creation' }
 RowanProcessService class >> onSuspendedProcess: aGsProcess [
-
-	^self basicNew
+	^ self basicNew
 		initialize: aGsProcess status: 'suspended';
+		name: aGsProcess name;
 		yourself
-
 ]
 
 { #category : 'instance creation' }
 RowanProcessService class >> onWaitingProcess: aGsProcess [
-
-	^self basicNew
+	^ self basicNew
 		initialize: aGsProcess status: 'waiting';
+		name: aGsProcess name;
 		yourself
-
 ]
 
 { #category : 'rsr' }
@@ -128,6 +126,17 @@ RowanProcessService >> initialize: aGsProcess status: aString [
 ]
 
 { #category : 'accessing' }
+RowanProcessService >> name [
+	^name
+]
+
+{ #category : 'accessing' }
+RowanProcessService >> name: object [
+
+	name := object
+]
+
+{ #category : 'accessing' }
 RowanProcessService >> oop [
 	^oop
 ]
@@ -145,6 +154,11 @@ RowanProcessService >> status [
 { #category : 'accessing' }
 RowanProcessService >> status: object [
 	status := object
+]
+
+{ #category : 'updating' }
+RowanProcessService >> terminate [
+	[ (Object _objectForOop: oop) terminate ] fork
 ]
 
 { #category : 'updating' }

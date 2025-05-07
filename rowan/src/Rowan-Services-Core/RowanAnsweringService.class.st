@@ -79,6 +79,21 @@ RowanAnsweringService >> allPackageNames [
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> allProcesses [
+	answer := OrderedCollection
+		with:
+			(RowanProcessService
+				onActiveProcess: (Object _objectForOop: Processor activeProcess asOop)).
+	ProcessorScheduler scheduler readyProcesses
+		do: [ :process | answer add: (RowanProcessService onReadyProcess: process) ].
+	ProcessorScheduler scheduler suspendedProcesses
+		do: [ :process | answer add: (RowanProcessService onSuspendedProcess: process) ].
+	ProcessorScheduler scheduler waitingProcesses
+		do: [ :process | answer add: (RowanProcessService onWaitingProcess: process) ].
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> allTestsIn: classServices [
 	answer := Array new. 
 	classServices do:[:service | answer addAll: service allTests].
