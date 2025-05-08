@@ -13,7 +13,9 @@ Class {
 		'oop',
 		'status',
 		'name',
-		'errorMessage'
+		'errorMessage',
+		'priority',
+		'serverPrintString'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -112,6 +114,11 @@ RowanProcessService >> frames [
 	^frames
 ]
 
+{ #category : 'accessing' }
+RowanProcessService >> gsProcess [
+	^ Object _objectForOop: oop
+]
+
 { #category : 'initialize' }
 RowanProcessService >> initialize [
 
@@ -138,6 +145,8 @@ RowanProcessService >> initialize: aGsProcess status: aString [
 											stepPoints: Array new;
 											breakPoints: Array new) ]) ].
 	oop := aGsProcess asOop.
+	priority := aGsProcess priority. 
+	serverPrintString := aGsProcess printString. 
 	status := aString
 ]
 
@@ -160,6 +169,12 @@ RowanProcessService >> oop [
 { #category : 'accessing' }
 RowanProcessService >> oop: object [
 	oop := object
+]
+
+{ #category : 'actions' }
+RowanProcessService >> priority: anInteger [
+
+	self gsProcess priority: anInteger
 ]
 
 { #category : 'actions' }
