@@ -82,14 +82,14 @@ RowanAnsweringService >> allPackageNames [
 RowanAnsweringService >> allProcesses [
 	answer := OrderedCollection
 		with:
-			(RowanProcessService
+			(RowanProcessServiceServer
 				onActiveProcess: (Object _objectForOop: Processor activeProcess asOop)).
 	ProcessorScheduler scheduler readyProcesses
-		do: [ :process | answer add: (RowanProcessService onReadyProcess: process) ].
+		do: [ :process | answer add: (RowanProcessServiceServer onReadyProcess: process) ].
 	ProcessorScheduler scheduler suspendedProcesses
-		do: [ :process | answer add: (RowanProcessService onSuspendedProcess: process) ].
+		do: [ :process | answer add: (RowanProcessServiceServer onSuspendedProcess: process) ].
 	ProcessorScheduler scheduler waitingProcesses
-		do: [ :process | answer add: (RowanProcessService onWaitingProcess: process) ].
+		do: [ :process | answer add: (RowanProcessServiceServer onWaitingProcess: process) ].
 	RowanCommandResult addResult: self
 ]
 

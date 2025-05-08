@@ -80,6 +80,22 @@ RowanProcessService >> clearOrganizers [
 						ifNotNil: [ :vars | vars do: [ :variableService | variableService organizer: nil ] ] ] ]
 ]
 
+{ #category : 'actions' }
+RowanProcessService >> debug [
+	| suspendedProcess debuggerResult |
+	suspendedProcess := Object _objectForOop: oop.
+	RowanDebuggerService new saveProcessOop: oop.
+	debuggerResult := (RowanProcessServiceServer
+		existingProcessServiceFor: suspendedProcess)
+		ifNil: [ self openDebugger ]
+		ifNotNil: [ self updateClient ].
+	debuggerResult = #'terminate'
+		ifTrue: [ 
+			RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
+			^ suspendedProcess terminate ]
+		ifFalse: [ self resume: suspendedProcess orStep: debuggerResult ]
+]
+
 { #category : 'accessing' }
 RowanProcessService >> errorMessage [
 	^errorMessage
@@ -146,6 +162,27 @@ RowanProcessService >> oop: object [
 	oop := object
 ]
 
+{ #category : 'actions' }
+RowanProcessService >> resume: suspendedProcess orStep: debuggerResult [
+	debuggerResult = #'resume'
+		ifTrue: [ 
+			"open a new debugger if necessary"
+			RowanProcessServiceServer removeProcessServiceFor: suspendedProcess.
+			^ suspendedProcess resume ].
+	suspendedProcess
+		perform: debuggerResult first
+		withArguments: (debuggerResult copyFrom: 2 to: debuggerResult size).
+	debuggerResult first = #'trimStackToLevel:'
+		ifTrue: [ 
+			| result processService |
+			processService := RowanProcessServiceServer
+				existingProcessServiceFor: suspendedProcess.
+			result := processService updateClient.
+			^ self resume: suspendedProcess orStep: result ].
+	(Delay forMilliseconds: 100) wait.
+	suspendedProcess resume
+]
+
 { #category : 'accessing' }
 RowanProcessService >> status [
 	^status
@@ -156,7 +193,7 @@ RowanProcessService >> status: object [
 	status := object
 ]
 
-{ #category : 'updating' }
+{ #category : 'actions' }
 RowanProcessService >> terminate [
 	[ (Object _objectForOop: oop) terminate ] fork
 ]
