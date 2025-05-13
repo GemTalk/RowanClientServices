@@ -595,7 +595,11 @@ RowanProjectService >> packageServices [
 	^ self packageNames
 		collect: [ :packageName | 
 			(RowanPackageService forPackageNamed: packageName)
-				isCurrent: Rowan gemstoneTools topaz currentTopazPackageName = packageName ]
+				isCurrent: Rowan gemstoneTools topaz currentTopazPackageName = packageName;
+				dictionaryName:
+						((Rowan image loadedPackageNamed: packageName ifAbsent: [  ])
+								ifNil: String new
+								ifNotNil: [ :thePackage | thePackage gs_symbolDictionary ]) ]
 ]
 
 { #category : 'client commands' }

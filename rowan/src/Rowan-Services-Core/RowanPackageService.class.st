@@ -148,6 +148,16 @@ RowanPackageService >> deletePackage [
 
 ]
 
+{ #category : 'accessing' }
+RowanPackageService >> dictionaryName [
+	^dictionaryName
+]
+
+{ #category : 'accessing' }
+RowanPackageService >> dictionaryName: object [
+	dictionaryName := object
+]
+
 { #category : 'client commands' }
 RowanPackageService >> exportTopazFormatTo: filePath [
 	| rwProject massagedFilePath fileRef |
