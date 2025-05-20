@@ -146,7 +146,7 @@ RowanProcessService >> initialize: aGsProcess status: aString [
 											breakPoints: Array new) ]) ].
 	oop := aGsProcess asOop.
 	priority := aGsProcess priority. 
-	serverPrintString := aGsProcess printString. 
+	[serverPrintString := aGsProcess printString] on: Error do: [:ex | 'process printString got an error - ', ex messageText]. 
 	status := aString
 ]
 

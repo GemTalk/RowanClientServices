@@ -176,6 +176,7 @@ RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebu
 { #category : 'client command support' }
 RowanAnsweringService >> basicExec: aString context: oop shouldDebug: shouldDebug returningString: returnStringBoolean [
 	| object symbolList tempMethod result return  |
+	Processor activeProcess name: (aString copyUpTo: Character lf). 
 	object := Object _objectForOop: oop.
 	symbolList := Rowan image symbolList.
 	[ tempMethod := aString _compileInContext: object symbolList: symbolList ]
