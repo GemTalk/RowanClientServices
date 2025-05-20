@@ -119,7 +119,16 @@ RowanClassService >> addCategory: string [
 
 { #category : 'client commands' }
 RowanClassService >> addMissingAccessors [
-	self theClass compileMissingAccessingMethods.
+	| existingSelectors newSelectors theClass |
+	theClass := self theClass.
+	existingSelectors := theClass selectors.
+	theClass compileMissingAccessingMethods.
+	newSelectors := theClass selectors difference: existingSelectors.
+	newSelectors do: [ :sel | theClass moveMethod: sel toCategory: 'accessing' ].
+	(theClass selectorsIn: 'Accessing') isEmpty
+		ifTrue: [ theClass removeCategory: 'Accessing' ].
+	(theClass selectorsIn: 'Updating') isEmpty
+		ifTrue: [ theClass removeCategory: 'Updating' ].
 	self update
 ]
 
