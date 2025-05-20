@@ -125,10 +125,14 @@ RowanClassService >> addMissingAccessors [
 	theClass compileMissingAccessingMethods.
 	newSelectors := theClass selectors difference: existingSelectors.
 	newSelectors do: [ :sel | theClass moveMethod: sel toCategory: 'accessing' ].
-	(theClass selectorsIn: 'Accessing') isEmpty
-		ifTrue: [ theClass removeCategory: 'Accessing' ].
-	(theClass selectorsIn: 'Updating') isEmpty
-		ifTrue: [ theClass removeCategory: 'Updating' ].
+	(theClass categoryNames includes: #Accessing)
+		ifTrue: [ 
+			(theClass selectorsIn: 'Accessing') isEmpty
+				ifTrue: [ theClass removeCategory: 'Accessing' ] ].
+	(theClass categoryNames includes: #Updating)
+		ifTrue: [ 
+			(theClass selectorsIn: 'Updating') isEmpty
+				ifTrue: [ theClass removeCategory: 'Updating' ] ].
 	self update
 ]
 
