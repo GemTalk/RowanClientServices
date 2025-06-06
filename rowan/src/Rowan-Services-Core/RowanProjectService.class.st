@@ -217,9 +217,13 @@ RowanProjectService >> checkoutTag: tagName [
 
 { #category : 'client commands' }
 RowanProjectService >> commitWithMessage: message [
-	
+	[ 
 	Rowan projectTools write writeProjectNamed: name.
-	Rowan projectTools commit commitProjectNamed: name message: message
+	Rowan projectTools commit commitProjectNamed: name message: message ]
+		on: GsInteractionRequest
+		do: [ :ex | 
+			"ignore interactions as we execute this in a completion block and the remoteSelf RSR needs is gone"
+			 ]
 ]
 
 { #category : 'accessing' }
