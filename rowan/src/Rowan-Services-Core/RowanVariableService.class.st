@@ -33,6 +33,12 @@ RowanVariableService class >> templateClassName [
 	^#RowanVariableService
 ]
 
+{ #category : 'as yet unclassified' }
+RowanVariableService >> deleteme [
+
+	"testing commits - delete this method"
+]
+
 { #category : 'other' }
 RowanVariableService >> oop: anInteger key: nameString value: valueString className: classNameString [
 
