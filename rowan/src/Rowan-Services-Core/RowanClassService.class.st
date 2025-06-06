@@ -43,7 +43,8 @@ Class {
 		'wasRemoved',
 		'renamedName',
 		'hasSubclasses',
-		'classCategory'
+		'classCategory',
+		'isDirty'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -193,25 +194,29 @@ RowanClassService >> basicForClassNamed: className [
 RowanClassService >> basicRefreshFrom: theClass [
 	| classOrMeta theFilters |
 	oop := theClass asOop.
-	command := nil. 
-	commandArgs := nil. 
-	superclassName := theClass superClass ifNotNil:[:theSuper | theSuper name asString]. 
+	command := nil.
+	commandArgs := nil.
+	superclassName := theClass superClass
+		ifNotNil: [ :theSuper | theSuper name asString ].
 	versions := theClass classHistory size.
 	version := theClass classHistory indexOf: theClass.
 	self setComment.
 	template := self classCreationTemplate.
 	theFilters := SortedCollection new.
-	classOrMeta := meta == true ifTrue:[theClass class] ifFalse:[theClass].
-	self initializeVariablesFor: classOrMeta. 
+	classOrMeta := meta == true
+		ifTrue: [ theClass class ]
+		ifFalse: [ theClass ].
+	self initializeVariablesFor: classOrMeta.
 	self initializeCategoriesFor: classOrMeta.
 	packageName := definedPackageName := classOrMeta rowanPackageName.
 	self setDictionary: classOrMeta.
 	projectName := classOrMeta rowanProjectName.
-	instVarNames := classOrMeta instVarNames asArray. 
+	instVarNames := classOrMeta instVarNames asArray.
 	self setIsTestCase.
 	self updateIsExtension.
 	hasSubclasses := (self organizer subclassesOf: theClass) notEmpty.
 	classCategory := classOrMeta category.
+	isDirty := (RwGsImage loadedClassNamed: self name) isDirty
 ]
 
 { #category : 'Accessing' }
@@ -858,40 +863,37 @@ RowanClassService >> minimalForClassNamed: className packageNames: packageNames 
 
 { #category : 'initialization' }
 RowanClassService >> minimalRefreshFrom: theClass [
-	| classOrMeta  |
-	command := nil. 
-	commandArgs := nil. 
-	versions := theClass classHistory size.
-	version := theClass classHistory indexOf: theClass.
-	oop := theClass asOop.
-	classOrMeta := meta == true ifTrue:[theClass class] ifFalse:[theClass].
-	packageName := definedPackageName := classOrMeta rowanPackageName.
-	self setDictionary: classOrMeta.
-	projectName := classOrMeta rowanProjectName.
-	instVarNames := classOrMeta instVarNames asArray. 
-	template := self classCreationTemplate.
-	self initializeVariablesFor: classOrMeta. 
-	self initializeCategoriesFor: classOrMeta.
-	self setIsTestCase.
+	self minimalRefreshFrom: theClass packageNames: nil
 ]
 
 { #category : 'initialization' }
 RowanClassService >> minimalRefreshFrom: theClass packageNames: packageNames [
-	| classOrMeta  |
-	command := nil. 
-	commandArgs := nil. 
+	| classOrMeta |
+	command := nil.
+	commandArgs := nil.
 	versions := theClass classHistory size.
 	version := theClass classHistory indexOf: theClass.
 	oop := theClass asOop.
-	classOrMeta := meta == true ifTrue:[theClass class] ifFalse:[theClass].
-	packageName := definedPackageName := (self computePackageNameFor: classOrMeta in: packageNames).
+	classOrMeta := meta == true
+		ifTrue: [ theClass class ]
+		ifFalse: [ theClass ].
+
+	packageName := definedPackageName := packageNames
+		ifNil: [ classOrMeta rowanPackageName ]
+		ifNotNil: [ self computePackageNameFor: classOrMeta in: packageNames ].
+		
 	self setDictionary: classOrMeta.
 	projectName := classOrMeta rowanProjectName.
-	instVarNames := classOrMeta instVarNames asArray. 
-	template := self classCreationTemplateUsing: packageNames.
-	self initializeVariablesFor: classOrMeta. 
+	instVarNames := classOrMeta instVarNames asArray.
+	
+	template := packageNames
+		ifNil: [ self classCreationTemplate ]
+		ifNotNil: [ self classCreationTemplateUsing: packageNames ].
+
+	self initializeVariablesFor: classOrMeta.
 	self initializeCategoriesFor: classOrMeta.
 	self setIsTestCase.
+	isDirty := (RwGsImage loadedClassNamed: self name) isDirty
 ]
 
 { #category : 'client commands' }

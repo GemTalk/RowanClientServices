@@ -41,7 +41,8 @@ Class {
 		'homeMethodOop',
 		'hasMethodHistory',
 		'searchString',
-		'definedClassName'
+		'definedClassName',
+		'isDirty'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -55,13 +56,12 @@ RowanMethodService class >> forGsNMethod: aGsNMethod organizer: anOrganizer [
 
 { #category : 'instance creation' }
 RowanMethodService class >> forSelector: sel class: theClass meta: boolean organizer: anOrganizer [
-	| service |
-	service := self new.
-	service
-		selector: sel;
-		meta: boolean.
-	service forClass: theClass organizer: anOrganizer.
-	^ service
+	^ self
+		forSelector: sel
+		class: theClass
+		meta: boolean
+		organizer: anOrganizer
+		subclasses: (anOrganizer allSubclassesOf: theClass thisClass)
 ]
 
 { #category : 'instance creation' }
@@ -392,31 +392,6 @@ RowanMethodService >> firstReference: integer [
 ]
 
 { #category : 'initialization' }
-RowanMethodService >> forClass: theClass organizer: theOrganizer [
-	"assume meta and selector are set"
-
-	| classOrMeta gsNMethod |
-	organizer := theOrganizer.
-	classOrMeta := meta
-		ifTrue: [ theClass class ]
-		ifFalse: [ theClass ].
-	gsNMethod := classOrMeta compiledMethodAt: selector.
-	definedPackage := gsNMethod rowanPackageName.
-	oop := gsNMethod asOop.
-	stepPoints := self stepPointsFor: gsNMethod.
-	breakPoints := self breakPointsFor: gsNMethod.
-	self updateSource: gsNMethod sourceString.
-	category := (classOrMeta categoryOfSelector: selector) asString.
-	className := theClass name asString.
-	packageName := gsNMethod rowanPackageName.
-	projectName := gsNMethod rowanProjectName.
-	self setSupersAndSubsFor: classOrMeta.
-	isExtension := self rowanIsExtension.
-	self initializeTestMethodsFor: classOrMeta thisClass.
-	self setDefinedClass: classOrMeta
-]
-
-{ #category : 'initialization' }
 RowanMethodService >> forClass: theClass organizer: theOrganizer subclasses: subclasses [
 	"assume meta and selector are set"
 
@@ -438,18 +413,22 @@ RowanMethodService >> forClass: theClass organizer: theOrganizer subclasses: sub
 	self setSupersAndSubsFor: classOrMeta using: subclasses.
 	isExtension := self rowanIsExtension.
 	self initializeTestMethodsFor: classOrMeta thisClass.
-	self setDefinedClass: classOrMeta
+	self setDefinedClass: classOrMeta.
+	isDirty := gsNMethod origin isDirty.
 ]
 
 { #category : 'instance creation' }
 RowanMethodService >> forSelector: sel class: theClass meta: boolean organizer: anOrganizer [
-
 	| service |
-	service := self new. 
-	service selector: sel;
+	service := self new.
+	service
+		selector: sel;
 		meta: boolean.
-	service forClass: theClass organizer: anOrganizer.
-	^service
+	service
+		forClass: theClass
+		organizer: anOrganizer
+		subclasses: (anOrganizer allSubclassesOf: theClass thisClass).
+	^ service
 ]
 
 { #category : 'Accessing' }
@@ -505,33 +484,36 @@ RowanMethodService >> initialize [
 	hasMethodHistory := true.
 	inSelectedPackage := true.
 	isExtension := false.
+	isDirty := false
 ]
 
 { #category : 'initialization' }
 RowanMethodService >> initialize: aGsNMethod organizer: aClassOrganizer [
-
 	| inClass |
 	oop := aGsNMethod asOop.
-	definedPackage := aGsNMethod rowanPackageName. 
+	definedPackage := aGsNMethod rowanPackageName.
 	selector := aGsNMethod selector.
 	stepPoints := self stepPointsFor: aGsNMethod.
 	breakPoints := self breakPointsFor: aGsNMethod.
-	((inClass := aGsNMethod inClass) isNil or: [selector isNil]) ifTrue: [
-		meta := false.
-		self updateSource: aGsNMethod sourceString.
-		hasSupers := false.
-		hasSubs := false.
-		organizer := aClassOrganizer. 
-		inSelectedPackage := false.
-		^self
-	].
-	selectedPackageServices ifNotNil: [
-		inSelectedPackage := (selectedPackageServices detect: [:packageService | packageService name = packageName] ifNone:[]) notNil. 
-		]. 
+	((inClass := aGsNMethod inClass) isNil or: [ selector isNil ])
+		ifTrue: [ 
+			meta := false.
+			self updateSource: aGsNMethod sourceString.
+			hasSupers := false.
+			hasSubs := false.
+			organizer := aClassOrganizer.
+			inSelectedPackage := false.
+			^ self ].
+	selectedPackageServices
+		ifNotNil: [ 
+			inSelectedPackage := (selectedPackageServices
+				detect: [ :packageService | packageService name = packageName ]
+				ifNone: [  ]) notNil ].
 	meta := inClass isMeta.
-	self 
-		forClass: inClass thisClass 
-		organizer: aClassOrganizer.
+	self
+		forClass: inClass thisClass
+		organizer: aClassOrganizer
+		subclasses: (aClassOrganizer allSubclassesOf: inClass thisClass).
 	self initializeTestMethodsFor: inClass thisClass.
 	self setHasMethodHistory
 ]
@@ -795,35 +777,9 @@ RowanMethodService >> setHasMethodHistory [
 
 { #category : 'initialization' }
 RowanMethodService >> setSupersAndSubsFor: theClass [
-	| theSuper implementingClass |
-	true
-		ifTrue: [ 
-			hasSubs := false.
-			hasSupers := false.
-			^ self	"may be implicated in gem out of memory conditions if tempobj cache size isn't raised" ].
-	theSuper := theClass superClass.
-	theSuper
-		ifNotNil: [ 
-			implementingClass := theSuper whichClassIncludesSelector: selector.
-			hasSupers := implementingClass notNil.
-			hasSupers
-				ifTrue: [ 
-					comparisonSource := (implementingClass
-						compiledMethodAt: selector
-						environmentId: 0
-						otherwise: nil) sourceString.
-					superDisplayString := implementingClass name , '>>' , selector ] ].
-	(self organizer allSubclassesOf: theClass thisClass)
-		do: [ :cls | 
-			| aClass |
-			aClass := theClass isMeta
-				ifTrue: [ cls class ]
-				ifFalse: [ cls ].
-			(hasSubs := (aClass
-				compiledMethodAt: selector
-				environmentId: 0
-				otherwise: nil) notNil)
-				ifTrue: [ ^ self ] ]
+	self
+		setSupersAndSubsFor: theClass
+		using: (self organizer allSubclassesOf: theClass thisClass)
 ]
 
 { #category : 'initialization' }
