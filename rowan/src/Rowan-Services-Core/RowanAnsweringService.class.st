@@ -722,13 +722,14 @@ RowanAnsweringService >> packageOrDictionaryFor: classService [
 	RowanCommandResult addResult: self
 ]
 
-{ #category : 'client commands' }
-RowanAnsweringService >> packageServiceFor: classService [ 
+{ #category : 'client command support' }
+RowanAnsweringService >> packageServiceFor: classService [
+	"assume classService is updated"
+
 	| packageService |
-	classService update. 
 	packageService := RowanPackageService forPackageNamed: classService packageName.
 	packageService update.
-	^packageService
+	^ packageService
 ]
 
 { #category : 'client commands' }
@@ -774,19 +775,24 @@ RowanAnsweringService >> projectAndPackageServiceFor: classService [
 	answer := classService updateType = #'removed:'
 		ifTrue: [ nil ]
 		ifFalse: [ 
-			Array
-				with: (self projectServiceFor: classService)
-				with: (self packageServiceFor: classService) ].
+			classService update.
+			(classService projectName isNil or: [ classService packageName isNil ])
+				ifTrue: [ nil ]
+				ifFalse: [ 
+					Array
+						with: (self projectServiceFor: classService)
+						with: (self packageServiceFor: classService) ] ].
 	RowanCommandResult addResult: self
 ]
 
-{ #category : 'client commands' }
-RowanAnsweringService >> projectServiceFor: classService [ 
+{ #category : 'client command support' }
+RowanAnsweringService >> projectServiceFor: classService [
+	"assume classService is updated"
+
 	| projectService |
-	classService update. 
 	projectService := RowanProjectService new name: classService projectName.
 	projectService update.
-	^projectService
+	^ projectService
 ]
 
 { #category : 'client commands' }
