@@ -43,8 +43,7 @@ Class {
 		'wasRemoved',
 		'renamedName',
 		'hasSubclasses',
-		'classCategory',
-		'isDirty'
+		'classCategory'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -216,7 +215,6 @@ RowanClassService >> basicRefreshFrom: theClass [
 	self updateIsExtension.
 	hasSubclasses := (self organizer subclassesOf: theClass) notEmpty.
 	classCategory := classOrMeta category.
-	isDirty := (RwGsImage loadedClassNamed: self name) isDirty
 ]
 
 { #category : 'Accessing' }
@@ -893,7 +891,6 @@ RowanClassService >> minimalRefreshFrom: theClass packageNames: packageNames [
 	self initializeVariablesFor: classOrMeta.
 	self initializeCategoriesFor: classOrMeta.
 	self setIsTestCase.
-	isDirty := (RwGsImage loadedClassNamed: self name) isDirty
 ]
 
 { #category : 'client commands' }

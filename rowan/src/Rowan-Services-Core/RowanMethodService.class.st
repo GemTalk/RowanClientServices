@@ -41,8 +41,7 @@ Class {
 		'homeMethodOop',
 		'hasMethodHistory',
 		'searchString',
-		'definedClassName',
-		'isDirty'
+		'definedClassName'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -414,7 +413,6 @@ RowanMethodService >> forClass: theClass organizer: theOrganizer subclasses: sub
 	isExtension := self rowanIsExtension.
 	self initializeTestMethodsFor: classOrMeta thisClass.
 	self setDefinedClass: classOrMeta.
-	isDirty := gsNMethod origin isDirty.
 ]
 
 { #category : 'instance creation' }
@@ -484,7 +482,6 @@ RowanMethodService >> initialize [
 	hasMethodHistory := true.
 	inSelectedPackage := true.
 	isExtension := false.
-	isDirty := false
 ]
 
 { #category : 'initialization' }
