@@ -409,7 +409,7 @@ RowanMethodService >> forClass: theClass organizer: theOrganizer subclasses: sub
 	className := theClass name asString.
 	packageName := gsNMethod rowanPackageName.
 	projectName := gsNMethod rowanProjectName.
-	self setSupersAndSubsFor: classOrMeta using: subclasses.
+	"self setSupersAndSubsFor: classOrMeta using: subclasses."
 	isExtension := self rowanIsExtension.
 	self initializeTestMethodsFor: classOrMeta thisClass.
 	self setDefinedClass: classOrMeta.
