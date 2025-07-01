@@ -338,15 +338,21 @@ RowanBrowserService >> packagesWithTests [
 RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	"compileClass: must be run first"
 
-	| theClass classService packageService projectService |
+	| theClass classService packageService projectService compileErrors |
+	compileErrors := Array new. 
 	theClass := [ 
 	[ (SessionTemps current at: #'jadeiteCompileClassMethod') _executeInContext: nil ]
-		on: CompileWarning , CompileError
-		do: [ :ex |  ] ]
+		on: RwCompileErrorCompilingMethodsForNewClassVersionNotification
+		do: [ :ex |  | compileError |
+			compileError := ex compileError.
+			Transcript cr; show: compileError printString. 
+			compileErrors add: compileError. 
+			"sourceString := compileError sourceString.
+			methodClass := (compileError gsArguments at: 3)  halt."
+			ex resume: true. "method compile error will be handled later"  ] ]
 		ensure: [ SessionTemps current at: #'jadeiteCompileClassMethod' put: nil ].
 	classService := RowanClassService new name: theClass name.
 	classService update.
-	classService recompileAllMethods. "handle method compile errors here" 
 	classService updateSubclasses.
 	classService isNewClass: true.	"if nothing else, the dirty state of the package/project services
 	should be updated. Would like a less heavy weight solution than this, though."

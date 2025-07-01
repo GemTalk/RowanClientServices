@@ -21,8 +21,13 @@ RowanFileService class >> templateClassName [
 { #category : 'command support' }
 RowanFileService >> basicIsDirectory: thePath [
 	| fileReference |
+	[ 
 	fileReference := FileReference fileSystem: FileSystem disk path: thePath asPath.
-	answer := fileReference isDirectory.
+	answer := fileReference isDirectory ]
+		on: Error
+		do: [ :ex | 
+			self inform: 'Error accessing ' , thePath , ' ' , ex messageText.
+			answer := nil ].
 	RowanCommandResult addResult: self
 ]
 
@@ -190,6 +195,18 @@ RowanFileService >> isDirectory [
 { #category : 'client commands' }
 RowanFileService >> isDirectory: directory [
 	self basicIsDirectory: directory
+]
+
+{ #category : 'client commands' }
+RowanFileService >> isReadable [
+	answer := path asFileReference isReadable.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
+RowanFileService >> isWritable [
+	answer := path asFileReference isWritable.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
