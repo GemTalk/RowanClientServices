@@ -107,9 +107,11 @@ RowanFileService >> extension [
 RowanFileService >> fileContents [
 	| fileReference |
 	fileReference := FileReference fileSystem: FileSystem disk path: path asPath.
-	answer := fileReference exists
-		ifTrue: [ fileReference readStream contents ]
-		ifFalse: [ String new asUnicodeString ].
+	answer := [ fileReference readStreamDo: [ :stream | stream contents ] ]
+		on: Error
+		do: [ :ex | 
+			self inform: 'Error accessing file: ' , path.
+			ex return: String new asUnicodeString ].
 	RowanCommandResult addResult: self
 ]
 
