@@ -338,19 +338,28 @@ RowanBrowserService >> packagesWithTests [
 RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	"compileClass: must be run first"
 
-	| theClass classService packageService projectService compileErrors |
-	compileErrors := Array new. 
+	| theClass classService packageService projectService methodCompileErrors |
+	methodCompileErrors := Array new.
+
 	theClass := [ 
 	[ (SessionTemps current at: #'jadeiteCompileClassMethod') _executeInContext: nil ]
 		on: RwCompileErrorCompilingMethodsForNewClassVersionNotification
-		do: [ :ex |  | compileError |
-			compileError := ex compileError.
-			Transcript cr; show: compileError printString. 
-			compileErrors add: compileError. 
-			"sourceString := compileError sourceString.
-			methodClass := (compileError gsArguments at: 3)  halt."
-			ex resume: true. "method compile error will be handled later"  ] ]
+		do: [ :ex | 
+			| methodService errorOffset errorText |
+			errorOffset := ex compileError gsArguments first first at: 2.
+			errorText := ex compileError gsArguments first first at: 3.
+			methodService := RowanMethodService new.
+			methodService source: ex compileError sourceString.
+			methodService source insertAll: errorText , '->' at: errorOffset.
+			methodService
+				className: (ex compileError gsArguments at: 3);
+				meta: false;
+				firstReference: errorOffset;
+				searchString: errorText.
+			methodCompileErrors add: methodService.
+			ex resume: true	"method compile error will be handled later" ] ]
 		ensure: [ SessionTemps current at: #'jadeiteCompileClassMethod' put: nil ].
+	[ 
 	classService := RowanClassService new name: theClass name.
 	classService update.
 	classService updateSubclasses.
@@ -369,8 +378,14 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	classService updateType: #'newClass:browser:'.
 	self updateSymbols: (Array with: theClass name asString).
 	classService classHierarchy.
+	classService methodsFailingRecompilation: methodCompileErrors.
 	RowanCommandResult addResult: self.
-	^ classService
+	^ classService ]
+		on: Error
+		do: [ :ex | 
+			Transcript
+				cr;
+				show: 'ERROR post class processing' ]
 ]
 
 { #category : 'client commands' }

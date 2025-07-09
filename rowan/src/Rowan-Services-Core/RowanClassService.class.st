@@ -43,7 +43,8 @@ Class {
 		'wasRemoved',
 		'renamedName',
 		'hasSubclasses',
-		'classCategory'
+		'classCategory',
+		'methodsFailingRecompilation'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -646,6 +647,7 @@ RowanClassService >> initialize [
 	categories := Array new.
 	updateAfterCommand := true.
 	hasSubclasses := false.
+	methodsFailingRecompilation := Array new.
 ]
 
 { #category : 'initialization' }
@@ -823,6 +825,16 @@ RowanClassService >> methodServicesFor: classOrMeta organizer: theOrganizer subc
 						meta: meta
 						organizer: theOrganizer
 						subclasses: subclasses])
+]
+
+{ #category : 'accessing' }
+RowanClassService >> methodsFailingRecompilation [
+	^methodsFailingRecompilation
+]
+
+{ #category : 'accessing' }
+RowanClassService >> methodsFailingRecompilation: object [
+	methodsFailingRecompilation := object
 ]
 
 { #category : 'private' }
@@ -1252,6 +1264,7 @@ RowanClassService >> removeSelector: selector ifAbsent: absentBlock [
 	| theClass |
 	theClass := self theClass. 
 	meta ifTrue: [theClass := theClass class].
+	selector ifNil: [^absentBlock value]. "protect here as compiledMethodAt:otherwise: uses protected mode"
 	(theClass compiledMethodAt: selector otherwise: nil) isNil ifTrue:[ ^absentBlock value ].
 	[self browserTool removeMethod: selector forClassNamed: name asString isMeta: meta]
 		on: RwPerformingUnpackagedEditNotification

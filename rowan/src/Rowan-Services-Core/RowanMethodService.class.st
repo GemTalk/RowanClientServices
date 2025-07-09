@@ -429,10 +429,11 @@ RowanMethodService >> forSelector: sel class: theClass meta: boolean organizer: 
 	^ service
 ]
 
-{ #category : 'Accessing' }
+{ #category : 'updates' }
 RowanMethodService >> gsNMethod [
 	| theBehavior |
 	theBehavior := self theClass ifNil: [^nil]. 
+	selector ifNil: [^nil]. "must protect outside of `compiledMethodAt:otherwise:` which uses protected mode"
 	^ theBehavior compiledMethodAt: selector otherwise: nil
 ]
 
@@ -482,6 +483,8 @@ RowanMethodService >> initialize [
 	hasMethodHistory := true.
 	inSelectedPackage := true.
 	isExtension := false.
+	stepPoints := Array new.
+	breakPoints := Array new
 ]
 
 { #category : 'initialization' }
@@ -897,6 +900,7 @@ RowanMethodService >> updateLatest [
 	| theClass compiledMethod |
 	theClass := (RowanClassService new name: className) theClass.
 	theClass ifNil: [ ^ self ].
+	selector ifNil: [^self]. "must protect outside of `compiledMethodAt:otherwise:` which uses protected mode"
 	compiledMethod := theClass compiledMethodAt: selector otherwise: nil.
 	compiledMethod
 		ifNil: [ 
