@@ -1490,9 +1490,8 @@ RowanClassService >> setDictionary: classOrMeta [
 
 { #category : 'Updating' }
 RowanClassService >> setIsTestCase [
-
-	isTestCase := self theClass isSubclassOf: TestCase
-
+	isTestCase := (self theClass isSubclassOf: TestCase)
+		and: [ self theClass isAbstract not ]
 ]
 
 { #category : 'client commands' }
