@@ -129,13 +129,21 @@ RowanFileService >> fileIn: filePath [
 	fileReference exists
 		ifFalse: [ ^ self inform: 'File does not exist' ].
 	[ GsFileIn fromServerPath: filePath ]
-		on: CompileWarning
+		on: CompileWarning , Error
 		do: [ :ex | 
-			Transcript
-				cr;
-				show: ex description;
-				flush.
-			ex resume ].
+			(ex isKindOf: CompileWarning)
+				ifTrue: [ 
+					Transcript
+						cr;
+						show: ex description;
+						flush.
+					ex resume ]
+				ifFalse: [ 
+					self
+						inform:
+							'Error during file in. File in cancelled. Error Text: ' , ex messageText.
+					answer := nil.
+					^ RowanCommandResult addResult: self ] ].
 	answer := fileReference readStream contents.
 	RowanCommandResult addResult: self
 ]
