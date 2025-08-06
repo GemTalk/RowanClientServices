@@ -65,6 +65,13 @@ RowanService class >> isRowanClientServicesVersionSupported: versionString lower
 	^ low <= version and: [ version < high ]
 ]
 
+{ #category : 'autocommit' }
+RowanService class >> isRowanStub [
+
+	Globals at: #Rowan3LoadedPackageStub ifAbsent: [^false].
+	^true
+]
+
 { #category : 'instance creation' }
 RowanService class >> new [
 

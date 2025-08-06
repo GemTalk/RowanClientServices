@@ -648,6 +648,17 @@ RowanAnsweringService >> isClassName: aString [
 	RowanCommandResult addResult: self
 ]
 
+{ #category : 'client commands' }
+RowanAnsweringService >> isRowanAvailable [
+	answer := self isRowanStub not.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'testing' }
+RowanAnsweringService >> isRowanStub [
+	^RowanService isRowanStub
+]
+
 { #category : 'testing' }
 RowanAnsweringService >> isTranscriptInstalled [
 	^self transcriptObject == self jadeiteServer
