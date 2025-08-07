@@ -26,6 +26,19 @@ RowanDictionaryService class >> templateClassName [
 	^#RowanDictionaryService
 ]
 
+{ #category : 'private' }
+RowanDictionaryService >> categoryIn: selectedClassCategories satisfying: theClass [
+	^ (theClass category = String new
+		and: [ 
+			(classCategories
+				detect: [ :classCategory | classCategory includes: theClass category ]
+				ifNone: [  ]) notNil ])
+		or: [ 
+			(classCategories
+				detect: [ :classCategory | theClass category match: classCategory ]
+				ifNone: [  ]) notNil ]
+]
+
 { #category : 'accessing' }
 RowanDictionaryService >> classes [
 	^classes
@@ -207,6 +220,54 @@ RowanDictionaryService >> updateClassCategories [
 			value isClass
 				ifTrue: [ theClassCategories add: value category ] ].
 	classes := nil.
+	globals := sorted asArray.
+	classCategories := theClassCategories asSortedCollection asArray.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'private' }
+RowanDictionaryService >> updateForClassCategories: selectedClassCategories [
+	| dictionary sorted theClasses theClassCategories |
+	theClasses := OrderedCollection new.
+	sorted := SortedCollection sortBlock: [ :x :y | x first < y first ].
+	dictionary := Rowan image symbolList objectNamed: name.
+	dictionary ifNil: [ ^ self ].
+	(dictionary isKindOf: SymbolDictionary)
+		ifFalse: [ ^ self ].
+	theClassCategories := Set new.
+	dictionary
+		keysAndValuesDo: [ :key :value | 
+			value isClass
+				ifTrue: [ 
+					| classService |
+					(self categoryIn: selectedClassCategories satisfying: value)
+						ifTrue: [ 
+							classService := RowanClassService new name: key asString.
+							classService versions: value classHistory size.
+							classService version: (value classHistory indexOf: value).
+							classService setIsTestCase.
+							classService classCategory: value category.
+							theClasses add: classService ].
+					theClassCategories add: value category ]
+				ifFalse: [ 
+					| printString theKey |
+					printString := [ 
+					value printString charSize > 1
+						ifTrue: [ '<<unprintable string. charSize > 1>>' ]
+						ifFalse: [ value printString ] ]
+						on: Error
+						do: [ :ex | 'unprintable string. Error - <' , ex printString , '>' ].
+					key charSize = 1
+						ifTrue: [ theKey := key ]
+						ifFalse: [ theKey := '<<unprintable string. charSize > 1>>' ].
+					sorted
+						add:
+							(Array
+								with: name , '.' , theKey
+								with: value class name
+								with: value asOop
+								with: printString) ] ].
+	classes := theClasses.
 	globals := sorted asArray.
 	classCategories := theClassCategories asSortedCollection asArray.
 	RowanCommandResult addResult: self
