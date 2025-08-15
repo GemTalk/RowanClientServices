@@ -30,11 +30,11 @@ RowanDictionaryService class >> templateClassName [
 RowanDictionaryService >> categoryIn: selectedClassCategories satisfying: theClass [
 	^ (theClass category = String new
 		and: [ 
-			(classCategories
+			(selectedClassCategories
 				detect: [ :classCategory | classCategory includes: theClass category ]
 				ifNone: [  ]) notNil ])
 		or: [ 
-			(classCategories
+			(selectedClassCategories
 				detect: [ :classCategory | theClass category match: classCategory ]
 				ifNone: [  ]) notNil ]
 ]
