@@ -236,6 +236,60 @@ RowanBrowserService >> initialize [
   newCachedClasses := Array new
 ]
 
+{ #category : 'client commands' }
+RowanBrowserService >> jfpwor_compileClass: definitionString [
+
+        | newClass newClassService newMetaClassService |
+        newClass := definitionString evaluate.
+        newClassService := RowanClassService new name: newClass.
+        newClassService update.
+        newMetaClassService := RowanClassService new name: newClass.
+        newMetaClassService meta: true.
+        newMetaClassService update.
+        newClassService version > 1 ifTrue: [
+                | oldClass oldClassService |
+                oldClass := newClassService theClass classHistory at:
+                                    newClassService version - 1.
+                oldClassService := RowanClassService new classServiceFromOop:
+                                           oldClass asOop.
+                oldClassService update.
+                self
+                        jfpwor_compileMethodsFrom: oldClassService
+                        to: newClassService
+                        and: newMetaClassService.
+                self jfpwor_recompileSubclassesFrom: oldClassService to: newClassService ].
+        RowanCommandResult
+                addResult: self;
+                addResult: newClassService;
+                addResult: newMetaClassService. "bring back class & instance side"
+        selectedClass := newClassService
+]
+
+{ #category : 'client commands support' }
+RowanBrowserService >> jfpwor_compileMethodsFrom: oldClassService to: newClassService and: newMetaClassService [
+
+	oldClassService methods do: [ :methodService |
+		newClassService
+			saveMethodSource: methodService source
+			category: methodService category ].
+	oldClassService
+		meta: true;
+		update.
+	oldClassService methods do: [ :methodService |
+		newMetaClassService
+			saveMethodSource: methodService source
+			category: methodService category ]
+]
+
+{ #category : 'client commands support' }
+RowanBrowserService >> jfpwor_recompileSubclassesFrom: oldClassService to: newClassService [
+
+        oldClassService theClass subclasses do: [ :subclass |
+                | subclassService |
+                subclassService := RowanClassService new name: subclass name.
+                self jfpwor_compileClass: subclassService classCreationTemplate ]
+]
+
 { #category : 'accessing' }
 RowanBrowserService >> newCachedClasses [
 	newCachedClasses ifNil: [newCachedClasses := Array new]. 
