@@ -68,8 +68,7 @@ RowanService class >> isRowanClientServicesVersionSupported: versionString lower
 { #category : 'autocommit' }
 RowanService class >> isRowanStub [
 
-	Globals at: #Rowan3LoadedPackageStub ifAbsent: [^false].
-	^true
+	^(GsSession currentSession objectNamed: #Rowan) printString ~= 'Rowan'
 ]
 
 { #category : 'instance creation' }
