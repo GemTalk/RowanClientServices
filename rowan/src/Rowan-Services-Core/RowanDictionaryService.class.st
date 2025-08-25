@@ -222,6 +222,7 @@ RowanDictionaryService >> updateClassCategories [
 	classes := nil.
 	globals := sorted asArray.
 	classCategories := theClassCategories asSortedCollection asArray.
+	updateType := #noUpdate. "let the client take care of this" 
 	RowanCommandResult addResult: self
 ]
 
