@@ -239,46 +239,98 @@ RowanBrowserService >> initialize [
 { #category : 'client commands' }
 RowanBrowserService >> jfpwor_compileClass: definitionString [
 
-        | newClass newClassService newMetaClassService |
-        newClass := definitionString evaluate.
-        newClassService := RowanClassService new name: newClass.
-        newClassService update.
-        newMetaClassService := RowanClassService new name: newClass.
-        newMetaClassService meta: true.
-        newMetaClassService update.
-        newClassService version > 1 ifTrue: [
-                | oldClass oldClassService |
-                oldClass := newClassService theClass classHistory at:
-                                    newClassService version - 1.
-                oldClassService := RowanClassService new classServiceFromOop:
-                                           oldClass asOop.
-                oldClassService update.
-                self
-                        jfpwor_compileMethodsFrom: oldClassService
-                        to: newClassService
-                        and: newMetaClassService.
-                self jfpwor_recompileSubclassesFrom: oldClassService to: newClassService ].
-        RowanCommandResult
-                addResult: self;
-                addResult: newClassService;
-                addResult: newMetaClassService. "bring back class & instance side"
-        selectedClass := newClassService
+	| newClass newClassService newMetaClassService |
+	newClass := definitionString evaluate.
+	newClassService := RowanClassService new name: newClass.
+	newClassService update.
+	newClassService updateType: #newClass:browser:.
+	newMetaClassService := RowanClassService new name: newClass.
+	newMetaClassService meta: true.
+	newMetaClassService update.
+	newMetaClassService updateType: #newClass:browser:.
+	newClassService version > 1 ifTrue: [
+		| oldClass oldClassService |
+		oldClass := newClassService theClass classHistory at:
+			            newClassService version - 1.
+		oldClassService := RowanClassService new classServiceFromOop:
+			                   oldClass asOop.
+		oldClassService update.
+		self
+			jfpwor_compileMethodsFrom: oldClassService
+			to: newClassService
+			and: newMetaClassService.
+		self
+			jfpwor_recompileSubclassesFrom: oldClassService
+			to: newClassService ].
+	RowanCommandResult
+		addResult: self;
+		addResult: newClassService;
+		addResult: newMetaClassService. "bring back class & instance side"
+	selectedClass := newClassService
+
 ]
 
 { #category : 'client commands support' }
 RowanBrowserService >> jfpwor_compileMethodsFrom: oldClassService to: newClassService and: newMetaClassService [
 
+	| methodCompileErrors |
+	methodCompileErrors := Array new.
 	oldClassService methods do: [ :methodService |
+		[
 		newClassService
 			saveMethodSource: methodService source
-			category: methodService category ].
+			category: methodService category ]
+			on: CompileError
+			do: [ :ex |
+				| errorMethodService |
+				errorMethodService := self
+					                      jfpwor_methodServiceForCompileError: ex
+					                      source: methodService source
+					                      className: newClassService name.
+				errorMethodService
+					selector: methodService selector;
+					category: methodService category.
+				methodCompileErrors add: errorMethodService ] ].
+	newClassService methodsFailingRecompilation: methodCompileErrors.
 	oldClassService
 		meta: true;
 		update.
 	oldClassService methods do: [ :methodService |
+		[
 		newMetaClassService
 			saveMethodSource: methodService source
 			category: methodService category ]
+			on: CompileError
+			do: [ :ex |
+				| errorMethodService |
+				errorMethodService := self
+					                      jfpwor_methodServiceForCompileError: ex
+					                      source: methodService source
+					                      className: newMetaClassService name.
+				errorMethodService
+					selector: methodService selector;
+					category: methodService category.
+				methodCompileErrors add: errorMethodService ] ].
+	newMetaClassService methodsFailingRecompilation: methodCompileErrors
+
+]
+
+{ #category : 'client commands support' }
+RowanBrowserService >> jfpwor_methodServiceForCompileError: ex source: source className: className [
+
+	| errorMethodService errorOffset errorText |
+	errorOffset := ex gsArguments first first at: 2.
+	errorText := ex gsArguments first first at: 3.
+	errorMethodService := RowanMethodService new.
+	errorMethodService source: source copy.
+	errorMethodService source insertAll: errorText , '->' at: errorOffset.
+	errorMethodService
+		className: className;
+		meta: false;
+		firstReference: errorOffset;
+		searchString: errorText.
+	^errorMethodService
+
 ]
 
 { #category : 'client commands support' }
