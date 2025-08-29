@@ -219,10 +219,9 @@ RowanDictionaryService >> updateClassCategories [
 		keysAndValuesDo: [ :key :value | 
 			value isClass
 				ifTrue: [ theClassCategories add: value category ] ].
-	classes := nil.
 	globals := sorted asArray.
 	classCategories := theClassCategories asSortedCollection asArray.
-	updateType := #noUpdate. "let the client take care of this" 
+	self update. 
 	RowanCommandResult addResult: self
 ]
 
