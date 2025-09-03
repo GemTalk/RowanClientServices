@@ -103,6 +103,7 @@ RowanDictionaryService >> name: object [
 
 { #category : 'client commands' }
 RowanDictionaryService >> removeClass: classService [
+	classService ifNil: [^self]. 
 	self removeClassNamed: classService name. 
 	self setDefaultTemplate.
 	classService updateType: #removedClass:.
