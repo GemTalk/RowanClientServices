@@ -18,6 +18,14 @@ RowanFileService class >> templateClassName [
 	^#RowanFileService
 ]
 
+{ #category : 'client commands' }
+RowanFileService >> / aString [
+	| ref | 
+	ref := path asFileReference / aString.
+	answer := ref pathString.
+	RowanCommandResult addResult: self .
+]
+
 { #category : 'command support' }
 RowanFileService >> basicIsDirectory: thePath [
 	| fileReference |
