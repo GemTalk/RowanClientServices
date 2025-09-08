@@ -167,7 +167,7 @@ RowanPackageService >> exportTopazFormatTo: filePath [
 		ifTrue: [ fileRef withoutExtension pathString ]
 		ifFalse: [ filePath ].
 	(massagedFilePath , '.gs') asFileReference isWritable
-		ifFalse: [ ^ self warn: 'File is not writable. Permissions problem?' ].
+		ifFalse: [ ^ self inform: 'File is not writable. Permissions problem?' ].
 	rwProject
 		exportTopazFormatTo: massagedFilePath
 		logClassCreation: false

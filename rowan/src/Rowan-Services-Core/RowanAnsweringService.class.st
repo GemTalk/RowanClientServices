@@ -744,6 +744,14 @@ RowanAnsweringService >> packageServiceFor: classService [
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> pathInWorkingDirectoryFor: aString [
+	"convenience method for returning the server path of a file in the working directory"
+
+	answer := (FileSystem workingDirectory / aString) pathString.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> printStringOf: oop toMaxSize: integer [
   answer := self basicPrintStringOf: oop toMaxSize: integer.
   RowanCommandResult addResult: self.
