@@ -91,6 +91,22 @@ RowanDictionaryService >> isDictionaryService [
   ^ true
 ]
 
+{ #category : 'client commands' }
+RowanDictionaryService >> jfpwor_removeClass: classService [
+	self jfpwor_removeClassNamed: classService name. 
+	self setDefaultTemplate.
+	classService updateType: #removedClass:.
+	RowanCommandResult addResult: classService
+]
+
+{ #category : 'client commands' }
+RowanDictionaryService >> jfpwor_removeClassNamed: className [
+
+	| dict |
+	dict := Rowan image symbolList objectNamed: name.
+	dict removeKey: className asSymbol ifAbsent: [  ]
+]
+
 { #category : 'accessing' }
 RowanDictionaryService >> name [
 	^name
