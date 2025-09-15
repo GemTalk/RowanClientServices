@@ -59,6 +59,19 @@ RowanDictionaryService >> classHierarchy [
 	RowanCommandResult addResult: self.
 ]
 
+{ #category : 'command support' }
+RowanDictionaryService >> classServiceFor: className in: dictionary [
+
+	| classService theClass |
+	theClass := dictionary at: className.
+	classService := RowanClassService new name: className asString.
+	classService versions: theClass classHistory size.
+	classService version: (theClass classHistory indexOf: theClass).
+	classService setIsTestCase.
+	classService classCategory: theClass category.
+	^classService
+]
+
 { #category : 'Updating' }
 RowanDictionaryService >> defaultTemplate: newValue [
 	defaultTemplate := newValue
@@ -178,68 +191,33 @@ RowanDictionaryService >> testClasses [
 
 { #category : 'updates' }
 RowanDictionaryService >> update [
-	| dictionary sorted theClasses theClassCategories |
+
+	| dictionary sortedGlobals theClasses |
+	organizer := ClassOrganizer new.
 	super update.
-	theClasses := Array new.
-	sorted := SortedCollection sortBlock: [ :x :y | x first < y first ].
 	dictionary := Rowan image symbolList objectNamed: name.
 	dictionary ifNil: [ ^ self ].
-	(dictionary isKindOf: SymbolDictionary)
-		ifFalse: [ ^ self ].
-	theClassCategories := Set new. 
-	dictionary
-		keysAndValuesDo: [ :key :value | 
-			value isClass
-				ifTrue: [ 
-					| classService |
-					classService := RowanClassService new name: key asString.
-					classService versions: value classHistory size.
-					classService version: (value classHistory indexOf: value).
-					classService setIsTestCase.
-					classService classCategory: value category.  
-					theClasses add: classService.
-					theClassCategories add: value category ]
-				ifFalse: [ 
-					| printString theKey |
-					printString := [ 
-					value printString charSize > 1
-						ifTrue: [ '<<unprintable string. charSize > 1>>' ]
-						ifFalse: [ value printString ] ]
-						on: Error
-						do: [ :ex | 'unprintable string. Error - <' , ex printString , '>' ].
-					key charSize = 1
-						ifTrue: [ theKey := key ]
-						ifFalse: [ theKey := '<<unprintable string. charSize > 1>>' ].
-					sorted
-						add:
-							(Array
-								with: name , '.' , theKey
-								with: value class name
-								with: value asOop
-								with: printString) ] ].
-	classes := theClasses. 
-	globals := sorted asArray.
-	classCategories := theClassCategories  asSortedCollection asArray. 
+	(dictionary isKindOf: SymbolDictionary) ifFalse: [ ^ self ].
+	classCategories := organizer classCategoryNamesInDictionaryName: name.
+	theClasses := Array new.
+	classCategories do: [ :classCategory |
+		| classNames |
+		classNames := organizer
+			              classNamesInClassCategoryNamed: classCategory
+			              dictionaryName: name.
+		theClasses addAll: (classNames collect: [ :className |
+				 self classServiceFor: className in: dictionary ]) ].
+	classes := (theClasses asSortedCollection: [ :x :y | x name < y name ]) asArray.
+	sortedGlobals := SortedCollection sortBlock: [ :x :y |
+		                 x first < y first ].
+	self updateGlobalsFor: dictionary.
 	RowanCommandResult addResult: self
 ]
 
 { #category : 'updates' }
 RowanDictionaryService >> updateClassCategories [
-	| dictionary sorted theClassCategories |
-	sorted := SortedCollection sortBlock: [ :x :y | x first < y first ].
-	dictionary := Rowan image symbolList objectNamed: name.
-	dictionary ifNil: [ ^ self ].
-	(dictionary isKindOf: SymbolDictionary)
-		ifFalse: [ ^ self ].
-	theClassCategories := Set new.
-	dictionary
-		keysAndValuesDo: [ :key :value | 
-			value isClass
-				ifTrue: [ theClassCategories add: value category ] ].
-	globals := sorted asArray.
-	classCategories := theClassCategories asSortedCollection asArray.
-	self update. 
-	RowanCommandResult addResult: self
+	"just do a full update for now" 
+	self update.
 ]
 
 { #category : 'private' }
@@ -292,51 +270,43 @@ RowanDictionaryService >> updateForClassCategories: selectedClassCategories [
 
 { #category : 'updates' }
 RowanDictionaryService >> updateForClassCategory: classCategory [
-	| dictionary sorted theClasses theClassCategories |
-	theClasses := OrderedCollection new.
+
+	| dictionary theClasses classNames |
+	self update.
+	classNames := organizer
+		              classNamesUnderClassCategoryNamed: classCategory
+		              dictionaryName: name.
+	theClasses addAll: (classNames collect: [ :className |
+			 self classServiceFor: className in: dictionary ]).
+	classes := (theClasses asSortedCollection: [ :x :y | x name < y name ])
+		           asArray
+]
+
+{ #category : 'updates' }
+RowanDictionaryService >> updateGlobalsFor: dictionary [
+
+	| sorted |
 	sorted := SortedCollection sortBlock: [ :x :y | x first < y first ].
-	dictionary := Rowan image symbolList objectNamed: name.
-	dictionary ifNil: [ ^ self ].
-	(dictionary isKindOf: SymbolDictionary)
-		ifFalse: [ ^ self ].
-	theClassCategories := Set new.
-	dictionary
-		keysAndValuesDo: [ :key :value | 
-			value isClass
-				ifTrue: [ 
-					| classService |
-					((value category = String new and: [ value category = classCategory ])
-						or: [ value category match: classCategory ])
-						ifTrue: [ 
-							classService := RowanClassService new name: key asString.
-							classService versions: value classHistory size.
-							classService version: (value classHistory indexOf: value).
-							classService setIsTestCase.
-							classService classCategory: value category.
-							theClasses add: classService ].
-					theClassCategories add: value category ]
-				ifFalse: [ 
-					| printString theKey |
-					printString := [ 
-					value printString charSize > 1
-						ifTrue: [ '<<unprintable string. charSize > 1>>' ]
-						ifFalse: [ value printString ] ]
-						on: Error
-						do: [ :ex | 'unprintable string. Error - <' , ex printString , '>' ].
-					key charSize = 1
-						ifTrue: [ theKey := key ]
-						ifFalse: [ theKey := '<<unprintable string. charSize > 1>>' ].
-					sorted
-						add:
-							(Array
-								with: name , '.' , theKey
-								with: value class name
-								with: value asOop
-								with: printString) ] ].
-	classes := theClasses.
-	globals := sorted asArray.
-	classCategories := theClassCategories asSortedCollection asArray.
-	RowanCommandResult addResult: self
+	dictionary keysAndValuesDo: [ :key :value |
+		value isClass ifFalse: [
+			| printString theKey |
+			printString := [
+			               value printString charSize > 1
+				               ifTrue: [ '<<unprintable string. charSize > 1>>' ]
+				               ifFalse: [ value printString ] ]
+				               on: Error
+				               do: [ :ex |
+				               'unprintable string. Error - <' , ex printString
+				               , '>' ].
+			key charSize = 1
+				ifTrue: [ theKey := key ]
+				ifFalse: [ theKey := '<<unprintable string. charSize > 1>>' ].
+			sorted add: (Array
+					 with: name , '.' , theKey
+					 with: value class name
+					 with: value asOop
+					 with: printString) ] ].
+	globals := sorted asArray
 ]
 
 { #category : 'testing' }
