@@ -157,6 +157,14 @@ RowanBrowserService >> classHierarchyForPackagesNamed: packageNames [
 ]
 
 { #category : 'client commands' }
+RowanBrowserService >> classHierarchyServices: classServices [
+
+	hierarchyServices := self classHierarchy:
+		                     (classServices collect: [ :svc | svc theClass ]).
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanBrowserService >> clearWindowRegistry [
 	SessionTemps current at: #'rowanServicesWindowRegistry' put: Dictionary new
 ]
