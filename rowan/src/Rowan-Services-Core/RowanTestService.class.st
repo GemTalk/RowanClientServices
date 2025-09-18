@@ -86,6 +86,19 @@ RowanTestService >> addRowanSample1TestMethods [
 	self assert: RowanSample1 new foo = ''bar''' category: 'tests'.
 ]
 
+{ #category : 'dictionary support' }
+RowanTestService >> createRowanSample1Dictionary [
+	"RowanTestService new createRowanSample1Dictionary"
+	| dictionaryService  |
+	dictionaryService := RowanDictionaryService new name: 'RowanSample1Dictionary'.
+	dictionaryService insertAt: 1.
+	self jfpwor_addRowanSample1Class.
+	self addRowanSample1Methods.  
+	self jfpwor_addRowanSample1Test.
+	self addRowanSample1TestMethods.
+	dictionaryService update.
+]
+
 { #category : 'sample projects' }
 RowanTestService >> createRowanSample1Project [
 	| projectService  |
@@ -131,6 +144,57 @@ RowanTestService >> deleteProjectNamedOnDisk: projectName [
 	"warning! This will aggressively delete directories on disk. Use cautiously"
 
 	('$ROWAN_PROJECTS_HOME' asFileReference / projectName) ensureDeleteAll
+]
+
+{ #category : 'dictionary support' }
+RowanTestService >> jfpwor_addRowanSample1Class [
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService jfpwor_compileClass: '(Object
+				 subclass: ''RowanSample1''
+				 instVarNames: #(  )
+				 classVars: #(  )
+				 classInstVars: #(  )
+				 poolDictionaries: #(  )
+				 inDictionary:
+				 (System myUserProfile resolveSymbol: #RowanSample1Dictionary) value
+				 options: #(  ))
+		category: ''Rowan-Sample-Core'''
+]
+
+{ #category : 'dictionary support' }
+RowanTestService >> jfpwor_addRowanSample1ClassWithEmpyClassCategory [
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService jfpwor_compileClass: '(Object
+				 subclass: ''RowanSample1''
+				 instVarNames: #(  )
+				 classVars: #(  )
+				 classInstVars: #(  )
+				 poolDictionaries: #(  )
+				 inDictionary:
+				 (System myUserProfile resolveSymbol: #RowanSample1Dictionary) value
+				 options: #(  ))
+		category: '''''
+]
+
+{ #category : 'dictionary support' }
+RowanTestService >> jfpwor_addRowanSample1Test [
+
+	| browserService |
+	browserService := RowanBrowserService new.
+	browserService jfpwor_compileClass: '(Object
+				 subclass: ''RowanSample1Test''
+				 instVarNames: #(  )
+				 classVars: #(  )
+				 classInstVars: #(  )
+				 poolDictionaries: #(  )
+				 inDictionary:
+				 (System myUserProfile resolveSymbol: #RowanSample1Dictionary) value
+				 options: #(  ))
+		category: ''Rowan-Sample-Test'''
 ]
 
 { #category : 'sample projects' }
