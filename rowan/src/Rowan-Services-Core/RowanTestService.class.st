@@ -90,7 +90,7 @@ RowanTestService >> addRowanSample1TestMethods [
 RowanTestService >> createRowanSample1Dictionary [
 	"RowanTestService new createRowanSample1Dictionary"
 	| dictionaryService  |
-	dictionaryService := RowanDictionaryService new name: 'RowanSample1Dictionary'.
+	dictionaryService := RowanDictionaryService new name: self rowanSampleDictionaryName.
 	dictionaryService insertAt: 1.
 	self jfpwor_addRowanSample1Class.
 	self addRowanSample1Methods.  
@@ -105,7 +105,7 @@ RowanTestService >> createRowanSample1Project [
 	projectService := RowanProjectService new name: 'RowanSample1'.
 	projectService
 		createProjectComponent: 'Core'
-		symDict: 'SampleSymbolDict'
+		symDict: self rowanSampleDictionaryName
 		convention: 'RowanHybrid'
 		format: 'tonel'
 		projectsHome: '$ROWAN_PROJECTS_HOME'
@@ -125,7 +125,7 @@ RowanTestService >> createRowanSample1ProjectWithEmpyClassCategory [
 	projectService := RowanProjectService new name: 'RowanSample1'.
 	projectService
 		createProjectComponent: 'Core'
-		symDict: 'SampleSymbolDict'
+		symDict: self rowanSampleDictionaryName
 		convention: 'RowanHybrid'
 		format: 'tonel'
 		projectsHome: '$ROWAN_PROJECTS_HOME'
@@ -211,4 +211,10 @@ RowanTestService >> rowanSample1PackageToClassDictionary [
 	dictionary at: 'RowanSample1-Extensions' put: (Array new). 
 	dictionary at:  'RowanSample1-Tests'  put: (Array with: 'RowanSample1Test'). 
 	^dictionary
+]
+
+{ #category : 'dictionary support' }
+RowanTestService >> rowanSampleDictionaryName [
+
+	^ 'RowanSample1Dictionary'
 ]
