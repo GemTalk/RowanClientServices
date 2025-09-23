@@ -799,6 +799,18 @@ RowanClassService >> jfpwor_moveMethods: methodServices to: category [
 ]
 
 { #category : 'client commands' }
+RowanClassService >> jfpwor_removeCategories: theCategories [
+	| theClass  | 
+	self refreshFrom: self theClass. 
+	theClass := self theClass.
+	meta ifTrue:[theClass := theClass class]. 
+	theCategories do: [:category |
+		theClass removeCategory: category.
+		].
+	shouldUpdate := true.
+]
+
+{ #category : 'client commands' }
 RowanClassService >> jfpwor_saveMethodSource: source category: category [
         | behavior compilationResult gsNMethod updatedCategory methodService unicodeSource |
         unicodeSource := source.

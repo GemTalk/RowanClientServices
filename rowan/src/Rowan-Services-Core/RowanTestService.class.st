@@ -16,7 +16,7 @@ RowanTestService class >> templateClassName [
 	^#RowanTestService
 ]
 
-{ #category : 'sample projects' }
+{ #category : 'project support' }
 RowanTestService >> addRowanSample1Class [
 	| packageService |
 	packageService := RowanPackageService new name: 'RowanSample1-Core'.
@@ -27,18 +27,21 @@ RowanTestService >> addRowanSample1Class [
 		 category: 'Kernel'
 ]
 
-{ #category : 'sample projects' }
+{ #category : 'project support' }
 RowanTestService >> addRowanSample1ClassWithEmpyClassCategory [
-	| packageService |
-	packageService := RowanPackageService new name: 'RowanSample1-Core'.
-	packageService
-		createClassNamed: 'RowanSample1'
-		superclass: 'Object'
-		instVars: Array new
-		 category: ''
+        "must have created the project with convention 'Rowan' (not 'RowanHybrid')"
+        Object
+                rwSubclass: 'RowanSample1'
+                instVarNames: #(  )
+                classVars: #(  )
+                classInstVars: #(  )
+                poolDictionaries: #(  )
+                category: ''
+                packageName: 'RowanSample1-Core'
+                options: #(  )
 ]
 
-{ #category : 'sample projects' }
+{ #category : 'project support' }
 RowanTestService >> addRowanSample1Methods [
 	| classService |
 	classService := RowanClassService new
@@ -52,7 +55,7 @@ RowanTestService >> addRowanSample1Methods [
 		category: '*rowansample1-extensions'
 ]
 
-{ #category : 'sample projects' }
+{ #category : 'project support' }
 RowanTestService >> addRowanSample1Test [
 	| packageService |
 	packageService := RowanPackageService new name: 'RowanSample1-Tests'.
@@ -62,7 +65,7 @@ RowanTestService >> addRowanSample1Test [
 		instVars: Array new
 ]
 
-{ #category : 'sample projects' }
+{ #category : 'project support' }
 RowanTestService >> addRowanSample1TestMethods [
 
 	| classService |
@@ -99,7 +102,7 @@ RowanTestService >> createRowanSample1Dictionary [
 	dictionaryService update.
 ]
 
-{ #category : 'sample projects' }
+{ #category : 'project support' }
 RowanTestService >> createRowanSample1Project [
 	| projectService  |
 	projectService := RowanProjectService new name: 'RowanSample1'.
@@ -119,24 +122,24 @@ RowanTestService >> createRowanSample1Project [
 	self addRowanSample1TestMethods.
 ]
 
-{ #category : 'sample projects' }
+{ #category : 'project support' }
 RowanTestService >> createRowanSample1ProjectWithEmpyClassCategory [
-	| projectService  |
-	projectService := RowanProjectService new name: 'RowanSample1'.
-	projectService
-		createProjectComponent: 'Core'
-		symDict: self rowanSampleDictionaryName
-		convention: 'RowanHybrid'
-		format: 'tonel'
-		projectsHome: '$ROWAN_PROJECTS_HOME'
-		type: #'none'
-		shouldWrite: false.
-	projectService
-		addPackagesNamed: self rowanSample1PackageNames.
-	self addRowanSample1ClassWithEmpyClassCategory.
-	self addRowanSample1Methods.  
-	self addRowanSample1Test.
-	self addRowanSample1TestMethods.
+        | projectService  |
+        projectService := RowanProjectService new name: 'RowanSample1'.
+        [projectService
+                createProjectComponent: 'Core'
+                symDict: self rowanSampleDictionaryName
+                convention: 'Rowan'
+                format: 'tonel'
+                projectsHome: '$ROWAN_PROJECTS_HOME'
+                type: #'none'
+                shouldWrite: false.
+        projectService
+                addPackagesNamed: self rowanSample1PackageNames.
+        self addRowanSample1ClassWithEmpyClassCategory.
+        self addRowanSample1Methods.  
+        self addRowanSample1Test.
+        self addRowanSample1TestMethods] on: GsInteractionRequest do: [:ex | ex resume: true ].
 ]
 
 { #category : 'project support' }
@@ -197,13 +200,13 @@ RowanTestService >> jfpwor_addRowanSample1Test [
 		category: ''Rowan-Sample-Test'''
 ]
 
-{ #category : 'sample projects' }
+{ #category : 'project support' }
 RowanTestService >> rowanSample1PackageNames [
 
 	^ self rowanSample1PackageToClassDictionary keys
 ]
 
-{ #category : 'sample projects' }
+{ #category : 'project support' }
 RowanTestService >> rowanSample1PackageToClassDictionary [
 	| dictionary |
 	dictionary := Dictionary new.
