@@ -1375,15 +1375,20 @@ RowanClassService >> removeSelector: selector ifAbsent: absentBlock [
 RowanClassService >> renameCategoryFrom: old to: new [
 
 	| affectedSelectors behavior |
-
-	self update. 
-	self addCategory: new. 
+	self update.
+	self addCategory: new.
 	behavior := self classOrMeta.
 	affectedSelectors := behavior selectorsIn: old.
-	methods := methods select:[:methodService | affectedSelectors includes: methodService selector].
-	self moveMethods: methods to: new.
-	self removeCategories: (Array with: old).
-	self updateClass.
+	methods := methods select: [ :methodService |
+		           affectedSelectors includes: methodService selector ].
+	RowanService isRowanStub
+		ifTrue: [
+			self jfpwor_moveMethods: methods to: new.
+			self jfpwor_removeCategories: (Array with: old) ]
+		ifFalse: [
+			self moveMethods: methods to: new.
+			self removeCategories: (Array with: old) ].
+	self updateClass
 ]
 
 { #category : 'client commands' }
