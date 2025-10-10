@@ -958,6 +958,14 @@ RowanAnsweringService >> symbolsMatching: string [
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> templateForClassCategory: classCategory [
+	"this will need to call a new classCreationTemplate* method after it's created"
+	answer := self browserTool classCreationTemplateForSubclassOf: 'Object' category: classCategory packageName: nil.
+	RowanCommandResult addResult: self 
+.
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> transcriptInstalled [
 
 	answer := self isTranscriptInstalled.
