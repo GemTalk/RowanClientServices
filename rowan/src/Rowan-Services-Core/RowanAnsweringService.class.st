@@ -958,9 +958,9 @@ RowanAnsweringService >> symbolsMatching: string [
 ]
 
 { #category : 'client commands' }
-RowanAnsweringService >> templateForClassCategory: classCategory [
-	"this will need to call a new classCreationTemplate* method after it's created"
-	answer := self browserTool classCreationTemplateForSubclassOf: 'Object' category: classCategory packageName: nil.
+RowanAnsweringService >> templateForClassCategory: classCategory dictionaryName: dictionaryName [
+	
+	answer := self browserTool classCreationTemplateForSubclassOf: 'Object' category: classCategory dictionaryName: dictionaryName.
 	RowanCommandResult addResult: self 
 .
 ]
