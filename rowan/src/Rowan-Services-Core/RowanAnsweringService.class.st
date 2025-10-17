@@ -833,8 +833,12 @@ RowanAnsweringService >> removeMethodHistoryFor: methodService [
 { #category : 'client commands' }
 RowanAnsweringService >> requiredProjectNamesFor: projectName [
 
-	answer := (Rowan projectNamed: projectName) requiredProjectNames.
-	RowanCommandResult addResult: self.
+	answer := Rowan
+		          projectNamed: projectName
+		          ifPresent: [ :project | project requiredProjectNames ]
+		          ifAbsent: [ Array new ].
+
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
