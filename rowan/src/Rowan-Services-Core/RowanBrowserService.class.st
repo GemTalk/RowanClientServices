@@ -617,12 +617,13 @@ RowanBrowserService >> turnOffNativeCode [
 
 { #category : 'client commands' }
 RowanBrowserService >> unloadProjectsNamed: projectNames [
-	projectNames
-		do: [ :projectName | 
-			| project |
-			project := RwProject newNamed: projectName.
-			project isLoaded
-				ifTrue: [ project unload ] ].
+
+	projectNames do: [ :projectName |
+			Rowan
+				projectNamed: projectName
+				ifPresent: [ :loadedProject |
+				loadedProject requiredProjectSet unload ]
+				ifAbsent: [ ] ].
 	self updateProjects
 ]
 

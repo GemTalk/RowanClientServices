@@ -29,7 +29,8 @@ Class {
 		'defaultSymbolDictionaryName',
 		'packageConvention',
 		'diskSha',
-		'isCurrent'
+		'isCurrent',
+		'requiredProjectNames'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -161,6 +162,7 @@ RowanProjectService >> basicRefresh [
 	specService := RowanLoadSpecService new initialize: self rwProject loadSpecification asOop.
 	packageConvention := self rwProject packageConvention.
 	isCurrent := Rowan gemstoneTools topaz currentTopazProjectName = name. 
+	self computeRequiredProjectNames.
 	RowanCommandResult addResult: self
 ]
 
@@ -248,6 +250,15 @@ RowanProjectService >> componentServicesFor: theRwProject [
 					componentService ]).
 
 	^ componentDictionary
+]
+
+{ #category : 'accessing' }
+RowanProjectService >> computeRequiredProjectNames [
+
+	requiredProjectNames := Set new.
+	requiredProjectNames addAll:
+		(Rowan projectNamed: name) requiredProjectNames.
+	requiredProjectNames := requiredProjectNames asArray
 ]
 
 { #category : 'other' }
