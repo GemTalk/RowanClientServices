@@ -247,15 +247,13 @@ RowanBrowserService >> initialize [
 { #category : 'client commands' }
 RowanBrowserService >> jfpwor_compileClass: definitionString [
 
-	| newClass newClassService newMetaClassService |
+	| newClass newClassService newMetaClassService  dictionaryService |
 	newClass := definitionString evaluate.
 	newClassService := RowanClassService new name: newClass.
 	newClassService update.
-	newClassService updateType: #newClass:browser:.
 	newMetaClassService := RowanClassService new name: newClass.
 	newMetaClassService meta: true.
 	newMetaClassService update.
-	newMetaClassService updateType: #newClass:browser:.
 	newClassService version > 1 ifTrue: [
 		| oldClass oldClassService |
 		oldClass := newClassService theClass classHistory at:
@@ -270,12 +268,14 @@ RowanBrowserService >> jfpwor_compileClass: definitionString [
 		self
 			jfpwor_recompileSubclassesFrom: oldClassService
 			to: newClassService ].
+	self updateDictionaries. "to make sure we can find the class in the browser"
+	dictionaryService := dictionaries detect: [:dService | dService name = newClassService dictionaryName]. "better be there"
+	dictionaryService update.   
 	RowanCommandResult
 		addResult: self;
 		addResult: newClassService;
 		addResult: newMetaClassService. "bring back class & instance side"
 	selectedClass := newClassService
-
 ]
 
 { #category : 'client commands support' }
