@@ -298,7 +298,8 @@ RowanBrowserService >> jfpwor_compileMethodsFrom: oldClassService to: newClassSe
 				errorMethodService
 					selector: methodService selector;
 					category: methodService category.
-				methodCompileErrors add: errorMethodService ] ].
+				methodCompileErrors add: errorMethodService.
+				newClassService updateType: #newClassMethodCompilationFailures:browser: ] ].
 	newClassService methodsFailingRecompilation: methodCompileErrors.
 	oldClassService
 		meta: true;
@@ -320,7 +321,6 @@ RowanBrowserService >> jfpwor_compileMethodsFrom: oldClassService to: newClassSe
 					category: methodService category.
 				methodCompileErrors add: errorMethodService ] ].
 	newMetaClassService methodsFailingRecompilation: methodCompileErrors
-
 ]
 
 { #category : 'client commands support' }
