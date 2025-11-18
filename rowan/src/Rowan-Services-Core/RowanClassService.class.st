@@ -151,8 +151,9 @@ RowanClassService >> allSubclassServices [
 	subclassServices := self theClass subclasses asArray
 		collect: [ :aClass | RowanClassService minimalForClassNamed: aClass name ].
 	subclassServices isEmpty ifFalse: [hasSubclasses := true]. 
+	subclassServices := subclassServices asSortedCollection: [:x :y | x name < y name]. 
 	hierarchyServices := Dictionary new.
-	hierarchyServices at: #'expand' put: subclassServices.
+	hierarchyServices at: #'expand' put: subclassServices asArray.
 	subclassServices do: [ :classService | classService allSubclassServices ]
 ]
 

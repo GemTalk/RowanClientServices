@@ -659,8 +659,7 @@ RowanBrowserService >> updateDictionaries [
 	dictionaries := Rowan image symbolList names
 		collect: [ :name | RowanDictionaryService new name: name asString ].
 	dictionaries := dictionaries asOrderedCollection.
-	updateType ifNil: [ updateType := OrderedCollection new ].
-	updateType add: #'dictionaryListUpdate:'.
+	updateType := #'dictionaryListUpdate:'.
 	RowanCommandResult addResult: self
 ]
 
