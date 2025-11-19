@@ -455,51 +455,64 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	| theClass classService packageService projectService methodCompileErrors |
 	methodCompileErrors := Array new.
 
-	theClass := [ 
-	[ (SessionTemps current at: #'jadeiteCompileClassMethod') _executeInContext: nil ]
-		on: RwCompileErrorCompilingMethodsForNewClassVersionNotification
-		do: [ :ex | 
-			| methodService errorOffset errorText |
-			errorOffset := ex compileError gsArguments first first at: 2.
-			errorText := ex compileError gsArguments first first at: 3.
-			methodService := RowanMethodService new.
-			methodService source: ex compileError sourceString.
-			methodService source insertAll: errorText , '->' at: errorOffset.
-			methodService
-				className: (ex compileError gsArguments at: 3);
-				meta: false;
-				firstReference: errorOffset;
-				searchString: errorText.
-			methodCompileErrors add: methodService.
-			ex resume: true	"method compile error will be handled later" ] ]
-		ensure: [ SessionTemps current at: #'jadeiteCompileClassMethod' put: nil ].
-	[ 
-	classService := RowanClassService new name: theClass name.
-	classService update.
-	classService updateSubclasses.
-	classService isNewClass: true.	"if nothing else, the dirty state of the package/project services
+	theClass := [
+		            [
+			            (SessionTemps current at: #jadeiteCompileClassMethod)
+				            _executeInContext: nil ]
+			            on:
+			            RwCompileErrorCompilingMethodsForNewClassVersionNotification
+			            do: [ :ex |
+					            | methodService errorOffset errorText |
+					            errorOffset := ex compileError gsArguments first
+						                           first at: 2.
+					            errorText := ex compileError gsArguments first first
+						                         at: 3.
+					            methodService := RowanMethodService new.
+					            methodService source: ex compileError sourceString.
+					            methodService source
+						            insertAll: errorText , '->'
+						            at: errorOffset.
+					            methodService
+						            className: (ex compileError gsArguments at: 3);
+						            meta: false;
+						            firstReference: errorOffset;
+						            searchString: errorText.
+					            methodCompileErrors add: methodService.
+					            ex resume: true "method compile error will be handled later" ] ]
+		            ensure: [
+		            SessionTemps current
+			            at: #jadeiteCompileClassMethod
+			            put: nil ].
+	[
+		classService := RowanClassService new name: theClass name.
+		classService update.
+		classService updateSubclasses.
+		classService isNewClass: true. "if nothing else, the dirty state of the package/project services
 	should be updated. Would like a less heavy weight solution than this, though."
-	packageService := RowanPackageService forPackageNamed: classService packageName.
-	packageService update.
-	packageService
-		testClasses;
-		updateType: nil.
-	projectService := RowanProjectService newNamed: packageService projectName.
-	projectService update.
-	packageService selectedClass: classService.
-	RowanCommandResult addResult: classService.
-	selectedClass := classService.
-	classService updateType: #'newClass:browser:'.
-	self updateSymbols: (Array with: theClass name asString).
-	classService classHierarchy.
-	classService methodsFailingRecompilation: methodCompileErrors.
-	RowanCommandResult addResult: self.
-	^ classService ]
+		packageService := RowanPackageService forPackageNamed:
+			                  classService packageName.
+		packageService update.
+		packageService
+			testClasses;
+			updateType: nil.
+		projectService := RowanProjectService newNamed:
+			                  packageService projectName.
+		projectService update.
+		packageService selectedClass: classService.
+		selectedClass := classService.
+		self updateSymbols: (Array with: theClass name asString).
+		classService classHierarchy.
+		classService methodsFailingRecompilation: methodCompileErrors.
+		methodCompileErrors notEmpty ifTrue: [
+				classService updateType:
+					#'newClassMethodCompilationFailures:browser:' ].
+		RowanCommandResult addResult: self.
+		^ classService ]
 		on: Error
-		do: [ :ex | 
-			Transcript
-				cr;
-				show: 'ERROR post class processing' ]
+		do: [ :ex |
+				Transcript
+					cr;
+					show: 'ERROR post class processing' ]
 ]
 
 { #category : 'client commands' }
