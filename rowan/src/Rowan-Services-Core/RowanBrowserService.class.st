@@ -504,8 +504,11 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 		classService classHierarchy.
 		classService methodsFailingRecompilation: methodCompileErrors.
 		methodCompileErrors notEmpty ifTrue: [
-				classService updateType:
-					#'newClassMethodCompilationFailures:browser:' ].
+				| compileErrorService | 
+				compileErrorService := RowanCompileErrorService new. 
+				compileErrorService gsArguments: classService. 
+				RowanCommandResult addResult: compileErrorService.
+				].
 		RowanCommandResult addResult: self.
 		^ classService ]
 		on: Error
