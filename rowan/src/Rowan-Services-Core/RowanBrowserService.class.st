@@ -452,34 +452,40 @@ RowanBrowserService >> packagesWithTests [
 RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	"compileClass: must be run first"
 
-	| theClass classService packageService projectService methodCompileErrors |
+	| notification notificationSymbol theClass classService packageService projectService methodCompileErrors |
+	notificationSymbol := #RwCompileErrorCompilingMethodsForNewClassVersionNotification.
+	notification := (Rowan globalNamed: notificationSymbol) ifNil: [
+		                Error ].
 	methodCompileErrors := Array new.
-
 	theClass := [
 		            [
 			            (SessionTemps current at: #jadeiteCompileClassMethod)
 				            _executeInContext: nil ]
-			            on:
-			            RwCompileErrorCompilingMethodsForNewClassVersionNotification
+			            on: notification
 			            do: [ :ex |
-					            | methodService errorOffset errorText |
-					            errorOffset := ex compileError gsArguments first
-						                           first at: 2.
-					            errorText := ex compileError gsArguments first first
-						                         at: 3.
-					            methodService := RowanMethodService new.
-					            methodService source: ex compileError sourceString.
-					            methodService source
-						            insertAll: errorText , '->'
-						            at: errorOffset.
-					            methodService
-						            className: (ex compileError gsArguments at: 3);
-						            meta: false;
-						            firstReference: errorOffset;
-						            searchString: errorText.
-					            methodCompileErrors add: methodService.
-					            ex resume: true "method compile error will be handled later" ] ]
-		            ensure: [
+					            ex class name asSymbol = notificationSymbol
+						            ifTrue: [
+								            | methodService errorOffset errorText |
+								            errorOffset := ex compileError gsArguments first
+									                           first at: 2.
+								            errorText := ex compileError gsArguments first
+									                         first at: 3.
+								            methodService := RowanMethodService new.
+								            methodService source: ex compileError sourceString.
+								            methodService source
+									            insertAll: errorText , '->'
+									            at: errorOffset.
+								            methodService
+									            className: (ex compileError gsArguments at: 3);
+									            meta: false;
+									            firstReference: errorOffset;
+									            searchString: errorText.
+								            methodCompileErrors add: methodService.
+								            ex resume: true "method compile error will be handled later" ]
+						            ifFalse: [ "server does not support method compile notifications"
+								            ^ self inform:
+									              'Error during class compilation occurred. Methods may not have been recompiled. Abort recommended. Error: '
+									              , ex printString ] ] ] ensure: [
 		            SessionTemps current
 			            at: #jadeiteCompileClassMethod
 			            put: nil ].
@@ -504,11 +510,10 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 		classService classHierarchy.
 		classService methodsFailingRecompilation: methodCompileErrors.
 		methodCompileErrors notEmpty ifTrue: [
-				| compileErrorService | 
-				compileErrorService := RowanCompileErrorService new. 
-				compileErrorService gsArguments: classService. 
-				RowanCommandResult addResult: compileErrorService.
-				].
+				| compileErrorService |
+				compileErrorService := RowanCompileErrorService new.
+				compileErrorService gsArguments: classService.
+				RowanCommandResult addResult: compileErrorService ].
 		RowanCommandResult addResult: self.
 		^ classService ]
 		on: Error
