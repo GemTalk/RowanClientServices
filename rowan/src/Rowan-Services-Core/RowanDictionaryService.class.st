@@ -195,8 +195,8 @@ RowanDictionaryService >> update [
 	| dictionary theClasses sortedGlobals |
 	super update.
 	organizer := ClassOrganizer new.
-	(organizer class canUnderstand: #classNamesInClassCategoryNamed:)
-		ifTrue: [ ^ self updatePre375 ].
+	(organizer class canUnderstand: #classCategoryNamesInDictionaryName:)
+		ifFalse: [ ^ self updatePre375 ].
 	dictionary := Rowan image symbolList objectNamed: name.
 	dictionary ifNil: [ ^ self ].
 	(dictionary isKindOf: SymbolDictionary) ifFalse: [ ^ self ].
