@@ -192,22 +192,25 @@ RowanDictionaryService >> testClasses [
 { #category : 'updates' }
 RowanDictionaryService >> update [
 
-	| dictionary sortedGlobals theClasses |
-	organizer := ClassOrganizer new.
+	| dictionary theClasses sortedGlobals |
 	super update.
+	organizer := ClassOrganizer new.
+	(organizer class canUnderstand: #classNamesInClassCategoryNamed:)
+		ifTrue: [ ^ self updatePre375 ].
 	dictionary := Rowan image symbolList objectNamed: name.
 	dictionary ifNil: [ ^ self ].
 	(dictionary isKindOf: SymbolDictionary) ifFalse: [ ^ self ].
 	classCategories := organizer classCategoryNamesInDictionaryName: name.
 	theClasses := Array new.
 	classCategories do: [ :classCategory |
-		| classNames |
-		classNames := organizer
-			              classNamesInClassCategoryNamed: classCategory
-			              dictionaryName: name.
-		theClasses addAll: (classNames collect: [ :className |
-				 self classServiceFor: className in: dictionary ]) ].
-	classes := (theClasses asSortedCollection: [ :x :y | x name < y name ]) asArray.
+			| classNames |
+			classNames := organizer
+				              classNamesInClassCategoryNamed: classCategory
+				              dictionaryName: name.
+			theClasses addAll: (classNames collect: [ :className |
+					 self classServiceFor: className in: dictionary ]) ].
+	classes := (theClasses asSortedCollection: [ :x :y | x name < y name ])
+		           asArray.
 	sortedGlobals := SortedCollection sortBlock: [ :x :y |
 		                 x first < y first ].
 	self updateGlobalsFor: dictionary.
@@ -307,6 +310,52 @@ RowanDictionaryService >> updateGlobalsFor: dictionary [
 					 with: value asOop
 					 with: printString) ] ].
 	globals := sorted asArray
+]
+
+{ #category : 'updates' }
+RowanDictionaryService >> updatePre375 [
+	"delete when we no  longer support organizers without class category support"
+	| dictionary sorted theClasses theClassCategories |
+	theClasses := Array new.
+	sorted := SortedCollection sortBlock: [ :x :y | x first < y first ].
+	dictionary := Rowan image symbolList objectNamed: name.
+	dictionary ifNil: [ ^ self ].
+	(dictionary isKindOf: SymbolDictionary) ifFalse: [ ^ self ].
+	theClassCategories := Set new.
+	dictionary keysAndValuesDo: [ :key :value |
+			value isClass
+				ifTrue: [
+						| classService |
+						classService := RowanClassService new name: key asString.
+						classService versions: value classHistory size.
+						classService version: (value classHistory indexOf: value).
+						classService setIsTestCase.
+						classService classCategory: value category.
+						theClasses add: classService.
+						theClassCategories add: value category ]
+				ifFalse: [
+						| printString theKey |
+						printString := [
+							               value printString charSize > 1
+								               ifTrue: [
+								               '<<unprintable string. charSize > 1>>' ]
+								               ifFalse: [ value printString ] ]
+							               on: Error
+							               do: [ :ex |
+							               'unprintable string. Error - <' , ex printString
+							               , '>' ].
+						key charSize = 1
+							ifTrue: [ theKey := key ]
+							ifFalse: [ theKey := '<<unprintable string. charSize > 1>>' ].
+						sorted add: (Array
+								 with: name , '.' , theKey
+								 with: value class name
+								 with: value asOop
+								 with: printString) ] ].
+	classes := theClasses.
+	globals := sorted asArray.
+	classCategories := theClassCategories asSortedCollection asArray.
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'testing' }
