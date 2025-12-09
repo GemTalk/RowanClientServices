@@ -783,20 +783,16 @@ RowanClassService >> jfpwor_compileMethod: methodString behavior: aBehavior symb
 
 { #category : 'client commands' }
 RowanClassService >> jfpwor_moveMethods: methodServices to: category [
-        "update the dirty flag of the project & package both before and after the move"
 
-        | behavior |
-        behavior := self classOrMeta.
-        methodServices
-                do: [ :methodService |
-                        | beforePackageName |
-                        methodService organizer: self organizer.
-                        beforePackageName := methodService packageName.
-                        behavior compileMethod:  methodService source category: category  environmentId: 0.
-                        methodService update.
-                        methodService updatePackageProjectAfterCategoryChange: beforePackageName ].
-        self update.
-        self selectedMethods: methodServices
+	| behavior |
+	behavior := self classOrMeta.
+	methodServices do: [ :methodService |
+			behavior moveMethod: methodService selector toCategory: category.
+			methodService organizer: self organizer.
+			methodService update.
+			 ].
+	self update.
+	self selectedMethods: methodServices
 ]
 
 { #category : 'client commands' }
