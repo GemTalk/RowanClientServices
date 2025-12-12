@@ -448,7 +448,7 @@ RowanBrowserService >> packagesWithTests [
 	RowanCommandResult addResult: self
 ]
 
-{ #category : 'client commands' }
+{ #category : 'other' }
 RowanBrowserService >> recompileMethodsAfterClassCompilation [
 	"compileClass: must be run first"
 
@@ -475,6 +475,11 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 								            methodService source
 									            insertAll: errorText , '->'
 									            at: errorOffset.
+								            methodService
+									            selector: ex methodSelector;
+									            category: ex methodCategory;
+									            packageName: ex packageName;
+									            projectName:  ex projectName.
 								            methodService
 									            className: (ex compileError gsArguments at: 3);
 									            meta: false;

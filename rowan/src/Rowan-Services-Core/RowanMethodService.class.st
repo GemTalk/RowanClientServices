@@ -635,6 +635,16 @@ RowanMethodService >> printOn: aStream [
 				nextPut: $)
 ]
 
+{ #category : 'accessing' }
+RowanMethodService >> projectName [
+	^projectName
+]
+
+{ #category : 'accessing' }
+RowanMethodService >> projectName: object [
+	projectName := object
+]
+
 { #category : 'services' }
 RowanMethodService >> projectService [
 	"construct a project service based on the package this method resides in"
