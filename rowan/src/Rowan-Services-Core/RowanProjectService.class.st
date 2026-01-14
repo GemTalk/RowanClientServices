@@ -30,7 +30,9 @@ Class {
 		'packageConvention',
 		'diskSha',
 		'isCurrent',
-		'requiredProjectNames'
+		'requiredProjectNames',
+		'owner',
+		'canBeWritten'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -163,6 +165,8 @@ RowanProjectService >> basicRefresh [
 	packageConvention := self rwProject packageConvention.
 	isCurrent := Rowan gemstoneTools topaz currentTopazProjectName = name. 
 	self computeRequiredProjectNames.
+	owner := self rwProject _concreteProject objectSecurityPolicy owner userId .
+	canBeWritten := self rwProject _concreteProject canBeWritten.
 	RowanCommandResult addResult: self
 ]
 
