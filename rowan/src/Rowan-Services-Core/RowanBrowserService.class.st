@@ -461,7 +461,7 @@ RowanBrowserService >> recompileMethodsAfterClassCompilation [
 		            [
 			            (SessionTemps current at: #jadeiteCompileClassMethod)
 				            _executeInContext: nil ]
-			            on: notification
+			            on: notification, Error
 			            do: [ :ex |
 					            ex class name asSymbol = notificationSymbol
 						            ifTrue: [
