@@ -341,7 +341,7 @@ RowanProjectService >> existsOnDisk [
 { #category : 'client commands' }
 RowanProjectService >> exportTopazFormatTo: filePath [
 	filePath asFileReference isWritable
-		ifFalse: [ ^ self warn: 'File is not writable. Permissions problem?' ].
+		ifFalse: [ ^ self inform: 'File is not writable. Permissions problem?' ].
 	self rwProject exportTopazFormatTo: filePath
 ]
 
