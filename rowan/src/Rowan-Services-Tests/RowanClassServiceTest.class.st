@@ -451,8 +451,8 @@ RowanClassServiceTest >> test_setClassCommentDuringMetaclassRefresh [
 { #category : 'test method compilation' }
 RowanClassServiceTest >> test_setSuperSubIndicators [
 	| classService superclassMethodService subclassMethodService selector subclassService browserService |
+	"self expected to fail" 
 	selector := #indicatorTesting. 
-	self loadRowanSample1.
 	[browserService := RowanBrowserService new. 
 	browserService compileClass: 
 		'RowanSample1 rwSubclass: ''RowanSubClass''
