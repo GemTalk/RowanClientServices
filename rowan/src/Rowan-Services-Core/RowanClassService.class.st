@@ -199,8 +199,7 @@ RowanClassService >> basicRefreshFrom: theClass [
 	commandArgs := nil.
 	superclassName := theClass superClass
 		ifNotNil: [ :theSuper | theSuper name asString ].
-	versions := theClass classHistory size.
-	version := theClass classHistory indexOf: theClass.
+	self updateClassHistoryFrom: theClass. 
 	self setComment.
 	template := self classCreationTemplate.
 	theFilters := SortedCollection new.
@@ -1705,6 +1704,13 @@ RowanClassService >> updateClass [
 	theClass isBehavior ifFalse:[oop := theClass asOop. ^self].
 	self refreshFrom: theClass.
 	RowanCommandResult addResult: self
+]
+
+{ #category : 'updates' }
+RowanClassService >> updateClassHistoryFrom: theClass [
+
+	versions := theClass classHistory size.
+	version := theClass classHistory indexOf: theClass.
 ]
 
 { #category : 'updates' }

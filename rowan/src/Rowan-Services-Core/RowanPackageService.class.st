@@ -425,8 +425,9 @@ RowanPackageService >> testClasses [
 					cls isAbstract
 						ifFalse: [ 
 							| classService |
-							classService := RowanClassService basicForClassNamed: cls name.
-							testClasses add: classService update ] ] ].
+							classService := RowanClassService new name: cls name.
+							classService updateClassHistoryFrom: cls.
+							testClasses add: classService ] ] ].
 	self loadedClassExtensions
 		valuesDo: [ :loadedClass | 
 			| cls |
@@ -436,8 +437,9 @@ RowanPackageService >> testClasses [
 					cls isAbstract
 						ifFalse: [ 
 							| classService |
-							classService := RowanClassService basicForClassNamed: cls name.
-							testClasses add: classService update ] ] ].
+							classService := RowanClassService new name: cls name.
+							classService updateClassHistoryFrom: cls.
+							testClasses add: classService ] ] ].
 	updateType := #'testClasses:browser:'.
 	testClasses := testClasses asArray.
 	RowanCommandResult addResult: self
