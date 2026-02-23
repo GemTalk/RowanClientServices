@@ -90,8 +90,10 @@ RowanFileService >> diveInto: directory [
 
 { #category : 'client commands' }
 RowanFileService >> exists [
-	
-	answer := path asFileReference exists.
+
+	answer := [ path asFileReference exists ]
+		          on: Error
+		          do: [ :ex | false ].
 	RowanCommandResult addResult: self
 ]
 
