@@ -110,7 +110,6 @@ RowanServicesTest >> createNonDiskTestProjectNamed: projectName packageName: pac
         ^ project
 ]
 
-
 { #category : 'support' }
 RowanServicesTest >> createProjectDefinitionNamed: projectName [
         | project |
@@ -360,4 +359,3 @@ RowanServicesTest >> unloadServicesTestProject [
 RowanServicesTest >> userGlobals [
   ^ Rowan image symbolList objectNamed: #'UserGlobals'
 ]
-

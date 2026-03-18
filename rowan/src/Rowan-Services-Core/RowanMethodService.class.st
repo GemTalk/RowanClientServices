@@ -876,10 +876,12 @@ RowanMethodService >> theClass [
 
 	| theName theBehavior theClass |
 	theName := (className copyUpTo: Character space) asSymbol.
-	theClass := ((AllUsers userWithId: 'SystemUser') objectNamed: theName asSymbol)
-		ifNil: [ 
+	theClass := (Rowan platform
+		serviceClassFor: theName asSymbol
+		ifAbsent: [  
 			(AllUsers userWithId: GsCurrentSession currentSession userProfile userId)
-				objectNamed: theName asSymbol ].
+				objectNamed: theName asSymbol ])
+		ifNil: [].
 	theClass
 		ifNil: [ 
 			"can't find class"
