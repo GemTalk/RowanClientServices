@@ -2,16 +2,16 @@
 	"branch" : "",
 	"commitSha" : "",
 	"deprecationWarnings" : [ ],
-	"gsVersion" : "3.7.3",
+	"gsVersion" : "3.7.5",
 	"notes" : "",
 	"properties" : { },
 	"resultsSummary" : {
 		"errors" : 3,
-		"failures" : 2,
+		"failures" : 0,
 		"passed" : 127,
-		"summary" : "132 Tests with 2 Failures, 3 Errors and 0 DeprecationWarnings in 68.19s",
-		"tests" : 132,
-		"time" : 68.185
+		"summary" : "130 Tests with 0 Failures, 3 Errors and 0 DeprecationWarnings in 108.19s",
+		"tests" : 130,
+		"time" : 108.195
 	},
 	"suiteName" : "RowanClientServices projects Test Suite",
 	"testCases" : [
@@ -283,12 +283,6 @@
 			"className" : "RowanClassServiceTest",
 			"status" : "passed",
 			"selector" : "test_setClassCommentDuringMetaclassRefresh",
-			"time" : "0"
-		},
-		{
-			"className" : "RowanClassServiceTest",
-			"status" : "failures",
-			"selector" : "test_setSuperSubIndicators",
 			"time" : "0"
 		},
 		{
@@ -731,12 +725,6 @@
 		},
 		{
 			"className" : "RowanTestClassServiceTest",
-			"status" : "failures",
-			"selector" : "test_setSuperSubIndicators",
-			"time" : "0"
-		},
-		{
-			"className" : "RowanTestClassServiceTest",
 			"status" : "passed",
 			"selector" : "test_setTestClass",
 			"time" : "0"
@@ -808,5 +796,5 @@
 			"time" : "0"
 		}
 	],
-	"timeStamp" : "2025-01-23T10:00:39.186726-08:00"
+	"timeStamp" : "2026-03-17T21:42:12.920612-07:00"
 }

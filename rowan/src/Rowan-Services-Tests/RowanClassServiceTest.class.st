@@ -452,7 +452,6 @@ RowanClassServiceTest >> test_setClassCommentDuringMetaclassRefresh [
 RowanClassServiceTest >> test_setSuperSubIndicators [
 	| classService superclassMethodService subclassMethodService selector subclassService browserService |
 	"self expected to fail" 
-self assert: false. "force assertion failure in dkh_RowanStable_375 branch ... as expected failures expects test failure, not error"
 	selector := #indicatorTesting. 
 	[browserService := RowanBrowserService new. 
 	browserService compileClass: 
