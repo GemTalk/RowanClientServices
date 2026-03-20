@@ -26,6 +26,16 @@ RowanDictionaryService class >> templateClassName [
 	^#RowanDictionaryService
 ]
 
+{ #category : 'client commands' }
+RowanDictionaryService >> addClassesNamed: classNames [
+
+	| theClass dict |
+	dict := Rowan image symbolList objectNamed: name.
+	classNames do: [ :className |
+			theClass := Rowan image symbolList objectNamed: className.
+			dict at: className asSymbol put: theClass ]
+]
+
 { #category : 'private' }
 RowanDictionaryService >> categoryIn: selectedClassCategories satisfying: theClass [
 	^ (theClass category = String new
