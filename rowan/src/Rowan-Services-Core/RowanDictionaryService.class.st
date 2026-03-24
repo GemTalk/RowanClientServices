@@ -26,6 +26,26 @@ RowanDictionaryService class >> templateClassName [
 	^#RowanDictionaryService
 ]
 
+{ #category : 'client commands' }
+RowanDictionaryService >> addClassesNamed: classNames [
+
+	classNames do:[:className | 
+		self addClassNamed: className ]
+]
+
+{ #category : 'client commands' }
+RowanDictionaryService >> addClassNamed: className [
+
+	| theClass dict prevDicts |
+	theClass := Rowan image symbolList objectNamed: className.
+	prevDicts := Rowan image symbolList dictionariesAndSymbolsOf:
+		                  theClass.
+	prevDicts do: [ :array |
+		array first removeKey: className asSymbol ifAbsent: [ ] ].
+	dict := Rowan image symbolList objectNamed: name.
+	dict at: className asSymbol put: theClass
+]
+
 { #category : 'private' }
 RowanDictionaryService >> categoryIn: selectedClassCategories satisfying: theClass [
 	^ (theClass category = String new
