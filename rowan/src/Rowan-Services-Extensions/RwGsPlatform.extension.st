@@ -100,6 +100,8 @@ RwGsPlatform >> serviceClasses [
 		add: RowanLoggingService;
 		add: RowanMethodService;
 		add: RowanMethodDefinitionService; 
+		add: RowanMonticelloPackageService;
+		add: RowanMonticelloService;
 		add: RowanPackageService;
 		add: RowanPackageDefinitionService;
 		add: RowanPackageGroupService;
@@ -132,6 +134,8 @@ RwGsPlatform >> serviceClasses [
 		add: RowanLoadSpecServiceServer;
 		"add: RowanLoggingServiceServer;"
 		add: RowanMethodServiceServer;
+		add: RowanMonticelloPackageServiceServer;
+		add: RowanMonticelloServiceServer;
 		"add: RowanMethodDefinitionServiceServer; "
 		add: RowanPackageServiceServer;
 		add: RowanPackageDefinitionServiceServer;
