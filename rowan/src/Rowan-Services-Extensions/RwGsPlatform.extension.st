@@ -101,6 +101,8 @@ RwGsPlatform >> serviceClasses [
 		add: RowanMethodService;
 		add: RowanMethodDefinitionService; 
 		add: RowanMonticelloPackageService;
+		add: RowanMonticelloRepositoryService;
+		add: RowanMonticelloRepositoryGroupService;
 		add: RowanMonticelloService;
 		add: RowanPackageService;
 		add: RowanPackageDefinitionService;
@@ -134,9 +136,11 @@ RwGsPlatform >> serviceClasses [
 		add: RowanLoadSpecServiceServer;
 		"add: RowanLoggingServiceServer;"
 		add: RowanMethodServiceServer;
-		add: RowanMonticelloPackageServiceServer;
-		add: RowanMonticelloServiceServer;
 		"add: RowanMethodDefinitionServiceServer; "
+		add: RowanMonticelloPackageServiceServer;
+		add: RowanMonticelloRepositoryService;
+		add: RowanMonticelloRepositoryGroupService;
+		add: RowanMonticelloServiceServer;
 		add: RowanPackageServiceServer;
 		add: RowanPackageDefinitionServiceServer;
 		"add: RowanPackageGroupServiceServer;"
@@ -149,7 +153,8 @@ RwGsPlatform >> serviceClasses [
 		"add: RowanSubcomponentDefinitionServiceServer; "
 		add: RowanTranscriptServiceServer;
 		add: RowanTestServiceServer;
-		add: RowanVariableServiceServer.
+		add: RowanVariableServiceServer;
+		add: RowanCommandResult.	"temporary measure"
 	^ array
 ]
 

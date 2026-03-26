@@ -4,16 +4,20 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
-{ #category : 'updating' }
+{ #category : 'as yet unclassified' }
 RowanMonticelloServiceServer >> update [
 
 	| packageManagers |
-	packageManagers := (UserGlobals at: #MCWorkingCopy) allManagers
+	packageManagers := (Rowan globalNamed: #MCWorkingCopy) allManagers
 		                   asSortedCollection: [ :a :b |
 		                   a package name <= b package name ].
 	packages := packageManagers collect: [ :packageManager |
 			            RowanMonticelloPackageService new
-				            name: packageManager name;
-				            description: packageManager description ].
+				            name: packageManager packageName;
+				            description: packageManager description;
+				            repositoryGroup:
+					            (RowanMonticelloRepositoryGroupServiceServer fromRepositoryGroup:
+							             packageManager repositoryGroup) ].
 	RowanCommandResult addResult: self
+
 ]
