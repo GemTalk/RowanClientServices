@@ -1,5 +1,5 @@
 Class {
 	#name : 'RowanMonticelloRepositoryServiceServer',
-	#superclass : 'RowanMonticelloRepositoryGroupService',
+	#superclass : 'RowanMonticelloRepositoryService',
 	#category : 'Rowan-Services-Core'
 }

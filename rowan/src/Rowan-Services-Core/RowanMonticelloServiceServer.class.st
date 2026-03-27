@@ -15,7 +15,7 @@ RowanMonticelloServiceServer >> update [
 			            RowanMonticelloPackageService new
 				            name: packageManager packageName;
 				            description: packageManager description;
-				            repositoryGroup:
+				            repositoryGroups:
 					            (RowanMonticelloRepositoryGroupServiceServer fromRepositoryGroup:
 							             packageManager repositoryGroup) ].
 	RowanCommandResult addResult: self

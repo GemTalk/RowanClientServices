@@ -11,14 +11,17 @@ Class {
 RowanMonticelloService class >> templateClassName [
 
 	^#RowanMonticelloService
+
 ]
 
 { #category : 'accessing' }
 RowanMonticelloService >> packages [
 	^packages
+
 ]
 
 { #category : 'accessing' }
 RowanMonticelloService >> packages: object [
 	packages := object
+
 ]

@@ -2,7 +2,7 @@ Class {
 	#name : 'RowanMonticelloRepositoryService',
 	#superclass : 'RowanService',
 	#instVars : [
-		'location'
+		'description'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -15,13 +15,13 @@ RowanMonticelloRepositoryService class >> templateClassName [
 ]
 
 { #category : 'accessing' }
-RowanMonticelloRepositoryService >> location [
-	^location
+RowanMonticelloRepositoryService >> description [
+	^description
 
 ]
 
 { #category : 'accessing' }
-RowanMonticelloRepositoryService >> location: object [
-	location := object
+RowanMonticelloRepositoryService >> description: object [
+	description := object
 
 ]

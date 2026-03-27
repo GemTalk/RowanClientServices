@@ -11,8 +11,8 @@ RowanMonticelloRepositoryGroupServiceServer class >> fromRepositoryGroup: aRepos
 	inst := self new.
 	inst repositories:
 		(aRepositoryGroup repositories collect: [ :repository |
-				 RowanMonticelloRepositoryServiceServer new location:
-					 repository locationWithTrailingSlash ]).
+				 RowanMonticelloRepositoryServiceServer new description:
+					 repository description ]).
 	^ inst
 
 ]

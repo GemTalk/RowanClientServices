@@ -85,6 +85,14 @@ RowanService class >> rowanFixMe [
 
 ]
 
+{ #category : 'accessing' }
+RowanService class >> rowanOption [
+
+	(GsSession currentSession objectNamed: #Rowan) printString = 'Rowan' ifTrue:[^#rowan]. 
+	(GsSession currentSession objectNamed: #MCWorkingCopy) printString = 'MCWorkingCopy' ifTrue:[^#seaside].
+	^#woRowan
+]
+
 { #category : 'examples' }
 RowanService class >> sampleService [
 

@@ -7,7 +7,7 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'constants' }
 RowanMonticelloRepositoryGroupService class >> templateClassName [
 
 	^#RowanMonticelloRepositoryGroupService

@@ -869,6 +869,12 @@ RowanAnsweringService >> resolveAsService: name [
 ]
 
 { #category : 'client commands' }
+RowanAnsweringService >> rowanOption [
+	answer := RowanService rowanOption.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanAnsweringService >> runMethodTests: methodServices [
 
 	| behavior |
