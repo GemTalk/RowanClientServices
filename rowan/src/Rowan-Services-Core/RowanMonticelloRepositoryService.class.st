@@ -2,7 +2,9 @@ Class {
 	#name : 'RowanMonticelloRepositoryService',
 	#superclass : 'RowanService',
 	#instVars : [
-		'description'
+		'description',
+		'repositoryPackages',
+		'repositoryOop'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -24,4 +26,24 @@ RowanMonticelloRepositoryService >> description [
 RowanMonticelloRepositoryService >> description: object [
 	description := object
 
+]
+
+{ #category : 'accessing' }
+RowanMonticelloRepositoryService >> repositoryOop [
+	^repositoryOop
+]
+
+{ #category : 'accessing' }
+RowanMonticelloRepositoryService >> repositoryOop: object [
+	repositoryOop := object
+]
+
+{ #category : 'accessing' }
+RowanMonticelloRepositoryService >> repositoryPackages [
+	^repositoryPackages
+]
+
+{ #category : 'accessing' }
+RowanMonticelloRepositoryService >> repositoryPackages: object [
+	repositoryPackages := object
 ]
