@@ -7,13 +7,20 @@ Class {
 { #category : 'updating' }
 RowanMonticelloRepositoryServiceServer >> update [
 
-	| packages repository |
-	repository := Object _objectFromOop: repositoryOop.
-	packages := repository allFileNames collect: [ :fileName |
-		            (repository versionFromFileNamed: fileName) package ].
-	repositoryPackages := packages collect: [ :pkg |
-			                      RowanMonticelloPackageService new
-				                      name: pkg packageName;
-				                      description: pkg description ].
+	| repository |
+	repository := Object _objectForOop: repositoryOop.
+	(repository class canUnderstand: #dictionary)
+		ifTrue: [
+				repositoryPackages := repository dictionary keys collect: [
+						                      :versionInfo |
+						                      RowanMonticelloPackageService new
+							                      name: versionInfo name;
+							                      description: versionInfo name ] ]
+		ifFalse: [
+				repositoryPackages := Array new.
+				repository allVersionNames do: [ :versionName |
+							repositoryPackages add: ( RowanMonticelloPackageService new
+							                      name: versionName;
+							                      description: versionName) ] ].
 	RowanCommandResult addResult: self
 ]

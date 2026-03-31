@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'name',
 		'description',
-		'repositoryGroups'
+		'repositoryGroups',
+		'hasChanges'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -26,6 +27,16 @@ RowanMonticelloPackageService >> description [
 RowanMonticelloPackageService >> description: object [
 	description := object
 
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> hasChanges [
+	^hasChanges
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> hasChanges: object [
+	hasChanges := object
 ]
 
 { #category : 'accessing' }

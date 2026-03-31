@@ -12,12 +12,17 @@ RowanMonticelloServiceServer >> update [
 		                   asSortedCollection: [ :a :b |
 		                   a package name <= b package name ].
 	packages := packageManagers collect: [ :packageManager |
-			            RowanMonticelloPackageService new
-				            name: packageManager packageName;
-				            description: packageManager description;
-				            repositoryGroups:
-					            (RowanMonticelloRepositoryGroupServiceServer fromRepositoryGroup:
-							             packageManager repositoryGroup) ].
+			            | service |
+			            service := RowanMonticelloPackageService new
+				                       name: packageManager packageName;
+				                       description: packageManager description;
+				                       repositoryGroups:
+					                       (RowanMonticelloRepositoryGroupServiceServer
+						                        fromRepositoryGroup:
+							                        packageManager repositoryGroup).
+			            service hasChanges:
+				            (packageManager changesRelativeToRepository:
+					             packageManager repositoryGroup repositories last)
+					            notEmpty service ].
 	RowanCommandResult addResult: self
-
 ]
