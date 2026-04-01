@@ -20,9 +20,7 @@ RowanMonticelloServiceServer >> update [
 					                       (RowanMonticelloRepositoryGroupServiceServer
 						                        fromRepositoryGroup:
 							                        packageManager repositoryGroup).
-			            service hasChanges:
-				            (packageManager changesRelativeToRepository:
-					             packageManager repositoryGroup repositories last)
-					            notEmpty service ].
+			           service hasChanges: packageManager modified.
+				service ].
 	RowanCommandResult addResult: self
 ]
