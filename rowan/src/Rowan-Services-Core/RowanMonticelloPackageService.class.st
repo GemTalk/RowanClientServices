@@ -7,7 +7,8 @@ Class {
 		'repositoryGroups',
 		'packageOop',
 		'hasChanges',
-		'changes'
+		'changes',
+		'classes'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -27,6 +28,16 @@ RowanMonticelloPackageService >> changesAgainst: aRepositoryOop [
 	packageManager := Object _objectForOop: packageOop.
 	patch := packageManager changesRelativeToRepository: repository.
 	changes :=  JadeServer new _mcDescriptionOfPatch: patch baseName: 'closest ancestor' alternateName: nil packageName: packageManager packageName.
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
+RowanMonticelloPackageService >> classes [
+
+	| packageManager |
+	packageManager := Object _objectForOop: packageOop.
+	classes := packageManager package packageInfo classes collect: [ :cls |
+		           (RowanClassService new name: cls name) update ].
 	RowanCommandResult addResult: self
 ]
 
