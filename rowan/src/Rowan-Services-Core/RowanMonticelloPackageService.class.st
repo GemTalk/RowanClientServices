@@ -36,7 +36,9 @@ RowanMonticelloPackageService >> classes [
 
 	| packageManager |
 	packageManager := Object _objectForOop: packageOop.
-	classes := packageManager package packageInfo classes collect: [ :cls |
+	classes := (packageManager package packageInfo classes asSet
+		            asSortedCollection: [ :x :y | x name < y name ])
+		           collect: [ :cls |
 		           (RowanClassService new name: cls name) update ].
 	RowanCommandResult addResult: self
 ]
