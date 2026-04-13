@@ -8,7 +8,8 @@ Class {
 		'packageOop',
 		'hasChanges',
 		'changes',
-		'classes'
+		'classes',
+		'extensionClasses'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -39,7 +40,16 @@ RowanMonticelloPackageService >> classes [
 	classes := (packageManager package packageInfo classes asSet
 		            asSortedCollection: [ :x :y | x name < y name ])
 		           collect: [ :cls |
-		           (RowanClassService new name: cls name) update ].
+				           (RowanClassService new name: cls name)
+					           update;
+					           isExtension: false ].
+	extensionClasses := (packageManager package packageInfo
+		                     extensionClasses asSet asSortedCollection: [
+		                     :x
+		                     :y | x name < y name ]) collect: [ :cls |
+			                    (RowanClassService new name: cls name)
+				                    update;
+				                    isExtension: true ].
 	RowanCommandResult addResult: self
 ]
 
