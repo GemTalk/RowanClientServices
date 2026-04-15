@@ -44,7 +44,9 @@ Class {
 		'renamedName',
 		'hasSubclasses',
 		'classCategory',
-		'methodsFailingRecompilation'
+		'methodsFailingRecompilation',
+		'isInMonticelloPackage'
+		
 	],
 	#category : 'Rowan-Services-Core'
 }
