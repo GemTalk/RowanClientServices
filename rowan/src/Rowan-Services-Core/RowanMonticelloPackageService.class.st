@@ -102,6 +102,16 @@ RowanMonticelloPackageService >> name: object [
 ]
 
 { #category : 'accessing' }
+RowanMonticelloPackageService >> packageOop [
+	^packageOop
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> packageOop: object [
+	packageOop := object
+]
+
+{ #category : 'accessing' }
 RowanMonticelloPackageService >> repositoryGroups [
 	^repositoryGroups
 

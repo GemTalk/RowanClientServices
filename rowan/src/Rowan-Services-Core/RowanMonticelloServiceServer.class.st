@@ -16,6 +16,7 @@ RowanMonticelloServiceServer >> update [
 			            service := RowanMonticelloPackageService new
 				                       name: packageManager packageName;
 				                       description: packageManager description;
+							packageOop: packageManager asOop; 
 				                       repositoryGroups:
 					                       (RowanMonticelloRepositoryGroupServiceServer
 						                        fromRepositoryGroup:

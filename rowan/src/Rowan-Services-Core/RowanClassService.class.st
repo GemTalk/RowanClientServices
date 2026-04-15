@@ -46,7 +46,6 @@ Class {
 		'classCategory',
 		'methodsFailingRecompilation',
 		'isInMonticelloPackage'
-		
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -193,7 +192,7 @@ RowanClassService >> basicForClassNamed: className [
 	self basicRefreshFrom: theClass.
 ]
 
-{ #category : 'Accessing' }
+{ #category : 'updates' }
 RowanClassService >> basicRefreshFrom: theClass [
 	| classOrMeta theFilters |
 	oop := theClass asOop.
@@ -218,6 +217,7 @@ RowanClassService >> basicRefreshFrom: theClass [
 	self updateIsExtension.
 	hasSubclasses := (self organizer subclassesOf: theClass) notEmpty.
 	classCategory := classOrMeta category.
+	self updateIsInMonticelloPackage.
 ]
 
 { #category : 'Accessing' }
@@ -734,6 +734,16 @@ RowanClassService >> isExtension: boolean [
 
 ]
 
+{ #category : 'accessing' }
+RowanClassService >> isInMonticelloPackage [
+	^isInMonticelloPackage
+]
+
+{ #category : 'accessing' }
+RowanClassService >> isInMonticelloPackage: object [
+	isInMonticelloPackage := object
+]
+
 { #category : 'Updating' }
 RowanClassService >> isNewClass: boolean [
 	isNewClass := boolean
@@ -1198,7 +1208,7 @@ RowanClassService >> recompileMethod: method [
 	^ methodService
 ]
 
-{ #category : 'initialization' }
+{ #category : 'updates' }
 RowanClassService >> refreshFrom: theClass [
 	| classOrMeta  |
 	self basicRefreshFrom: theClass. 
@@ -1207,7 +1217,7 @@ RowanClassService >> refreshFrom: theClass [
 	shouldUpdate := false.
 ]
 
-{ #category : 'initialization' }
+{ #category : 'updates' }
 RowanClassService >> refreshMethodsFor: classOrMeta [
 	| gsNMethods subclasses |
 	methods := SortedCollection sortBlock: [ :x :y | x selector < y selector ].
@@ -1744,6 +1754,15 @@ RowanClassService >> updateIsExtension [
 	isExtension := ((selectedPackageServices collect: [ :packageService |
 		                 packageService name ]) includes: definedPackageName)
 		               not
+]
+
+{ #category : 'updates' }
+RowanClassService >> updateIsInMonticelloPackage [
+	"only applicable for seaside extents"
+
+	RowanService isSeasideLoaded ifFalse: [
+		^ self isInMonticelloPackage: false ].
+	self isInMonticelloPackage: self theClass canBeWritten
 ]
 
 { #category : 'updates' }
