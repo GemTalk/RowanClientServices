@@ -71,6 +71,12 @@ RowanService class >> isRowanStub [
 	^(GsSession currentSession objectNamed: #Rowan) printString ~= 'Rowan'
 ]
 
+{ #category : 'testing' }
+RowanService class >> isSeasideLoaded [
+
+	^(GsSession currentSession objectNamed: #MCWorkingCopy) printString = 'MCWorkingCopy'
+]
+
 { #category : 'instance creation' }
 RowanService class >> new [
 
@@ -89,7 +95,7 @@ RowanService class >> rowanFixMe [
 RowanService class >> rowanOption [
 
 	(GsSession currentSession objectNamed: #Rowan) printString = 'Rowan' ifTrue:[^#rowan]. 
-	(GsSession currentSession objectNamed: #MCWorkingCopy) printString = 'MCWorkingCopy' ifTrue:[^#seaside].
+	self isSeasideLoaded ifTrue:[^#seaside].
 	^#woRowan
 ]
 

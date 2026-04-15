@@ -40,15 +40,19 @@ RowanMonticelloPackageService >> classes [
 	classes := (packageManager package packageInfo classes asSet
 		            asSortedCollection: [ :x :y | x name < y name ])
 		           collect: [ :cls |
-				           (RowanClassService new name: cls name)
-					           update;
+				           (RowanClassService new name: cls thisClass name)
+						meta: false; 
+					           updateClassHistoryFrom: cls thisClass;
+					           setIsTestCase;
 					           isExtension: false ].
 	extensionClasses := (packageManager package packageInfo
 		                     extensionClasses asSet asSortedCollection: [
 		                     :x
 		                     :y | x name < y name ]) collect: [ :cls |
-			                    (RowanClassService new name: cls name)
-				                    update;
+			                    (RowanClassService new name: cls thisClass name)
+						meta: false; 
+				                    updateClassHistoryFrom: cls thisClass;
+				                    setIsTestCase;
 				                    isExtension: true ].
 	RowanCommandResult addResult: self
 ]
@@ -63,6 +67,16 @@ RowanMonticelloPackageService >> description [
 RowanMonticelloPackageService >> description: object [
 	description := object
 
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> extensionClasses [
+	^extensionClasses
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> extensionClasses: object [
+	extensionClasses := object
 ]
 
 { #category : 'accessing' }

@@ -1730,11 +1730,18 @@ RowanClassService >> updateDirtyState [
 							RowanCommandResult addResult: projectService ] ] ]
 ]
 
-{ #category : 'initialization' }
+{ #category : 'updates' }
 RowanClassService >> updateIsExtension [
-  isExtension := ((selectedPackageServices
-    collect: [ :packageService | packageService name ])
-    includes: definedPackageName) not
+
+	RowanService isSeasideLoaded ifTrue: [
+			| packages extClsSvc | 
+			packages := self selectedPackageServices ifNil: [^isExtension := false]. 
+			extClsSvc := packages first extensionClasses detect: [:extClassService | extClassService name = name] ifNone: []. 
+			isExtension := extClsSvc notNil.
+			^ self ].
+	isExtension := ((selectedPackageServices collect: [ :packageService |
+		                 packageService name ]) includes: definedPackageName)
+		               not
 ]
 
 { #category : 'updates' }
