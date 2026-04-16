@@ -1748,6 +1748,7 @@ RowanClassService >> updateIsExtension [
 	RowanService isSeasideLoaded ifTrue: [
 			| packages extClsSvc | 
 			packages := self selectedPackageServices ifNil: [^isExtension := false]. 
+			packages isEmpty ifTrue: [^isExtension := false].
 			extClsSvc := packages first extensionClasses detect: [:extClassService | extClassService name = name] ifNone: []. 
 			isExtension := extClsSvc notNil.
 			^ self ].
