@@ -140,32 +140,36 @@ RowanProjectService >> basicLoadProject: aBlock [
 
 { #category : 'initialization' }
 RowanProjectService >> basicRefresh [
-	name = Rowan unpackagedName
-		ifTrue: [ 
+
+	name = Rowan unpackagedName ifTrue: [
 			isLoaded := false.
 			^ self ].
-	(isLoaded := self projectIsLoaded)
-		ifFalse: [ 
+	(isLoaded := self projectIsLoaded) ifFalse: [
 			existsOnDisk := false.
-			self isDefinedProject
-				ifFalse: [ 
-					updateType := #'removedProject:'.
+			self isDefinedProject ifFalse: [
+					updateType := #removedProject:.
 					^ RowanCommandResult addResult: self ] ].
-	self updateIsDirty. 
+	self updateIsDirty.
 	self setExistsOnDisk.
 	isSkew := self isSkew.
 	sha := self rowanSha.
-	diskSha := self rowanDiskSha. 
+	diskSha := self rowanDiskSha.
 	branch := self rowanBranch.
 	projectUrl := self rowanProjectUrl.
-	rowanProjectsHome := System gemEnvironmentVariable: 'ROWAN_PROJECTS_HOME'.
+	rowanProjectsHome := System gemEnvironmentVariable:
+		                     'ROWAN_PROJECTS_HOME'.
 	isDiskDirty := self isGitDirty.
 	componentServices := self componentServices.
-	specService := RowanLoadSpecService new initialize: self rwProject loadSpecification asOop.
+	specService := RowanLoadSpecService new initialize:
+		               self rwProject loadSpecification asOop.
 	packageConvention := self rwProject packageConvention.
-	isCurrent := Rowan gemstoneTools topaz currentTopazProjectName = name. 
+	isCurrent := Rowan gemstoneTools topaz currentTopazProjectName = name.
 	self computeRequiredProjectNames.
-	owner := self rwProject _concreteProject objectSecurityPolicy owner userId .
+	owner := [
+	         self rwProject _concreteProject objectSecurityPolicy owner
+		         userId ]
+		         on: Error
+		         do: [ :ex | 'error: owner not available: ', ex asString ].
 	canBeWritten := self rwProject _concreteProject canBeWritten.
 	RowanCommandResult addResult: self
 ]
