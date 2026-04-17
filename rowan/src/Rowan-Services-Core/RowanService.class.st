@@ -886,7 +886,7 @@ RowanService >> setDebugActionBlock [
 							compileErrorService := RowanCompileErrorServiceServer new.
 							compileErrorService
 								gsArguments: ex errorDetails;
-								messageText: ex messageText.
+								messageText: ex asString.
 							updates := Array with: compileErrorService.
 							RowanServiceShouldExit signal ].
 					[ 

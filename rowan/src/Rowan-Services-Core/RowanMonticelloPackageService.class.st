@@ -22,6 +22,54 @@ RowanMonticelloPackageService class >> templateClassName [
 ]
 
 { #category : 'client commands' }
+RowanMonticelloPackageService >> addFiletreeRepository: aFileDirectoryString [
+
+	| packageManager repo |
+	packageManager := Object _objectForOop: packageOop.
+	repo := (Rowan globalNamed: 'MCFileTreeRepository') new directory:
+		        ((Rowan globalNamed: 'FileDirectory') on:
+			         aFileDirectoryString).
+	packageManager repositoryGroup addRepository: repo.
+	RowanCommandResult add: self
+]
+
+{ #category : 'client commands' }
+RowanMonticelloPackageService >> addGithubRepository: aString [
+
+	| packageManager repo |
+	packageManager := Object _objectForOop: packageOop.
+	repo := (Rowan globalNamed: 'MCGitHubRepository') location: aString.
+	packageManager repositoryGroup addRepository: repo.
+	RowanCommandResult add: self
+]
+
+{ #category : 'client commands' }
+RowanMonticelloPackageService >> addHttpRepository: aString [
+
+	| packageManager repo |
+	packageManager := Object _objectForOop: packageOop.
+	repo := (Rowan globalNamed: 'MCHttpRepository')
+		        location: aString
+		        user: ''
+		        password: ''.
+	packageManager repositoryGroup addRepository: repo.
+	RowanCommandResult add: self
+]
+
+{ #category : 'client commands' }
+RowanMonticelloPackageService >> addMCZRepository: aFileDirectoryString [
+
+	| packageManager repo |
+	packageManager := Object _objectForOop: packageOop.
+	repo := (Rowan globalNamed: 'MCServerDirectoryRepository') new
+		        directory:
+			        (Rowan globalNamed: 'ServerFileDirectory' on: aFileDirectoryString);
+		        yourself.
+	packageManager repositoryGroup addRepository: repo.
+	RowanCommandResult add: self
+]
+
+{ #category : 'client commands' }
 RowanMonticelloPackageService >> changesAgainst: aRepositoryOop [
 
 	| repository packageManager patch |

@@ -49,7 +49,7 @@ RowanProcessServiceServer class >> saveOnSuspendedProcess: suspendedProcess exce
 		onSuspendedProcess: suspendedProcess.
 	processService
 		registerWith: connection;
-		errorMessage: ex messageText;
+		errorMessage: ex asString;
 		updates: Array new;
 		postCommandExecution.
 	self processServices at: suspendedProcess put: processService.
