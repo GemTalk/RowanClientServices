@@ -30,7 +30,7 @@ RowanMonticelloPackageService >> addFiletreeRepository: aFileDirectoryString [
 		        ((Rowan globalNamed: 'FileDirectory') on:
 			         aFileDirectoryString).
 	packageManager repositoryGroup addRepository: repo.
-	RowanCommandResult add: self
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
@@ -40,7 +40,7 @@ RowanMonticelloPackageService >> addGithubRepository: aString [
 	packageManager := Object _objectForOop: packageOop.
 	repo := (Rowan globalNamed: 'MCGitHubRepository') location: aString.
 	packageManager repositoryGroup addRepository: repo.
-	RowanCommandResult add: self
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
@@ -53,7 +53,7 @@ RowanMonticelloPackageService >> addHttpRepository: aString [
 		        user: ''
 		        password: ''.
 	packageManager repositoryGroup addRepository: repo.
-	RowanCommandResult add: self
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
@@ -66,7 +66,7 @@ RowanMonticelloPackageService >> addMCZRepository: aFileDirectoryString [
 			        (Rowan globalNamed: 'ServerFileDirectory' on: aFileDirectoryString);
 		        yourself.
 	packageManager repositoryGroup addRepository: repo.
-	RowanCommandResult add: self
+	RowanCommandResult addResult: self
 ]
 
 { #category : 'client commands' }
