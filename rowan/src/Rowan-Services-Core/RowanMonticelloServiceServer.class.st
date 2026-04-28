@@ -16,12 +16,13 @@ RowanMonticelloServiceServer >> update [
 			            service := RowanMonticelloPackageService new
 				                       name: packageManager packageName;
 				                       description: packageManager description;
-							packageOop: packageManager asOop; 
+				                       packageOop: packageManager asOop;
 				                       repositoryGroups:
 					                       (RowanMonticelloRepositoryGroupServiceServer
 						                        fromRepositoryGroup:
 							                        packageManager repositoryGroup).
-			           service hasChanges: packageManager modified.
-				service ].
+			            service hasChanges: packageManager modified.
+			            service sourceRepository: service repositoryGroups first repositories last.
+			            service ].
 	RowanCommandResult addResult: self
 ]

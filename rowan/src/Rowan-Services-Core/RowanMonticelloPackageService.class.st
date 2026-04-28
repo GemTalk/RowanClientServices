@@ -9,7 +9,8 @@ Class {
 		'hasChanges',
 		'changes',
 		'classes',
-		'extensionClasses'
+		'extensionClasses',
+		'sourceRepository'
 	],
 	#category : 'Rowan-Services-Core'
 }
@@ -29,7 +30,7 @@ RowanMonticelloPackageService >> addFiletreeRepository: aFileDirectoryString [
 	repo := (Rowan globalNamed: 'MCFileTreeRepository') new directory:
 		        ((Rowan globalNamed: 'FileDirectory') on:
 			         aFileDirectoryString).
-	packageManager repositoryGroup addRepository: repo.
+	 (Rowan globalNamed: 'MCRepositoryGroup') default addRepository: repo.
 	RowanCommandResult addResult: self
 ]
 
@@ -39,7 +40,7 @@ RowanMonticelloPackageService >> addGithubRepository: aString [
 	| packageManager repo |
 	packageManager := Object _objectForOop: packageOop.
 	repo := (Rowan globalNamed: 'MCGitHubRepository') location: aString.
-	packageManager repositoryGroup addRepository: repo.
+	 (Rowan globalNamed: 'MCRepositoryGroup') default addRepository: repo.
 	RowanCommandResult addResult: self
 ]
 
@@ -52,7 +53,10 @@ RowanMonticelloPackageService >> addHttpRepository: aString [
 		        location: aString
 		        user: ''
 		        password: ''.
-	packageManager repositoryGroup addRepository: repo.
+	 (Rowan globalNamed: 'MCRepositoryGroup') default addRepository: repo.
+	 repositoryGroups := (RowanMonticelloRepositoryGroupServiceServer
+						                        fromRepositoryGroup:
+							                        packageManager repositoryGroup).
 	RowanCommandResult addResult: self
 ]
 
@@ -65,7 +69,7 @@ RowanMonticelloPackageService >> addMCZRepository: aFileDirectoryString [
 		        directory:
 			        (Rowan globalNamed: 'ServerFileDirectory' on: aFileDirectoryString);
 		        yourself.
-	packageManager repositoryGroup addRepository: repo.
+	 (Rowan globalNamed: 'MCRepositoryGroup') default addRepository: repo.
 	RowanCommandResult addResult: self
 ]
 
@@ -159,6 +163,21 @@ RowanMonticelloPackageService >> packageOop: object [
 	packageOop := object
 ]
 
+{ #category : 'client commands' }
+RowanMonticelloPackageService >> removeRepository: repoName [
+
+	| packageManager repo |
+	packageManager := Object _objectForOop: packageOop.
+	repo := packageManager repositoryGroup repositories
+		        detect: [ :rep | rep = repoName ]
+		        ifNone: [ ^ self ].
+	packageManager repositoryGroup removeRepository: repo. 
+	repositoryGroups := RowanMonticelloRepositoryGroupServiceServer
+		                    fromRepositoryGroup:
+		                    packageManager repositoryGroup.
+	RowanCommandResult addResult: self
+]
+
 { #category : 'accessing' }
 RowanMonticelloPackageService >> repositoryGroups [
 	^repositoryGroups
@@ -169,4 +188,14 @@ RowanMonticelloPackageService >> repositoryGroups [
 RowanMonticelloPackageService >> repositoryGroups: object [
 	repositoryGroups := object
 
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> sourceRepository [
+	^sourceRepository
+]
+
+{ #category : 'accessing' }
+RowanMonticelloPackageService >> sourceRepository: object [
+	sourceRepository := object
 ]
