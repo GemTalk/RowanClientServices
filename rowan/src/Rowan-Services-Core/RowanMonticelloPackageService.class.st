@@ -23,57 +23,6 @@ RowanMonticelloPackageService class >> templateClassName [
 ]
 
 { #category : 'client commands' }
-RowanMonticelloPackageService >> addFiletreeRepository: aFileDirectoryString [
-
-	| packageManager repo |
-	packageManager := Object _objectForOop: packageOop.
-	repo := (Rowan globalNamed: 'MCFileTreeRepository') new directory:
-		        ((Rowan globalNamed: 'FileDirectory') on:
-			         aFileDirectoryString).
-	 (Rowan globalNamed: 'MCRepositoryGroup') default addRepository: repo.
-	RowanCommandResult addResult: self
-]
-
-{ #category : 'client commands' }
-RowanMonticelloPackageService >> addGithubRepository: aString [
-
-	| packageManager repo |
-	packageManager := Object _objectForOop: packageOop.
-	repo := (Rowan globalNamed: 'MCGitHubRepository') location: aString.
-	 (Rowan globalNamed: 'MCRepositoryGroup') default addRepository: repo.
-	RowanCommandResult addResult: self
-]
-
-{ #category : 'client commands' }
-RowanMonticelloPackageService >> addHttpRepository: aString [
-
-	| packageManager repo |
-	packageManager := Object _objectForOop: packageOop.
-	repo := (Rowan globalNamed: 'MCHttpRepository')
-		        location: aString
-		        user: ''
-		        password: ''.
-	 (Rowan globalNamed: 'MCRepositoryGroup') default addRepository: repo.
-	 repositoryGroups := (RowanMonticelloRepositoryGroupServiceServer
-						                        fromRepositoryGroup:
-							                        packageManager repositoryGroup).
-	RowanCommandResult addResult: self
-]
-
-{ #category : 'client commands' }
-RowanMonticelloPackageService >> addMCZRepository: aFileDirectoryString [
-
-	| packageManager repo |
-	packageManager := Object _objectForOop: packageOop.
-	repo := (Rowan globalNamed: 'MCServerDirectoryRepository') new
-		        directory:
-			        (Rowan globalNamed: 'ServerFileDirectory' on: aFileDirectoryString);
-		        yourself.
-	 (Rowan globalNamed: 'MCRepositoryGroup') default addRepository: repo.
-	RowanCommandResult addResult: self
-]
-
-{ #category : 'client commands' }
 RowanMonticelloPackageService >> changesAgainst: aRepositoryOop [
 
 	| repository packageManager patch |

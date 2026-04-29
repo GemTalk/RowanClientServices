@@ -4,7 +4,16 @@ Class {
 	#category : 'Rowan-Services-Core'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'client commands' }
+RowanMonticelloServiceServer >> removeRepository: repositoryService [
+
+	| repo | 
+	repo :=Object _objectForOop:  repositoryService repositoryOop. 
+	 (Rowan globalNamed: #MCRepositoryGroup) default removeRepository: repo.
+	self updateRepositories.
+]
+
+{ #category : 'client commands' }
 RowanMonticelloServiceServer >> update [
 
 	| packageManagers |
@@ -24,5 +33,19 @@ RowanMonticelloServiceServer >> update [
 			            service hasChanges: packageManager modified.
 			            service sourceRepository: service repositoryGroups first repositories last.
 			            service ].
+	RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
+RowanMonticelloServiceServer >> updateRepositories [
+
+	| repos |
+	repos := (Rowan globalNamed: #MCRepositoryGroup) default repositories
+		         asSortedCollection: [ :a :b |
+		         a description <= b description ].
+	repositories := repos collect: [ :repo |
+			                RowanMonticelloRepositoryServiceServer new
+				                description: repo description;
+				                repositoryOop: repo asOop ].
 	RowanCommandResult addResult: self
 ]
