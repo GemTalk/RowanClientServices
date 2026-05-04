@@ -90,6 +90,17 @@ RowanMonticelloPackageService >> hasChanges: object [
 	hasChanges := object
 ]
 
+{ #category : 'client commands' }
+RowanMonticelloPackageService >> loadPackageFrom: aRepositoryService [
+	
+	| repo |
+	repo := Object _objectForOop: aRepositoryService repositoryOop.
+	(Rowan globalNamed: 'Gofer') new
+		repository: repo; 
+		package: self name; 
+		load
+]
+
 { #category : 'accessing' }
 RowanMonticelloPackageService >> name [
 	^name
@@ -147,4 +158,12 @@ RowanMonticelloPackageService >> sourceRepository [
 { #category : 'accessing' }
 RowanMonticelloPackageService >> sourceRepository: object [
 	sourceRepository := object
+]
+
+{ #category : 'client commands' }
+RowanMonticelloPackageService >> unloadPackage [
+	
+	(Rowan globalNamed: 'Gofer') new
+		package: self name; 
+		unload
 ]
