@@ -777,8 +777,8 @@ RowanClassService >> jfpseaside_compileMethod: methodString behavior: aBehavior 
         "returns (nil -> anArrayOfErrors) or (aGsNMethod -> compilerWarnings) or (aGsNMethod -> nil)"
 
         | method warnings |
-
-         [ [ [ method := aBehavior compileMethod:  methodString category: categorySymbol  using: aSymbolList]
+	
+         [ [ [aBehavior compileMethod:  methodString category: categorySymbol  using: aSymbolList]
                         on: CompileError
                         do: [:ex | ^nil -> (ex gsArguments at: 1)]]
                                 on: CompileWarning
@@ -788,8 +788,9 @@ RowanClassService >> jfpseaside_compileMethod: methodString behavior: aBehavior 
                                         ex resume]]
                                         on: RwPerformingUnpackagedEditNotification
                                         do: [:ex | ex resume ] .
-        ^[(self compiledMethodAt: method key selector inClass: aBehavior) -> warnings] on: Error
-                do: [:ex | ex return: method -> warnings]
+	method := (aBehavior methodDictForEnv: 0) values  asArray detect:[:gsNMethod | 
+			methodString = gsNMethod sourceString] ifNone: [].
+        ^method -> warnings
 ]
 
 { #category : 'client commands' }
@@ -830,7 +831,6 @@ RowanClassService >> jfpseaside_saveMethodSource: source category: category [
                 hierarchyImplementorsOf: methodService selector
                         inClass: methodService className.       "this will update hierarchy method indicators for client"
         self selectedMethods: (Array with: methodService).
-        self updateDirtyState.
         (methods includes: methodService)
                 ifFalse: [ methods add: methodService ].
         methodService isTestMethod
