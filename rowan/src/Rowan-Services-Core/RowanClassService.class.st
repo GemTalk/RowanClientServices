@@ -773,6 +773,76 @@ RowanClassService >> isTestCase: aBoolean [
 ]
 
 { #category : 'client commands' }
+RowanClassService >> jfpseaside_compileMethod: methodString behavior: aBehavior symbolList: aSymbolList inCategory: categorySymbol [
+        "returns (nil -> anArrayOfErrors) or (aGsNMethod -> compilerWarnings) or (aGsNMethod -> nil)"
+
+        | method warnings |
+
+         [ [ [ method := aBehavior compileMethod:  methodString category: categorySymbol  using: aSymbolList]
+                        on: CompileError
+                        do: [:ex | ^nil -> (ex gsArguments at: 1)]]
+                                on: CompileWarning
+                                do:
+                                        [:ex |
+                                        warnings := ex warningString.
+                                        ex resume]]
+                                        on: RwPerformingUnpackagedEditNotification
+                                        do: [:ex | ex resume ] .
+        ^[(self compiledMethodAt: method key selector inClass: aBehavior) -> warnings] on: Error
+                do: [:ex | ex return: method -> warnings]
+]
+
+{ #category : 'client commands' }
+RowanClassService >> jfpseaside_saveMethodSource: source category: category [
+        | behavior compilationResult gsNMethod updatedCategory methodService unicodeSource |
+        unicodeSource := source.
+        meta
+                ifNil: [
+                        behavior := Object _objectForOop: oop.
+                        meta := behavior isMeta ]
+                ifNotNil: [
+                        behavior := meta
+                                ifTrue: [ self theClass class ]
+                                ifFalse: [ self theClass ] ].
+        oop := behavior asOop.
+        self initializeMethodHistoryFor: unicodeSource.
+        updatedCategory := category ifNil: [ 'other' ].
+        compilationResult := self
+                jfpseaside_compileMethod: unicodeSource
+                behavior: behavior
+                symbolList: Rowan image symbolList
+                inCategory: updatedCategory asSymbol.
+        (gsNMethod := compilationResult key) isNil
+                ifTrue: [
+                        System
+                                signal: 1001
+                                args: (Array with: compilationResult value)
+                                signalDictionary: GemStoneError ].
+        organizer := ClassOrganizer new.
+        methodService := self
+                methodServiceFrom: gsNMethod
+                in: behavior
+                compiltationResult: compilationResult.
+        RowanCommandResult addResult: methodService.
+        self refreshFrom: self theClass. "make sure new methods have proper inst var refs"
+        RowanQueryService new
+                organizer: ClassOrganizer new;
+                hierarchyImplementorsOf: methodService selector
+                        inClass: methodService className.       "this will update hierarchy method indicators for client"
+        self selectedMethods: (Array with: methodService).
+        self updateDirtyState.
+        (methods includes: methodService)
+                ifFalse: [ methods add: methodService ].
+        methodService isTestMethod
+                ifTrue: [ self updateTests ].
+        self
+                updateSymbols:
+                        gsNMethod _selectorPool asArray , (Array with: methodService selector).
+        methodService addToMethodHistory.
+        RowanCommandResult addResult: self
+]
+
+{ #category : 'client commands' }
 RowanClassService >> jfpwor_compileMethod: methodString behavior: aBehavior symbolList: aSymbolList inCategory: categorySymbol [
         "returns (nil -> anArrayOfErrors) or (aGsNMethod -> compilerWarnings) or (aGsNMethod -> nil)"
 
